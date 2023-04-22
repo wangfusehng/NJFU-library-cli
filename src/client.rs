@@ -58,3 +58,19 @@ pub fn get_site_info(resp: Value) -> Option<String> {
         return Some(result);
     }
 }
+
+pub fn get_login_info(resp: Value) -> Option<String> {
+    if let true = resp["data"].is_null() {
+        return Some(resp["msg"].as_str()?.to_string());
+    }
+    let p = &resp["data"];
+    let id = p["id"].as_str().unwrap();
+    let name = p["name"].as_str().unwrap();
+    let dept = p["dept"].as_str().unwrap();
+
+    if id.is_empty() || name.is_empty() || dept.is_empty() {
+        return None;
+    } else {
+        Some(format!("{} {} {}", id, name, dept))
+    }
+}

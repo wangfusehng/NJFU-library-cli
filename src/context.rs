@@ -39,7 +39,7 @@ impl Context {
     }
 
     pub fn query_by_site(&self, site: String) -> Option<String> {
-        let dev_id = self.get_site_id(site.clone()).to_string();
+        let dev_id = floor::get_site_id(site.clone()).to_string();
 
         let mut body = HashMap::new();
         body.insert("dev_id", dev_id.as_str());
@@ -52,21 +52,14 @@ impl Context {
         return client::get_site_info(resp);
     }
 
-    pub fn get_site_id(&self, site: String) -> u32 {
-        let _floor = &site[0..4];
-        match &site[4..].parse() {
-            Ok(_site) => {
-                let floor = def::ROOMS.get(_floor);
-                match floor {
-                    Some(floor) => floor.1 + _site - 1,
-                    None => {
-                        panic!("no such site");
-                    }
-                }
-            }
-            Err(e) => {
-                panic!("parse room id error: {}", e);
-            }
-        }
+    pub fn login(&self, username: String, password: String) -> Option<String> {
+        let mut body = HashMap::new();
+        body.insert("act", "login");
+        body.insert("id", username.as_str());
+        body.insert("pwd", password.as_str());
+        let resp =
+            client::handle_post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
+
+        return client::get_login_info(resp);
     }
 }

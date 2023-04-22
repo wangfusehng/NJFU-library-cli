@@ -21,5 +21,13 @@ pub fn handle_action(action: Action) {
                 }
             }
         }
+
+        Login { username, password } => {
+            let context = context::Context::new();
+            match context.login(username, password) {
+                Some(result) => println!("{}", result),
+                None => println!("Login failed."),
+            }
+        }
     };
 }
