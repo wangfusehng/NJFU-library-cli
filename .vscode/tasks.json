@@ -1,0 +1,16 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cargo",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "run",
+                "q",
+                "--site",
+                "5F-A128"
+            ]
+        }
+    ]
+}
