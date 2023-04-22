@@ -23,7 +23,7 @@ lazy_static! {
         map.insert("7F-A", Floor::new(106658017, 106744855, 106745104, 224));
         map
     };
-    pub static ref HEADERS: reqwest::header::HeaderMap = {
+    pub static ref HEADERMAP: reqwest::header::HeaderMap = {
         let mut headermap = reqwest::header::HeaderMap::new();
         headermap.insert(
             reqwest::header::USER_AGENT,
