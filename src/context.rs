@@ -11,7 +11,7 @@ impl Context {
         Self {}
     }
 
-    pub fn query_by_name(&self, name: String) -> Option<String> {
+    pub fn query_by_name(&self, name: String) -> Option<(String, String, String, String)> {
         let mut body = HashMap::new();
         body.insert("byType", "devcls");
         body.insert("classkind", "8");
@@ -30,16 +30,14 @@ impl Context {
                 client::handle_post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), data).ok()?;
 
             match client::get_name_info(resp, name.clone()) {
-                Some(name_info) => {
-                    return Some(format!("{}: {}", room_name, name_info));
-                }
+                Some(info) => return Some(info),
                 None => continue,
             }
         }
         return None;
     }
 
-    pub fn query_by_site(&self, site: String) -> Option<String> {
+    pub fn query_by_site(&self, site: String) -> Option<site::Site> {
         let dev_id = floor::get_site_id(site.clone()).to_string();
 
         let mut body = HashMap::new();
@@ -53,7 +51,7 @@ impl Context {
         return client::get_site_info(resp);
     }
 
-    pub fn login(&self, username: String, password: String) -> Option<String> {
+    pub fn login(&self, username: String, password: String) -> Option<(String, String, String)> {
         let student = Student::new(username.clone(), password.clone());
         student.save_to_file().ok()?;
 
@@ -67,15 +65,15 @@ impl Context {
         return client::get_login_info(resp);
     }
 
-    pub fn status(&self) -> Option<String> {
+    pub fn status(& self) -> Option<(String, String, String,String)> {
         let mut student = Student::new("".to_string(), "".to_string());
         student.read_from_file().ok()?;
 
         //login
         let mut body = HashMap::new();
         body.insert("act", "login");
-        body.insert("id", student.username.as_str());
-        body.insert("pwd", student.password.as_str());
+        body.insert("id", student.username());
+        body.insert("pwd", student.password());
         client::handle_post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
 
         let mut body = HashMap::new();

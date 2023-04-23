@@ -30,7 +30,7 @@ Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
 content-type: application/x-www-form-urlencoded
 
-&dev_id=100500340
+&dev_id=100499756
 &date={{$datetime 'YYYY-MM-DD' 8 h}}
 &act=get_rsv_sta
 
@@ -51,28 +51,16 @@ https://libic.njfu.edu.cn/ClientWeb/pro/ajax/center.aspx
 ### 删除预约
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 ?act=del_resv
-&id=141496526
+&id=141943677
 
 ### 预约
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
-?dialogid=
-&dev_id=100499798
-&lab_id=
-&kind_id=
-&room_id=
+?dev_id=100499757
 &type=dev
-&prop=
-&test_id=
-&term=
-&Vnumber=
-&classkind=
-&test_name=
-&start=2023-04-08+20%3A00
-&end=2023-04-08+22%3A00
+&start=2023-04-23+20:00
+&end=2023-04-23+22:00
 &start_time=2000
 &end_time=2200
-&up_file=
-&memo=
 &act=set_resv
 
 ### 签退

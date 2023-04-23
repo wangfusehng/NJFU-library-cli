@@ -1,3 +1,4 @@
+use crate::utils::*;
 use lazy_static::lazy_static;
 use reqwest::header::HeaderMap;
 use scraper::{Html, Selector};
@@ -29,77 +30,68 @@ pub fn handle_post(
     Ok(resp)
 }
 
-pub fn get_name_info(resp: Value, name: String) -> Option<String> {
+pub fn get_name_info(resp: Value, name: String) -> Option<(String, String, String, String)> {
     let p = resp["data"].as_array()?;
     for i in p {
         if i["ts"][0]["owner"] == name.as_str() {
-            return Some(format!(
-                "{} {} start:{} end:{}",
-                i["name"], i["ts"][0]["owner"], i["ts"][0]["start"], i["ts"][0]["end"]
+            return Some((
+                i["name"].as_str()?.to_string(),
+                i["ts"][0]["owner"].as_str()?.to_string(),
+                i["ts"][0]["start"].as_str()?.to_string(),
+                i["ts"][0]["end"].as_str()?.to_string(),
             ));
         }
     }
     return None;
 }
 
-pub fn get_site_info(resp: Value) -> Option<String> {
-    let p = resp["data"].as_array().unwrap();
-    let site = p[0].to_owned();
-    let ts = site["ts"].as_array().unwrap();
-
-    let mut result: String = String::new();
-
-    if ts.len() != 0 {
-        for i in ts {
-            result.push_str(
-                format!(
-                    "site:{} owner:{} start:{} end:{}",
-                    site["name"], i["owner"], i["start"], i["end"]
+pub fn get_site_info(resp: Value) -> Option<site::Site> {
+    let data = resp["data"].as_array()?;
+    let dev_name = data[0]["devName"].as_str()?.to_string();
+    let dev_id = data[0]["devId"].as_str()?.to_string();
+    let ts = data[0]["ts"].as_array()?;
+    let user_list: Option<Vec<_>> = Some(
+        ts.iter()
+            .map(|x| {
+                (
+                    x["owner"].to_string(),
+                    x["start"].to_string(),
+                    x["end"].to_string(),
+                    x["status"].to_string(),
                 )
-                .as_str(),
-            );
-        }
-    }
-    if result.is_empty() {
-        return None;
-    } else {
-        return Some(result);
-    }
+            })
+            .collect(),
+    );
+
+    Some(site::Site::new(dev_name, dev_id, user_list))
 }
 
-pub fn get_login_info(resp: Value) -> Option<String> {
-    if let true = resp["data"].is_null() {
-        return Some(resp["msg"].as_str()?.to_string());
-    }
-    let p = &resp["data"];
-    let id = p["id"].as_str().unwrap();
-    let name = p["name"].as_str().unwrap();
-    let dept = p["dept"].as_str().unwrap();
-
-    if id.is_empty() || name.is_empty() || dept.is_empty() {
-        return None;
-    } else {
-        Some(format!("{} {} {}", id, name, dept))
-    }
+pub fn get_login_info(resp: Value) -> Option<(String, String, String)> {
+    let id = resp["data"]["id"].as_str()?.to_string();
+    let name = resp["data"]["name"].as_str()?.to_string();
+    let dept = resp["data"]["dept"].as_str()?.to_string();
+    Some((id, name, dept))
 }
 
-pub fn get_status_info(resp: Value) -> Option<String> {
-    let document = Html::parse_fragment(resp["msg"].as_str()?);
+pub fn get_status_info(
+    resp: Value,
+) -> Option<(String, String, String,String)> {
+    let msg = Html::parse_fragment(resp["msg"].as_str()?);
 
-    let a_selector = Selector::parse(".box a").unwrap();
-    let time_selector = Selector::parse(".text-primary").unwrap();
+    let a_selector = Selector::parse(".box a").ok()?;
+    let time_selector = Selector::parse(".text-primary").ok()?;
+    let id_selector = Selector::parse(".click").ok()?;
 
-    if let None = document.select(&a_selector).nth(0) {
-        return Some(format!("{:?}", document));
-    } else if let None = document.select(&time_selector).next() {
-        return Some(format!("{:?}", document));
-    }
+    let site = msg.select(&a_selector).nth(0)?.inner_html();
+    let start_time = msg.select(&time_selector).nth(0)?.inner_html();
+    let end_time = msg.select(&time_selector).nth(1)?.inner_html();
+    let id_class = msg.select(&id_selector).nth(0)?.html().to_string();
+    let id = id_class
+        .split("id=")
+        .nth(1)?
+        .split("\"")
+        .nth(1)?
+        .to_string();
 
-    let site = document.select(&a_selector).nth(0)?.inner_html();
-    let place = document
-        .select(&time_selector)
-        .next()?
-        .text()
-        .collect::<Vec<_>>();
-    Some(format!("{:?} {:?}", site, place))
+    Some((site, id, start_time,end_time))
 }

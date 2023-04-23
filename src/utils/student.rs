@@ -4,10 +4,10 @@ use std::io::Write;
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Student {
-    pub username: String,
-    pub password: String,
+    username: String,
+    password: String,
 }
 
 impl Student {
@@ -35,5 +35,21 @@ impl Student {
         self.password = student.password;
 
         Ok(())
+    }
+
+    pub fn username(&self) -> &str {
+        self.username.as_ref()
+    }
+
+    pub fn set_username(&mut self, username: String) {
+        self.username = username;
+    }
+
+    pub fn password(&self) -> &str {
+        self.password.as_ref()
+    }
+
+    pub fn set_password(&mut self, password: String) {
+        self.password = password;
     }
 }
