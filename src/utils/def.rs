@@ -35,6 +35,10 @@ lazy_static! {
             reqwest::header::CONTENT_TYPE,
             "application/x-www-form-urlencoded".parse().unwrap(),
         );
+        headermap.insert(
+            reqwest::header::CACHE_CONTROL,
+            reqwest::header::HeaderValue::from_static("private"),
+        );
         headermap
     };
 }

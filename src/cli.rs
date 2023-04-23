@@ -12,7 +12,8 @@ pub enum Action {
         site: Option<String>,
     },
 
-    #[structopt(alias = "q")]
+    ///Login library site
+    #[structopt(alias = "l")]
     Login {
         #[structopt(short, long)]
         username: String,
@@ -20,6 +21,9 @@ pub enum Action {
         #[structopt(short, long)]
         password: String,
     },
+    ///Logout personal status
+    #[structopt(alias = "s")]
+    Status {},
 }
 
 #[derive(Debug, StructOpt)]

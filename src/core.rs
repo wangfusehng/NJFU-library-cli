@@ -29,5 +29,13 @@ pub fn handle_action(action: Action) {
                 None => println!("Login failed."),
             }
         }
+
+        Status {} => {
+            let context = context::Context::new();
+            match context.status() {
+                Some(result) => println!("{}", result),
+                None => println!("no data."),
+            }
+        }
     };
 }

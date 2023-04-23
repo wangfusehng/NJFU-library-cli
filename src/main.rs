@@ -11,7 +11,7 @@ use structopt::StructOpt;
 
 #[tokio::main]
 async fn main() {
-    set_var("RUST_LOG", "debug");
+    set_var("RUST_LOG", "info");
     env_logger::init();
 
     // Get the command-line arguments.

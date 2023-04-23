@@ -30,7 +30,7 @@ Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
 content-type: application/x-www-form-urlencoded
 
-&dev_id=100500301
+&dev_id=100500340
 &date={{$datetime 'YYYY-MM-DD' 8 h}}
 &act=get_rsv_sta
 

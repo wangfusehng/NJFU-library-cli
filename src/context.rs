@@ -1,4 +1,5 @@
 use crate::client;
+use crate::utils::student::Student;
 use crate::utils::*;
 use log::*;
 use std::collections::HashMap;
@@ -24,7 +25,7 @@ impl Context {
             let mut data = body.clone();
             data.insert("room_id", room_id.as_str());
 
-            debug!("querying room {}", room_name);
+            info!("querying room {}", room_name);
             let resp =
                 client::handle_post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), data).ok()?;
 
@@ -53,6 +54,9 @@ impl Context {
     }
 
     pub fn login(&self, username: String, password: String) -> Option<String> {
+        let student = Student::new(username.clone(), password.clone());
+        student.save_to_file().ok()?;
+
         let mut body = HashMap::new();
         body.insert("act", "login");
         body.insert("id", username.as_str());
@@ -61,5 +65,27 @@ impl Context {
             client::handle_post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
 
         return client::get_login_info(resp);
+    }
+
+    pub fn status(&self) -> Option<String> {
+        let mut student = Student::new("".to_string(), "".to_string());
+        student.read_from_file().ok()?;
+
+        //login
+        let mut body = HashMap::new();
+        body.insert("act", "login");
+        body.insert("id", student.username.as_str());
+        body.insert("pwd", student.password.as_str());
+        client::handle_post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
+
+        let mut body = HashMap::new();
+        body.insert("act", "get_History_resv");
+        body.insert("strat", "90");
+        body.insert("StatFlag", "New");
+
+        let resp =
+            client::handle_post(def::CENTER_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
+
+        return client::get_status_info(resp);
     }
 }
