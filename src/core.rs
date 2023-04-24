@@ -5,10 +5,11 @@ use log::*;
 
 pub fn handle_action(action: Action) {
     debug!("Action: {:?}", action);
+
+    let context = context::Context::new();
     // Perform the action.
     match action {
         Query { name, site } => {
-            let context = context::Context::new();
             if name.is_some() {
                 match context.query_by_name(name.unwrap()) {
                     Some(result) => println!("{:?}", result),
@@ -23,18 +24,23 @@ pub fn handle_action(action: Action) {
         }
 
         Login { username, password } => {
-            let context = context::Context::new();
             match context.login(username, password) {
                 Some(result) => println!("{:?}", result),
                 None => println!("Login failed."),
             }
         }
 
-        Status {} => {
-            let context = context::Context::new();
+        State {} => {
             match context.status() {
                 Some(result) => println!("{:?}", result),
                 None => println!("no data."),
+            }
+        }
+
+        Cancel { id } => {
+            match context.cancel(id) {
+                Some(result) => println!("{:?}", result),
+                None => println!("Cancel failed."),
             }
         }
     };

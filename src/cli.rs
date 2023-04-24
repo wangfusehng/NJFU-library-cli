@@ -24,7 +24,14 @@ pub enum Action {
     },
     ///Logout personal status
     #[structopt(alias = "s")]
-    Status {},
+    State {},
+
+    ///cancel the reservation
+    #[structopt(alias = "c")]
+    Cancel {
+        #[structopt(short, long)]
+        id: String,
+    },
 }
 
 #[derive(Debug, StructOpt)]

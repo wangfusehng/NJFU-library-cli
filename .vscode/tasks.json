@@ -2,14 +2,45 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "cargo",
+            "label": "qeury name",
             "type": "shell",
             "command": "cargo",
             "args": [
                 "run",
                 "q",
                 "--name",
-                "赵玉驰"
+                "蒋雨峰"
+            ]
+        },
+        {
+            "label": "qeury site",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "run",
+                "q",
+                "--site",
+                "5F-A500"
+            ]
+        },
+        {
+            "label": "state",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "run",
+                "s"
+            ]
+        },
+        {
+            "label": "cancel",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "run",
+                "c",
+                "-i",
+                "141966998"
             ]
         }
     ]

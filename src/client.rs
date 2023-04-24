@@ -143,24 +143,45 @@ pub fn get_login_info(resp: Value) -> Option<Student> {
 /// - resp: Value
 ///
 /// # return:
-/// - Option<State>
+/// - Option<Vec<State>>
 
-pub fn get_state_info(resp: Value) -> Option<State> {
+pub fn get_state_info(resp: Value) -> Option<Vec<State>> {
     let msg = Html::parse_fragment(resp["msg"].as_str()?);
+    let context_selector = Selector::parse(".box").ok()?;
+    let context = msg.select(&context_selector);
 
-    let a_selector = Selector::parse(".box a").ok()?;
-    let time_selector = Selector::parse(".text-primary").ok()?;
-    let id_selector = Selector::parse(".click").ok()?;
+    let mut ret: Vec<State> = Vec::new();
 
-    let site = msg.select(&a_selector).nth(0)?.inner_html();
-    let start_time = msg.select(&time_selector).nth(0)?.inner_html();
-    let end_time = msg.select(&time_selector).nth(1)?.inner_html();
-    let id_class = msg.select(&id_selector).nth(0)?.html().to_string();
-    let id = id_class
-        .split("id=")
-        .nth(1)?
-        .split("\"")
-        .nth(1)?
-        .to_string();
-    Some(State::new(id, site, start_time, end_time))
+    for item in context {
+        let a_selector = Selector::parse(".box a").ok()?;
+        let time_selector = Selector::parse(".text-primary").ok()?;
+        let id_selector = Selector::parse(".click").ok()?;
+        let site = item.select(&a_selector).nth(0)?.inner_html();
+        let start_time = item.select(&time_selector).nth(0)?.inner_html();
+        let end_time = item.select(&time_selector).nth(1)?.inner_html();
+        let id_class = item.select(&id_selector).nth(0)?.html().to_string();
+        let id = id_class
+            .split("id=")
+            .nth(1)?
+            .split("\"")
+            .nth(1)?
+            .to_string();
+
+        ret.push(State::new(id, site, start_time, end_time))
+    }
+    Some(ret)
+}
+
+/// # get_cancel_info
+/// get cancel info from response
+///
+/// # params:
+/// - resp: Value
+/// # return:
+/// - Option<String>
+
+pub fn get_cancel_info(resp: Value) -> Option<String> {
+    
+    let msg = resp["msg"].as_str()?.to_string();
+    Some(msg)
 }

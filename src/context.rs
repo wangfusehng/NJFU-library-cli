@@ -33,8 +33,9 @@ impl Context {
             data.insert("room_id", room_id.as_str());
 
             info!("querying room {}", room_name);
-            let resp = client::handle_post(def::DEVICE_URL.as_str(), client::HEADERMAP.clone(), data)
-                .expect("net error when querying room");
+            let resp =
+                client::handle_post(def::DEVICE_URL.as_str(), client::HEADERMAP.clone(), data)
+                    .expect("net error when querying room");
 
             match client::get_name_info(resp, name.clone()) {
                 Some(info) => {
@@ -50,7 +51,7 @@ impl Context {
     }
 
     pub fn query_by_site(&self, site: String) -> Option<Site> {
-        let dev_id = floor::get_site_id(site.clone()).to_string();
+        let dev_id = floor::get_site_id(site.clone()).ok()?;
 
         let mut body = HashMap::new();
         body.insert("dev_id", dev_id.as_str());
@@ -64,11 +65,14 @@ impl Context {
         client::get_site_info(resp)
     }
 
-    fn handle_login(&self, username: String, password: String) -> Option<Student> {
+    fn handle_login(&self) -> Option<Student> {
+        let mut student = Info::new("".to_string(), "".to_string());
+        student.read_from_file().expect("read student info failed");
+
         let mut body = HashMap::new();
         body.insert("act", "login");
-        body.insert("id", username.as_str());
-        body.insert("pwd", password.as_str());
+        body.insert("id", student.username());
+        body.insert("pwd", student.password());
         let resp = client::handle_post(def::LOGIN_URL.as_str(), client::HEADERMAP.clone(), body)
             .expect("net error when login");
 
@@ -78,17 +82,12 @@ impl Context {
     pub fn login(&self, username: String, password: String) -> Option<Student> {
         let student = Info::new(username.clone(), password.clone());
         student.save_to_file().expect("save student info failed");
-        self.handle_login(username, password)
+        self.handle_login()
     }
 
-    pub fn status(&self) -> Option<State> {
+    pub fn status(&self) -> Option<Vec<State>> {
         //login
-        let mut student = Info::new("".to_string(), "".to_string());
-        student.read_from_file().expect("read student info failed");
-        self.handle_login(
-            student.username().to_string(),
-            student.password().to_string(),
-        );
+        self.handle_login();
 
         let mut body = HashMap::new();
         body.insert("act", "get_History_resv");
@@ -99,5 +98,19 @@ impl Context {
             client::handle_post(def::CENTER_URL.as_str(), client::HEADERMAP.clone(), body).ok()?;
 
         client::get_state_info(resp)
+    }
+
+    pub fn cancel(&self, id: String) -> Option<String> {
+        //login
+        self.handle_login();
+
+        let mut body = HashMap::new();
+        body.insert("act", "del_resv");
+        body.insert("id", id.as_str());
+
+        let resp =
+            client::handle_post(def::RESERVE_URL.as_str(), client::HEADERMAP.clone(), body).ok()?;
+
+        client::get_cancel_info(resp)
     }
 }

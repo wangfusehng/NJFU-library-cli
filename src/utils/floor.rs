@@ -9,21 +9,16 @@ impl Floor {
     }
 }
 
-
-pub fn get_site_id(site: String) -> u32 {
+pub fn get_site_id(site: String) -> Result<String, Box<dyn std::error::Error>> {
     let _floor = &site[0..4];
     match &site[4..].parse() {
         Ok(_site) => {
             let floor = def::ROOMS.get(_floor);
             match floor {
-                Some(floor) => floor.1 + _site - 1,
-                None => {
-                    panic!("no such site");
-                }
+                Some(floor) => Ok((floor.1 + _site - 1).to_string()),
+                None => Err("parse room id error".into()),
             }
         }
-        Err(e) => {
-            panic!("parse room id error: {}", e);
-        }
+        Err(_) => Err("parse site id error".into()),
     }
 }
