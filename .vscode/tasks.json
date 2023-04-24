@@ -42,6 +42,19 @@
                 "-i",
                 "141966998"
             ]
+        },
+        {
+            "label": "login",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "run",
+                "l",
+                "-u",
+                "200855110",
+                "-p",
+                "njfu10003x!"
+            ]
         }
     ]
 }

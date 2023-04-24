@@ -15,7 +15,14 @@ pub fn get_site_id(site: String) -> Result<String, Box<dyn std::error::Error>> {
         Ok(_site) => {
             let floor = def::ROOMS.get(_floor);
             match floor {
-                Some(floor) => Ok((floor.1 + _site - 1).to_string()),
+                Some(floor) => {
+                    let id = floor.1 + _site - 1;
+                    if id >= floor.2 && id <= floor.3 {
+                        Ok(id.to_string())
+                    } else {
+                        Err("parse room id error".into())
+                    }
+                }
                 None => Err("parse room id error".into()),
             }
         }

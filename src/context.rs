@@ -51,18 +51,26 @@ impl Context {
     }
 
     pub fn query_by_site(&self, site: String) -> Option<Site> {
-        let dev_id = floor::get_site_id(site.clone()).ok()?;
+        let dev_id = floor::get_site_id(site.clone());
+        match dev_id {
+            Ok(dev_id) => {
+                let mut body = HashMap::new();
+                body.insert("dev_id", dev_id.as_str());
+                body.insert("act", "get_rsv_sta");
+                let date = time::get_date("%Y-%m-%d");
+                body.insert("date", date.as_str());
 
-        let mut body = HashMap::new();
-        body.insert("dev_id", dev_id.as_str());
-        body.insert("act", "get_rsv_sta");
-        let date = time::get_date("%Y-%m-%d");
-        body.insert("date", date.as_str());
+                let resp =
+                    client::handle_post(def::DEVICE_URL.as_str(), client::HEADERMAP.clone(), body)
+                        .expect("net error when querying site");
 
-        let resp = client::handle_post(def::DEVICE_URL.as_str(), client::HEADERMAP.clone(), body)
-            .expect("net error when querying site");
-
-        client::get_site_info(resp)
+                client::get_site_info(resp)
+            }
+            Err(e) => {
+                error!("error when querying site: {}", e);
+                return None;
+            }
+        }
     }
 
     fn handle_login(&self) -> Option<Student> {
