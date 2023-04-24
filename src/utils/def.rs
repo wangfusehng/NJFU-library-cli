@@ -1,4 +1,4 @@
-use super::floor::Floor;
+use crate::role::floor::Floor;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 

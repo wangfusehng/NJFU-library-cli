@@ -3,10 +3,10 @@
 /// The information includes the owner of the time slot, the start time, the end time and the status of the time slot.
 #[derive(Debug)]
 pub struct Ts{
-    pub owner: String,
-    pub start: String,
-    pub end: String,
-    pub status: String,
+    owner: String,
+    start: String,
+    end: String,
+    status: String,
 }
 
 impl Ts{
@@ -17,5 +17,37 @@ impl Ts{
             end,
             status,
         }
+    }
+
+    pub fn owner(&self) -> &str {
+        self.owner.as_ref()
+    }
+
+    pub fn set_owner(&mut self, owner: String) {
+        self.owner = owner;
+    }
+
+    pub fn start(&self) -> &str {
+        self.start.as_ref()
+    }
+
+    pub fn set_start(&mut self, start: String) {
+        self.start = start;
+    }
+
+    pub fn end(&self) -> &str {
+        self.end.as_ref()
+    }
+
+    pub fn set_end(&mut self, end: String) {
+        self.end = end;
+    }
+
+    pub fn status(&self) -> &str {
+        self.status.as_ref()
+    }
+
+    pub fn set_status(&mut self, status: String) {
+        self.status = status;
     }
 }

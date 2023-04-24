@@ -1,10 +1,11 @@
 use crate::client;
 use crate::role::info::Info;
-use crate::role::site::Site;
+use crate::role::site::*;
 use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
-use crate::utils::*;
+use crate::utils::def;
+use crate::utils::time;
 use log::*;
 use std::collections::HashMap;
 
@@ -31,8 +32,8 @@ impl Context {
 
         let mut ret: Vec<Ts> = Vec::new();
 
-        for (room_name, room_id) in def::ROOMS.iter() {
-            let room_id = room_id.0.to_string();
+        for (room_name, floor) in def::ROOMS.iter() {
+            let room_id = floor.room_id().to_string();
             let mut data = body.clone();
             data.insert("room_id", room_id.as_str());
 
@@ -56,7 +57,7 @@ impl Context {
 
     /// # Query the information of a site.
     pub fn query_by_site(&self, site: String) -> Option<Site> {
-        let dev_id = floor::get_site_id(site.clone());
+        let dev_id = get_site_id(site.clone());
         match dev_id {
             Ok(dev_id) => {
                 let mut body = HashMap::new();
@@ -136,7 +137,7 @@ impl Context {
         //login
         self.handle_login();
 
-        let id = floor::get_site_id(site);
+        let id = get_site_id(site);
         match id {
             Ok(id) => {
                 let mut body = HashMap::new();

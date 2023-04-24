@@ -17,4 +17,36 @@ impl State {
             end_time,
         }
     }
+
+    pub fn id(&self) -> &str {
+        self.id.as_ref()
+    }
+
+    pub fn set_id(&mut self, id: String) {
+        self.id = id;
+    }
+
+    pub fn site(&self) -> &str {
+        self.site.as_ref()
+    }
+
+    pub fn set_site(&mut self, site: String) {
+        self.site = site;
+    }
+
+    pub fn start_time(&self) -> &str {
+        self.start_time.as_ref()
+    }
+
+    pub fn set_start_time(&mut self, start_time: String) {
+        self.start_time = start_time;
+    }
+
+    pub fn end_time(&self) -> &str {
+        self.end_time.as_ref()
+    }
+
+    pub fn set_end_time(&mut self, end_time: String) {
+        self.end_time = end_time;
+    }
 }
