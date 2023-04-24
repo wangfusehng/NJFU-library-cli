@@ -12,7 +12,7 @@
 @5F-A=100455358
 @6F-A= 100455360 
 @7F-A= 106658017
-@room_id = {{5F-A}}
+@room_id = {{4F-A}}
 
 ### 查询图书馆
 Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx

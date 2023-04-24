@@ -1,5 +1,6 @@
 use structopt::StructOpt;
 
+///Command line arguments
 #[derive(Debug, StructOpt)]
 pub enum Action {
     ///Query library site or student

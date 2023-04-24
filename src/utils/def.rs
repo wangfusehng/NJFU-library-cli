@@ -3,11 +3,17 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 lazy_static! {
+    ///Library base url
     pub static ref BASE_URL: String = String::from("https://libic.njfu.edu.cn/ClientWeb/pro/ajax/");
+    ///Library device url
     pub static ref DEVICE_URL: String = BASE_URL.to_owned() + "device.aspx";
+    ///Library login url
     pub static ref LOGIN_URL: String = BASE_URL.to_owned() + "login.aspx";
+    ///Library center url
     pub static ref CENTER_URL: String = BASE_URL.to_owned() + "center.aspx";
+    /// Library reserve url
     pub static ref RESERVE_URL: String = BASE_URL.to_owned() + "reserve.aspx";
+    /// Library room info
     pub static ref ROOMS: HashMap<&'static str, Floor> = {
         let mut map = HashMap::new();
         map.insert("2F-A", Floor::new(100455344, 100455361, 100455800, 440));
@@ -22,23 +28,5 @@ lazy_static! {
         map.insert("6F-A", Floor::new(100455360, 100500602, 100500949, 348));
         map.insert("7F-A", Floor::new(106658017, 106744855, 106745104, 224));
         map
-    };
-    pub static ref HEADERMAP: reqwest::header::HeaderMap = {
-        let mut headermap = reqwest::header::HeaderMap::new();
-        headermap.insert(
-            reqwest::header::USER_AGENT,
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-                .parse()
-                .unwrap(),
-        );
-        headermap.insert(
-            reqwest::header::CONTENT_TYPE,
-            "application/x-www-form-urlencoded".parse().unwrap(),
-        );
-        headermap.insert(
-            reqwest::header::CACHE_CONTROL,
-            reqwest::header::HeaderValue::from_static("private"),
-        );
-        headermap
     };
 }

@@ -4,17 +4,35 @@ use std::io::Write;
 
 use serde::{Deserialize, Serialize};
 
+/// # Info struct
+/// Info struct is used to store the information of the user's state.
+/// # parameters
+///   username: the username of the user
+///   password: the password of the user
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Student {
+pub struct Info {
     username: String,
     password: String,
 }
 
-impl Student {
+impl Info {
+    /// # new
+    /// create a new Info struct
+    /// # parameters
+    ///  username: the username of the user
+    ///  password: the password of the user
+    /// # return
+    /// Info struct
+    /// # example
+    /// ```rust
+    /// use njfu_library::role::info::Info;
+    /// let info = Info::new("username".to_string(), "password".to_string());
+    /// ```
     pub fn new(username: String, password: String) -> Self {
-        Student { username, password }
+        Info { username, password }
     }
-
+    /// # save_to_file
+    /// save the user's state to the file
     pub fn save_to_file(&self) -> Result<(), Box<dyn std::error::Error>> {
         let root = home_dir().unwrap();
         let path = root.join(".njfu-library-cli.json");
@@ -25,12 +43,14 @@ impl Student {
         Ok(())
     }
 
+    /// # read_from_file
+    /// read the user's state from the file
     pub fn read_from_file(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         let root = home_dir().unwrap();
         let path = root.join(".njfu-library-cli.json");
 
         let input = File::open(path)?;
-        let student: Student = serde_json::from_reader(input)?;
+        let student: Info = serde_json::from_reader(input)?;
         self.username = student.username;
         self.password = student.password;
 

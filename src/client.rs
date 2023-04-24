@@ -1,4 +1,7 @@
-use crate::utils::*;
+use crate::role::site::Site;
+use crate::role::state::State;
+use crate::role::student::Student;
+use crate::role::ts::Ts;
 use lazy_static::lazy_static;
 use reqwest::header::HeaderMap;
 use scraper::{Html, Selector};
@@ -6,6 +9,25 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 lazy_static! {
+/// rewest header
+    pub static ref HEADERMAP: reqwest::header::HeaderMap = {
+        let mut headermap = reqwest::header::HeaderMap::new();
+        headermap.insert(
+            reqwest::header::USER_AGENT,
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+                .parse()
+                .unwrap(),
+        );
+        headermap.insert(
+            reqwest::header::CONTENT_TYPE,
+            "application/x-www-form-urlencoded".parse().unwrap(),
+        );
+        headermap.insert(
+            reqwest::header::CACHE_CONTROL,
+            reqwest::header::HeaderValue::from_static("private"),
+        );
+        headermap
+    };
     pub static ref CLIENT: reqwest::blocking::Client = {
         let client = reqwest::blocking::ClientBuilder::new()
             .cookie_store(true)
@@ -16,6 +38,15 @@ lazy_static! {
     };
 }
 
+/// # reqwest post
+///
+/// # params:
+/// - url: &str
+/// - headers: HeaderMap
+/// - body: HashMap<&str, &str>
+///
+/// # return:
+/// - Result<Value, reqwest::Error>
 pub fn handle_post(
     url: &str,
     headers: HeaderMap,
@@ -30,22 +61,47 @@ pub fn handle_post(
     Ok(resp)
 }
 
-pub fn get_name_info(resp: Value, name: String) -> Option<(String, String, String, String)> {
+/// # get_name_info
+///
+/// # params:
+/// - resp: Value
+/// - name: String
+///
+/// # return:
+/// - Option<Vec<Ts>>
+
+pub fn get_name_info(resp: Value, name: String) -> Option<Vec<Ts>> {
+    let mut ret: Vec<Ts> = Vec::new();
     let p = resp["data"].as_array()?;
     for i in p {
-        if i["ts"][0]["owner"] == name.as_str() {
-            return Some((
-                i["name"].as_str()?.to_string(),
-                i["ts"][0]["owner"].as_str()?.to_string(),
-                i["ts"][0]["start"].as_str()?.to_string(),
-                i["ts"][0]["end"].as_str()?.to_string(),
-            ));
+        let ts = i["ts"].as_array()?;
+        if ts.len() == 0 {
+            continue;
+        }
+        for j in ts {
+            let owner = j["owner"].as_str()?.to_string();
+            if owner == name {
+                let start = j["start"].as_str()?.to_string();
+                let end = j["end"].as_str()?.to_string();
+                let state = j["state"].as_str()?.to_string();
+                ret.push(Ts::new(owner.clone(), start, end, state));
+            }
         }
     }
-    return None;
+    if ret.len() == 0 {
+        return None;
+    }
+    return Some(ret);
 }
 
-pub fn get_site_info(resp: Value) -> Option<site::Site> {
+/// # get_site_info
+///
+/// # params:
+/// - resp: Value
+///
+/// # return:
+/// - Option<Site>
+pub fn get_site_info(resp: Value) -> Option<Site> {
     let data = resp["data"].as_array()?;
     let dev_name = data[0]["devName"].as_str()?.to_string();
     let dev_id = data[0]["devId"].as_str()?.to_string();
@@ -53,7 +109,7 @@ pub fn get_site_info(resp: Value) -> Option<site::Site> {
     let user_list: Option<Vec<_>> = Some(
         ts.iter()
             .map(|x| {
-                (
+                Ts::new(
                     x["owner"].to_string(),
                     x["start"].to_string(),
                     x["end"].to_string(),
@@ -63,19 +119,33 @@ pub fn get_site_info(resp: Value) -> Option<site::Site> {
             .collect(),
     );
 
-    Some(site::Site::new(dev_name, dev_id, user_list))
+    Some(Site::new(dev_name, dev_id, user_list))
 }
 
-pub fn get_login_info(resp: Value) -> Option<(String, String, String)> {
+/// # get_login_info
+/// get login info from response
+///
+/// # params:
+/// - resp: Value
+///
+/// # return:
+/// - Option<Student>
+pub fn get_login_info(resp: Value) -> Option<Student> {
     let id = resp["data"]["id"].as_str()?.to_string();
     let name = resp["data"]["name"].as_str()?.to_string();
-    let dept = resp["data"]["dept"].as_str()?.to_string();
-    Some((id, name, dept))
+    Some(Student::new(id, name))
 }
 
-pub fn get_status_info(
-    resp: Value,
-) -> Option<(String, String, String,String)> {
+/// # get_state_info
+/// get state info from response
+///
+/// # params:
+/// - resp: Value
+///
+/// # return:
+/// - Option<State>
+
+pub fn get_state_info(resp: Value) -> Option<State> {
     let msg = Html::parse_fragment(resp["msg"].as_str()?);
 
     let a_selector = Selector::parse(".box a").ok()?;
@@ -92,6 +162,5 @@ pub fn get_status_info(
         .split("\"")
         .nth(1)?
         .to_string();
-
-    Some((site, id, start_time,end_time))
+    Some(State::new(id, site, start_time, end_time))
 }

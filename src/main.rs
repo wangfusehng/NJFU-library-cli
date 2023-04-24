@@ -3,6 +3,7 @@ mod client;
 mod context;
 mod core;
 mod utils;
+mod role;
 
 use crate::core::handle_action;
 use cli::CommandLineArgs;
