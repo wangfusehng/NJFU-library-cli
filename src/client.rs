@@ -9,7 +9,7 @@ use serde_json::Value;
 use std::collections::HashMap;
 
 lazy_static! {
-/// rewest header
+    /// rewest header
     pub static ref HEADERMAP: reqwest::header::HeaderMap = {
         let mut headermap = reqwest::header::HeaderMap::new();
         headermap.insert(
@@ -39,14 +39,6 @@ lazy_static! {
 }
 
 /// # reqwest post
-///
-/// # params:
-/// - url: &str
-/// - headers: HeaderMap
-/// - body: HashMap<&str, &str>
-///
-/// # return:
-/// - Result<Value, reqwest::Error>
 pub fn handle_post(
     url: &str,
     headers: HeaderMap,
@@ -63,14 +55,6 @@ pub fn handle_post(
 }
 
 /// # get_name_info
-///
-/// # params:
-/// - resp: Value
-/// - name: String
-///
-/// # return:
-/// - Option<Vec<Ts>>
-
 pub fn get_name_info(resp: Value, name: String) -> Option<Vec<Ts>> {
     let mut ret: Vec<Ts> = Vec::new();
     let p = resp["data"].as_array()?;
@@ -96,12 +80,6 @@ pub fn get_name_info(resp: Value, name: String) -> Option<Vec<Ts>> {
 }
 
 /// # get_site_info
-///
-/// # params:
-/// - resp: Value
-///
-/// # return:
-/// - Option<Site>
 pub fn get_site_info(resp: Value) -> Option<Site> {
     let data = resp["data"].as_array()?;
     let dev_name = data[0]["devName"].as_str()?.to_string();
@@ -124,13 +102,6 @@ pub fn get_site_info(resp: Value) -> Option<Site> {
 }
 
 /// # get_login_info
-/// get login info from response
-///
-/// # params:
-/// - resp: Value
-///
-/// # return:
-/// - Option<Student>
 pub fn get_login_info(resp: Value) -> Option<Student> {
     let id = resp["data"]["id"].as_str()?.to_string();
     let name = resp["data"]["name"].as_str()?.to_string();
@@ -138,14 +109,6 @@ pub fn get_login_info(resp: Value) -> Option<Student> {
 }
 
 /// # get_state_info
-/// get state info from response
-///
-/// # params:
-/// - resp: Value
-///
-/// # return:
-/// - Option<Vec<State>>
-
 pub fn get_state_info(resp: Value) -> Option<Vec<State>> {
     let msg = Html::parse_fragment(resp["msg"].as_str()?);
     let context_selector = Selector::parse(".box").ok()?;
@@ -180,25 +143,12 @@ pub fn get_state_info(resp: Value) -> Option<Vec<State>> {
 }
 
 /// # get_cancel_info
-/// get cancel info from response
-///
-/// # params:
-/// - resp: Value
-/// # return:
-/// - Option<String>
-
 pub fn get_cancel_info(resp: Value) -> Option<String> {
     let msg = resp["msg"].as_str()?.to_string();
     Some(msg)
 }
 
 /// # get_reserve_info
-/// get login info from response
-/// # params:
-/// - resp: Value
-/// # return:
-/// - Option<String>
-
 pub fn get_reserve_info(resp: Value) -> Option<String> {
     let msg = resp["msg"].as_str()?.to_string();
     Some(msg)

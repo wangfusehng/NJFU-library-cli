@@ -8,14 +8,18 @@ use crate::utils::*;
 use log::*;
 use std::collections::HashMap;
 
+/// The context of the program.
 #[derive(Debug)]
 pub struct Context {}
 
 impl Context {
+    /// # Context constructor.
+    /// Create a new context.
     pub fn new() -> Self {
         Self {}
     }
 
+    /// # Query the information of a student.
     pub fn query_by_name(&self, name: String) -> Option<Vec<Ts>> {
         let mut body = HashMap::new();
         body.insert("byType", "devcls");
@@ -50,6 +54,7 @@ impl Context {
         return Some(ret);
     }
 
+    /// # Query the information of a site.
     pub fn query_by_site(&self, site: String) -> Option<Site> {
         let dev_id = floor::get_site_id(site.clone());
         match dev_id {
@@ -73,6 +78,7 @@ impl Context {
         }
     }
 
+    /// # handle actual login to the server.
     fn handle_login(&self) -> Option<Student> {
         let mut student = Info::new("".to_string(), "".to_string());
         student.read_from_file().expect("read student info failed");
@@ -87,12 +93,14 @@ impl Context {
         client::get_login_info(resp)
     }
 
+    /// # login to the server.
     pub fn login(&self, username: String, password: String) -> Option<Student> {
         let student = Info::new(username.clone(), password.clone());
         student.save_to_file().expect("save student info failed");
         self.handle_login()
     }
 
+    /// # query the user status.
     pub fn status(&self) -> Option<Vec<State>> {
         //login
         self.handle_login();
@@ -108,6 +116,7 @@ impl Context {
         client::get_state_info(resp)
     }
 
+    /// # cancel the reservation.
     pub fn cancel(&self, id: String) -> Option<String> {
         //login
         self.handle_login();
@@ -122,6 +131,7 @@ impl Context {
         client::get_cancel_info(resp)
     }
 
+    /// # reserve the site.
     pub fn reserve(&self, site: String, day: String, start: String, end: String) -> Option<String> {
         //login
         self.handle_login();
@@ -136,7 +146,7 @@ impl Context {
                 let end_time = format!("{} {}", day, end);
                 body.insert("start", start_time.as_str());
                 body.insert("end", end_time.as_str());
-                
+
                 let resp =
                     client::handle_post(def::RESERVE_URL.as_str(), client::HEADERMAP.clone(), body);
                 client::get_reserve_info(resp.ok()?)

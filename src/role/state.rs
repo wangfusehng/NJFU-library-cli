@@ -1,11 +1,5 @@
 /// # State struct
 /// State struct is used to store the information of the user's state.
-/// 
-/// # parameters
-///    id: the id of the use
-///    site: the site of the use
-///    start_time: the start time of the user
-///    end_time: the end time of the user
 #[derive(Debug)]
 pub struct State {
     pub id: String,

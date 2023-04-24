@@ -4,11 +4,7 @@ use std::io::Write;
 
 use serde::{Deserialize, Serialize};
 
-/// # Info struct
 /// Info struct is used to store the information of the user's state.
-/// # parameters
-///   username: the username of the user
-///   password: the password of the user
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Info {
     username: String,
@@ -16,22 +12,10 @@ pub struct Info {
 }
 
 impl Info {
-    /// # new
     /// create a new Info struct
-    /// # parameters
-    ///  username: the username of the user
-    ///  password: the password of the user
-    /// # return
-    /// Info struct
-    /// # example
-    /// ```rust
-    /// use njfu_library::role::info::Info;
-    /// let info = Info::new("username".to_string(), "password".to_string());
-    /// ```
     pub fn new(username: String, password: String) -> Self {
         Info { username, password }
     }
-    /// # save_to_file
     /// save the user's state to the file
     pub fn save_to_file(&self) -> Result<(), Box<dyn std::error::Error>> {
         let root = home_dir().unwrap();

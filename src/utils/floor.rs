@@ -9,6 +9,7 @@ impl Floor {
     }
 }
 
+// tranform the site to the site id
 pub fn get_site_id(site: String) -> Result<String, Box<dyn std::error::Error>> {
     let _floor = &site[0..4];
     match &site[4..].parse() {

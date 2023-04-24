@@ -3,6 +3,7 @@ use crate::cli::Action::*;
 use crate::context;
 use log::*;
 
+/// # Handle the cmd action.
 pub fn handle_action(action: Action) {
     debug!("Action: {:?}", action);
 
