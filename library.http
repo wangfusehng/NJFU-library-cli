@@ -13,7 +13,7 @@
 @6F-A= 100455360 
 @7F-A= 106658017
 @room_id = {{4F-A}}
-
+@dev_id = 100499828
 ### 查询图书馆
 Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
@@ -30,7 +30,7 @@ Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
 content-type: application/x-www-form-urlencoded
 
-&dev_id=100499756
+&dev_id={{dev_id}}
 &date={{$datetime 'YYYY-MM-DD' 8 h}}
 &act=get_rsv_sta
 
@@ -51,21 +51,17 @@ https://libic.njfu.edu.cn/ClientWeb/pro/ajax/center.aspx
 ### 删除预约
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 ?act=del_resv
-&id=141943677
+&id=141976788
 
 ### 预约
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
-?dev_id=100499757
-&type=dev
-&start=2023-04-23+20:00
-&end=2023-04-23+22:00
-&start_time=2000
-&end_time=2200
+?dev_id={{dev_id}}
+&start=2023-04-25 12:00
+&end=2023-04-25 22:00
 &act=set_resv
 
 ### 签退
-Post http://libic.njfu.edu.cn/Pages/WxSeatSign.aspx
-?sta=1
-&lab=100455336
-&dev=100499751
-&msn=c75de2ba-cd33-4c4f-a666-983d402a88ba
+https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
+?act=resv_leave
+&type=2
+&resv_id=141975583

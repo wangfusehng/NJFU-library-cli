@@ -121,4 +121,30 @@ impl Context {
 
         client::get_cancel_info(resp)
     }
+
+    pub fn reserve(&self, site: String, day: String, start: String, end: String) -> Option<String> {
+        //login
+        self.handle_login();
+
+        let id = floor::get_site_id(site);
+        match id {
+            Ok(id) => {
+                let mut body = HashMap::new();
+                body.insert("act", "set_resv");
+                body.insert("dev_id", id.as_str());
+                let start_time = format!("{} {}", day, start);
+                let end_time = format!("{} {}", day, end);
+                body.insert("start", start_time.as_str());
+                body.insert("end", end_time.as_str());
+                
+                let resp =
+                    client::handle_post(def::RESERVE_URL.as_str(), client::HEADERMAP.clone(), body);
+                client::get_reserve_info(resp.ok()?)
+            }
+            Err(e) => {
+                error!("get site id error: {}", e);
+                None
+            }
+        }
+    }
 }

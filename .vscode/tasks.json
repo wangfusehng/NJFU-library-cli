@@ -7,7 +7,7 @@
             "command": "cargo",
             "args": [
                 "run",
-                "q",
+                "query",
                 "--name",
                 "蒋雨峰"
             ]
@@ -18,7 +18,7 @@
             "command": "cargo",
             "args": [
                 "run",
-                "q",
+                "query",
                 "--site",
                 "5F-A500"
             ]
@@ -29,7 +29,7 @@
             "command": "cargo",
             "args": [
                 "run",
-                "s"
+                "state"
             ]
         },
         {
@@ -38,9 +38,9 @@
             "command": "cargo",
             "args": [
                 "run",
-                "c",
+                "cancel",
                 "-i",
-                "141966998"
+                "141976921"
             ]
         },
         {
@@ -49,11 +49,28 @@
             "command": "cargo",
             "args": [
                 "run",
-                "l",
+                "login",
                 "-u",
                 "200855110",
                 "-p",
                 "njfu10003x!"
+            ]
+        },
+        {
+            "label": "reserve",
+            "type": "shell",
+            "command": "cargo",
+            "args": [
+                "run",
+                "reserve",
+                "--site",
+                "4F-A008",
+                "--day",
+                "2023-04-25",
+                "--start",
+                "18:00",
+                "--end",
+                "20:00"
             ]
         }
     ]

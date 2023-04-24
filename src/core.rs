@@ -23,25 +23,29 @@ pub fn handle_action(action: Action) {
             }
         }
 
-        Login { username, password } => {
-            match context.login(username, password) {
-                Some(result) => println!("{:?}", result),
-                None => println!("Login failed."),
-            }
-        }
+        Login { username, password } => match context.login(username, password) {
+            Some(result) => println!("{:?}", result),
+            None => println!("Login failed."),
+        },
 
-        State {} => {
-            match context.status() {
-                Some(result) => println!("{:?}", result),
-                None => println!("no data."),
-            }
-        }
+        State {} => match context.status() {
+            Some(result) => println!("{:?}", result),
+            None => println!("no data."),
+        },
 
-        Cancel { id } => {
-            match context.cancel(id) {
-                Some(result) => println!("{:?}", result),
-                None => println!("Cancel failed."),
-            }
-        }
+        Cancel { id } => match context.cancel(id) {
+            Some(result) => println!("{:?}", result),
+            None => println!("Cancel failed."),
+        },
+
+        Reserve {
+            site,
+            day,
+            start,
+            end,
+        } => match context.reserve(site, day, start, end) {
+            Some(result) => println!("{:?}", result),
+            None => println!("Reserve failed."),
+        },
     };
 }
