@@ -1,11 +1,10 @@
 use crate::client;
-use crate::role::info::Info;
+use crate::role::login::Login;
 use crate::role::site::*;
 use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
-use crate::utils::def;
-use crate::utils::time;
+use crate::utils::*;
 use log::*;
 use std::collections::HashMap;
 
@@ -21,7 +20,7 @@ impl Context {
     }
 
     /// # Query the information of a student.
-    pub fn query_by_name(&self, name: String) -> Option<Vec<Ts>> {
+    pub fn query_by_name(&self, name: String) -> Option<Vec<Site>> {
         let mut body = HashMap::new();
         body.insert("byType", "devcls");
         body.insert("classkind", "8");
@@ -30,7 +29,7 @@ impl Context {
         let date = time::get_date("%Y-%m-%d");
         body.insert("date", date.as_str());
 
-        let mut ret: Vec<Ts> = Vec::new();
+        let mut ret: Vec<Site> = Vec::new();
 
         for (room_name, floor) in def::ROOMS.iter() {
             let room_id = floor.room_id().to_string();
@@ -38,13 +37,17 @@ impl Context {
             data.insert("room_id", room_id.as_str());
 
             info!("querying room {}", room_name);
-            let resp =
-                client::handle_post(def::DEVICE_URL.as_str(), client::HEADERMAP.clone(), data)
-                    .expect("net error when querying room");
+            let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), data)
+                .unwrap_or_else(|err| {
+                    panic!(
+                        "parse error when scan student in {} \n detail: {:?}",
+                        room_name, err
+                    )
+                });
 
             match client::get_name_info(resp, name.clone()) {
                 Some(info) => {
-                    ret.append(info.into_iter().collect::<Vec<Ts>>().as_mut());
+                    ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
                 }
                 None => {}
             }
@@ -66,9 +69,8 @@ impl Context {
                 let date = time::get_date("%Y-%m-%d");
                 body.insert("date", date.as_str());
 
-                let resp =
-                    client::handle_post(def::DEVICE_URL.as_str(), client::HEADERMAP.clone(), body)
-                        .expect("net error when querying site");
+                let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), body)
+                    .expect("net error when querying site");
 
                 client::get_site_info(resp)
             }
@@ -81,14 +83,14 @@ impl Context {
 
     /// # handle actual login to the server.
     fn handle_login(&self) -> Option<Student> {
-        let mut student = Info::new("".to_string(), "".to_string());
-        student.read_from_file().expect("read student info failed");
+        let mut login = Login::new("".to_string(), "".to_string());
+        login.read_from_file().expect("read student info failed");
 
         let mut body = HashMap::new();
         body.insert("act", "login");
-        body.insert("id", student.username());
-        body.insert("pwd", student.password());
-        let resp = client::handle_post(def::LOGIN_URL.as_str(), client::HEADERMAP.clone(), body)
+        body.insert("id", login.username());
+        body.insert("pwd", login.password());
+        let resp = http::post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body)
             .expect("net error when login");
 
         client::get_login_info(resp)
@@ -96,7 +98,7 @@ impl Context {
 
     /// # login to the server.
     pub fn login(&self, username: String, password: String) -> Option<Student> {
-        let student = Info::new(username.clone(), password.clone());
+        let student = Login::new(username.clone(), password.clone());
         student.save_to_file().expect("save student info failed");
         self.handle_login()
     }
@@ -111,8 +113,7 @@ impl Context {
         body.insert("strat", "90");
         body.insert("StatFlag", "New");
 
-        let resp =
-            client::handle_post(def::CENTER_URL.as_str(), client::HEADERMAP.clone(), body).ok()?;
+        let resp = http::post(def::CENTER_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
 
         client::get_state_info(resp)
     }
@@ -126,8 +127,7 @@ impl Context {
         body.insert("act", "del_resv");
         body.insert("id", id.as_str());
 
-        let resp =
-            client::handle_post(def::RESERVE_URL.as_str(), client::HEADERMAP.clone(), body).ok()?;
+        let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
 
         client::get_cancel_info(resp)
     }
@@ -148,8 +148,7 @@ impl Context {
                 body.insert("start", start_time.as_str());
                 body.insert("end", end_time.as_str());
 
-                let resp =
-                    client::handle_post(def::RESERVE_URL.as_str(), client::HEADERMAP.clone(), body);
+                let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
                 client::get_reserve_info(resp.ok()?)
             }
             Err(e) => {

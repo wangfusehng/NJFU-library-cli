@@ -1,5 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 /// # Floor information
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Floor {
     room_id: u32,
     dev_start: u32,

@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 /// # State struct
 /// State struct is used to store the information of the user's state.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct State {
     pub id: String,
     pub site: String,

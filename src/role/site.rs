@@ -1,10 +1,13 @@
 use super::ts::Ts;
 use crate::utils::def;
+use serde::{Deserialize, Serialize};
 /// # Site struct
 /// Site struct is used to store the information of the site.
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Site {
+    #[serde(rename = "devName")]
     dev_name: String,
+    #[serde(rename = "devId")]
     dev_id: String,
     ts: Option<Vec<Ts>>,
 }

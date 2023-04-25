@@ -29,4 +29,32 @@ lazy_static! {
         map.insert("7F-A", Floor::new(106658017, 106744855, 106745104, 224));
         map
     };
+
+    /// rewest header
+    pub static ref HEADERMAP: reqwest::header::HeaderMap = {
+        let mut headermap = reqwest::header::HeaderMap::new();
+        headermap.insert(
+            reqwest::header::USER_AGENT,
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+                .parse()
+                .unwrap(),
+        );
+        headermap.insert(
+            reqwest::header::CONTENT_TYPE,
+            "application/x-www-form-urlencoded".parse().unwrap(),
+        );
+        headermap.insert(
+            reqwest::header::CACHE_CONTROL,
+            reqwest::header::HeaderValue::from_static("private"),
+        );
+        headermap
+    };
+    pub static ref CLIENT: reqwest::blocking::Client = {
+        let client = reqwest::blocking::ClientBuilder::new()
+            .cookie_store(true)
+            .build()
+            .unwrap();
+
+        client
+    };
 }

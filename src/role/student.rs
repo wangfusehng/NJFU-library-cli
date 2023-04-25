@@ -1,7 +1,9 @@
+use serde::{Serialize, Deserialize};
+
 /// # Student struct
 /// Student struct is used to store student's information
 /// The information includes the name and the id of the student
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Student {
     name: String,
     id: String,

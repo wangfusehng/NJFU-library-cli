@@ -6,15 +6,15 @@ use serde::{Deserialize, Serialize};
 
 /// Info struct is used to store the information of the user's state.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Info {
+pub struct Login {
     username: String,
     password: String,
 }
 
-impl Info {
+impl Login {
     /// create a new Info struct
     pub fn new(username: String, password: String) -> Self {
-        Info { username, password }
+        Login { username, password }
     }
     /// save the user's state to the file
     pub fn save_to_file(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -34,7 +34,7 @@ impl Info {
         let path = root.join(".njfu-library-cli.json");
 
         let input = File::open(path)?;
-        let student: Info = serde_json::from_reader(input)?;
+        let student: Login = serde_json::from_reader(input)?;
         self.username = student.username;
         self.password = student.password;
 

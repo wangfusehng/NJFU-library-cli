@@ -1,21 +1,23 @@
+use serde::{Deserialize, Serialize};
+
 /// # Ts struct
 /// Ts is a struct that contains the information of a time slot.
 /// The information includes the owner of the time slot, the start time, the end time and the status of the time slot.
-#[derive(Debug)]
-pub struct Ts{
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Ts {
     owner: String,
     start: String,
     end: String,
-    status: String,
+    state: String,
 }
 
-impl Ts{
-    pub fn new(owner: String, start: String, end: String, status: String) -> Self {
+impl Ts {
+    pub fn new(owner: String, start: String, end: String, state: String) -> Self {
         Ts {
             owner,
             start,
             end,
-            status,
+            state,
         }
     }
 
@@ -44,10 +46,10 @@ impl Ts{
     }
 
     pub fn status(&self) -> &str {
-        self.status.as_ref()
+        self.state.as_ref()
     }
 
     pub fn set_status(&mut self, status: String) {
-        self.status = status;
+        self.state = status;
     }
 }
