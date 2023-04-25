@@ -1,3 +1,4 @@
+use super::cli::Day;
 use crate::client;
 use crate::role::login::Login;
 use crate::role::site::*;
@@ -5,6 +6,7 @@ use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
 use crate::utils::*;
+use chrono::{DateTime, Local};
 use log::*;
 use std::collections::HashMap;
 
@@ -26,7 +28,7 @@ impl Context {
         body.insert("classkind", "8");
         body.insert("cld_name", "default");
         body.insert("act", "get_rsv_sta");
-        let date = time::get_date("%Y-%m-%d");
+        let date = time::get_date_today("%Y-%m-%d");
         body.insert("date", date.as_str());
 
         let mut ret: Vec<Site> = Vec::new();
@@ -66,7 +68,7 @@ impl Context {
                 let mut body = HashMap::new();
                 body.insert("dev_id", dev_id.as_str());
                 body.insert("act", "get_rsv_sta");
-                let date = time::get_date("%Y-%m-%d");
+                let date = time::get_date_today("%Y-%m-%d");
                 body.insert("date", date.as_str());
 
                 let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), body)
@@ -133,22 +135,28 @@ impl Context {
     }
 
     /// # reserve the site.
-    pub fn reserve(&self, site: String, day: String, start: String, end: String) -> Option<String> {
+    pub fn reserve(&self, site: String, day: Day, start: String, end: String) -> Option<String> {
         //login
         self.handle_login();
 
         let id = get_site_id(site);
+        
         match id {
             Ok(id) => {
                 let mut body = HashMap::new();
                 body.insert("act", "set_resv");
                 body.insert("dev_id", id.as_str());
+                let day = match day {
+                    Day::Today => time::get_date_today("%Y-%m-%d"),
+                    Day::Tomorrow => time::get_date_tomorrow("%Y-%m-%d"),
+                };
                 let start_time = format!("{} {}", day, start);
                 let end_time = format!("{} {}", day, end);
                 body.insert("start", start_time.as_str());
                 body.insert("end", end_time.as_str());
-
+                
                 let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
+                
                 client::get_reserve_info(resp.ok()?)
             }
             Err(e) => {

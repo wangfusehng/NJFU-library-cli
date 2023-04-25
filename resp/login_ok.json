@@ -1,0 +1,35 @@
+{
+    "ret": 1,
+    "act": "login",
+    "msg": "ok",
+    "data": {
+        "id": "200855110",
+        "accno": "116718634",
+        "name": "蒋雨峰",
+        "phone": "",
+        "email": "",
+        "msn": "o8QfLt_PTHjQtPIcUjcSYhQM6FJ4",
+        "ident": "4194560",
+        "dept": "淮安校区",
+        "deptid": "100457409",
+        "tutor": null,
+        "tutorid": null,
+        "cls": "2020",
+        "clsid": "116713568",
+        "receive": true,
+        "tsta": null,
+        "rtsta": null,
+        "pro": null,
+        "score": 300,
+        "credit": [
+            [
+                "个人预约制度",
+                "300",
+                "600",
+                ""
+            ]
+        ],
+        "role": "134217730"
+    },
+    "ext": null
+}

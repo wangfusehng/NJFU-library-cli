@@ -49,7 +49,7 @@ pub fn get_login_info(resp: Value) -> Option<Student> {
 
 /// get_state_info
 pub fn get_state_info(resp: Value) -> Option<Vec<State>> {
-    html::parse_state(resp)
+    html::parse_state(resp).ok()
 }
 
 /// get_cancel_info

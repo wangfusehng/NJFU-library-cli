@@ -2,32 +2,61 @@ use crate::role::state::State;
 use scraper::{Html, Selector};
 use serde_json::Value;
 
-pub fn parse_state(resp: Value) -> Option<Vec<State>> {
-    let msg = Html::parse_fragment(resp["msg"].as_str()?);
-    let context_selector = Selector::parse(".box").ok()?;
+pub fn parse_state(resp: Value) -> Result<Vec<State>, Box<dyn std::error::Error>> {
+    let msg = Html::parse_fragment(resp["msg"].as_str().unwrap_or(""));
+    let context_selector = Selector::parse(".box")?;
     let context = msg.select(&context_selector);
 
     let mut ret: Vec<State> = Vec::new();
 
     for item in context {
-        let a_selector = Selector::parse(".box a").ok()?;
-        let time_selector = Selector::parse(".text-primary").ok()?;
-        let id_selector = Selector::parse(".click").ok()?;
+        let a_selector = Selector::parse(".box a")?;
 
-        let site = item.select(&a_selector).nth(0)?.inner_html();
-        let start_time = item.select(&time_selector).nth(0)?.inner_html();
-        let end_time = item.select(&time_selector).nth(1)?.inner_html();
-        let id_class = item.select(&id_selector).nth(0)?.html().to_string();
+        let time_selector = Selector::parse(".text-primary").unwrap();
+        let id_selector = Selector::parse(".click").unwrap();
 
-        match id_class.split("id=").nth(1) {
+        let site = item
+            .select(&a_selector)
+            .nth(0)
+            .expect("no site")
+            .inner_html();
+        let start_time = item
+            .select(&time_selector)
+            .nth(0)
+            .expect("no start_time")
+            .inner_html();
+        let end_time = item
+            .select(&time_selector)
+            .nth(1)
+            .expect("no end_time")
+            .inner_html();
+        let id_class = item
+            .select(&id_selector)
+            .nth(0)
+            .expect("no id")
+            .value()
+            .attr("rsvid");
+
+        match id_class {
             Some(id) => {
-                let id = id[1..10].to_string();
-                ret.push(State::new(id, site, start_time, end_time));
+                ret.push(State::new(id.to_string(), site, start_time, end_time));
             }
             None => {
-                ret.push(State::new("doing".to_string(), site, start_time, end_time));
+                ret.push(State::new("none".to_string(), site, start_time, end_time));
             }
         }
     }
-    Some(ret)
+    Ok(ret)
+}
+
+#[test]
+fn htmltest() {
+    use std::fs::File;
+    use std::io::Read;
+    let file =
+        File::open("C:/Users/jyf/code/NJFU-library-cli/resp/center_with_now_reserve.json").unwrap();
+    let str: String = file.bytes().map(|x| x.unwrap() as char).collect();
+    let resp: Value = serde_json::from_str(&str).unwrap();
+    let ret = parse_state(resp.clone());
+    println!("{:#?}", ret);
 }

@@ -1,0 +1,7 @@
+{
+    "ret": 1,
+    "act": "get_rsv_sta",
+    "msg": "ok",
+    "data": [],
+    "ext": null
+}

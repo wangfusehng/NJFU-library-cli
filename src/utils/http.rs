@@ -15,6 +15,5 @@ pub fn post(
         .form(&body)
         .send()?
         .json::<serde_json::Value>()?;
-
     Ok(resp)
 }

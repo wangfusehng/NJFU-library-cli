@@ -1,4 +1,4 @@
-use crate::cli::Action;
+use crate::cli::{Action, Reserve};
 use crate::cli::Action::*;
 use crate::context;
 use log::*;
@@ -39,12 +39,12 @@ pub fn handle_action(action: Action) {
             None => println!("Cancel failed."),
         },
 
-        Reserve {
+        Reserve(Reserve {
             site,
             day,
             start,
             end,
-        } => match context.reserve(site, day, start, end) {
+        }) => match context.reserve(site, day, start, end) {
             Some(result) => println!("{:#?}", result),
             None => println!("Reserve failed."),
         },
