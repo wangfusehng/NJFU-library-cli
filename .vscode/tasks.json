@@ -33,17 +33,6 @@
             ]
         },
         {
-            "label": "cancel",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "run",
-                "cancel",
-                "-i",
-                "141976921"
-            ]
-        },
-        {
             "label": "login",
             "type": "shell",
             "command": "cargo",
@@ -66,7 +55,7 @@
                 "--site",
                 "4F-A008",
                 "--day",
-                "2023-04-25",
+                "tomorrow",
                 "--start",
                 "18:00",
                 "--end",

@@ -1,5 +1,5 @@
-use crate::cli::{Action, Reserve};
 use crate::cli::Action::*;
+use crate::cli::{Action, Reserve};
 use crate::context;
 use log::*;
 
@@ -10,14 +10,14 @@ pub fn handle_action(action: Action) {
     let context = context::Context::new();
     // Perform the action.
     match action {
-        Query { name, site } => {
+        Query { day, name, site } => {
             if name.is_some() {
-                match context.query_by_name(name.unwrap()) {
+                match context.query_by_name(day, name.unwrap()) {
                     Some(result) => println!("{:#?}", result),
                     None => println!("No such student in library."),
                 }
             } else if site.is_some() {
-                match context.query_by_site(site.unwrap()) {
+                match context.query_by_site(day, site.unwrap()) {
                     Some(result) => println!("{:#?}", result),
                     None => println!("No student owner the site."),
                 }
@@ -47,6 +47,15 @@ pub fn handle_action(action: Action) {
         }) => match context.reserve(site, day, start, end) {
             Some(result) => println!("{:#?}", result),
             None => println!("Reserve failed."),
+        },
+
+        In { site } => {
+            todo!("check in is not supported yet.")
+        }
+
+        Out { id } => match context.check_out(id) {
+            Some(result) => println!("{:#?}", result),
+            None => println!("Check out failed."),
         },
     };
 }

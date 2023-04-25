@@ -15,7 +15,9 @@ pub struct Reserve {
     #[structopt(short, long)]
     pub site: String,
 
+    /// the day to reserve
     #[structopt(
+        short,
         long,
         possible_values = &["today","tomorrow"],
         case_insensitive = true,
@@ -38,6 +40,16 @@ pub enum Action {
     ///Query library site or student
     #[structopt(alias = "q")]
     Query {
+        /// the day to query
+        #[structopt(
+        short,
+        long,
+        possible_values = &["today","tomorrow"],
+        case_insensitive = true,
+        default_value = "today"
+        )]
+        day: Day,
+
         /// the name to query
         #[structopt(short, long)]
         name: Option<String>,
@@ -47,7 +59,7 @@ pub enum Action {
         site: Option<String>,
     },
 
-    ///Login library site
+    ///Login library
     #[structopt(alias = "l")]
     Login {
         /// username to login
@@ -63,14 +75,23 @@ pub enum Action {
     State {},
 
     ///cancel the reservation
+    #[structopt(alias = "c")]
     Cancel {
         /// the id of the reservation to cancel
-        #[structopt(short, long)]
         id: String,
     },
 
+    ///reserve a site
     #[structopt(alias = "r")]
     Reserve(Reserve),
+
+    /// check in (not support yet)
+    #[structopt(alias = "i")]
+    In { site: String },
+
+    /// check out
+    #[structopt(alias = "o")]
+    Out { id: String },
 }
 
 #[derive(Debug, StructOpt)]

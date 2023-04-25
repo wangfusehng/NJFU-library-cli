@@ -69,3 +69,13 @@ pub fn get_reserve_info(resp: Value) -> Option<String> {
         None => panic!("no msg in reserve response"),
     }
 }
+
+/// get_check_out_info
+pub fn get_check_out_info(resp: Value) -> Option<String> {
+    let msg = resp["msg"].as_str();
+    match msg {
+        Some(msg) => Some(msg.to_string()),
+        None => panic!("no msg in check out response"),
+    }
+}
+

@@ -11,7 +11,6 @@ pub fn parse_state(resp: Value) -> Result<Vec<State>, Box<dyn std::error::Error>
 
     for item in context {
         let a_selector = Selector::parse(".box a")?;
-
         let time_selector = Selector::parse(".text-primary").unwrap();
         let id_selector = Selector::parse(".click").unwrap();
 
@@ -42,7 +41,27 @@ pub fn parse_state(resp: Value) -> Result<Vec<State>, Box<dyn std::error::Error>
                 ret.push(State::new(id.to_string(), site, start_time, end_time));
             }
             None => {
-                ret.push(State::new("none".to_string(), site, start_time, end_time));
+                let onclick_class = item
+                    .select(&id_selector)
+                    .nth(0)
+                    .expect("no id")
+                    .value()
+                    .attr("onclick");
+                match onclick_class {
+                    Some(onclick) => {
+                        let id = onclick
+                            .split("finish(")
+                            .nth(1)
+                            .unwrap()
+                            .split(")")
+                            .nth(0)
+                            .unwrap();
+                        ret.push(State::new(id.to_string(), site, start_time, end_time));
+                    }
+                    None => {
+                        ret.push(State::new("none".to_string(), site, start_time, end_time));
+                    }
+                }
             }
         }
     }
