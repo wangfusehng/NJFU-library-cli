@@ -11,6 +11,16 @@ pub struct Ts {
     state: String,
 }
 
+impl std::fmt::Display for Ts {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "owner: {}, start: {}, end: {}, status: {}\n",
+            self.owner, self.start, self.end, self.state
+        )
+    }
+}
+
 impl Ts {
     pub fn new(owner: String, start: String, end: String, state: String) -> Self {
         Ts {

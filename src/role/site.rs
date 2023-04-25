@@ -12,6 +12,23 @@ pub struct Site {
     ts: Option<Vec<Ts>>,
 }
 
+impl std::fmt::Display for Site {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "dev_name: {}, dev_id: {}\n -------------\n",
+            self.dev_name, self.dev_id
+        )?;
+        self.ts.as_ref().map(|ts| -> Result<(), std::fmt::Error> {
+            for t in ts {
+                write!(f, "{}", t)?;
+            }
+            Ok(())
+        });
+        Ok(())
+    }
+}
+
 impl Site {
     pub fn new(dev_name: String, dev_id: String, ts: Option<Vec<Ts>>) -> Self {
         Site {

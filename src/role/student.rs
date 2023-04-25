@@ -1,4 +1,6 @@
-use serde::{Serialize, Deserialize};
+use std::fmt::write;
+
+use serde::{Deserialize, Serialize};
 
 /// # Student struct
 /// Student struct is used to store student's information
@@ -7,6 +9,12 @@ use serde::{Serialize, Deserialize};
 pub struct Student {
     name: String,
     id: String,
+}
+
+impl std::fmt::Display for Student {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "name: {}\nid: {}", self.name, self.id)
+    }
 }
 
 impl Student {

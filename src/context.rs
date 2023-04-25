@@ -45,7 +45,7 @@ impl Context {
             let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), data)
                 .unwrap_or_else(|err| {
                     panic!(
-                        "parse error when scan student in {} \n detail: {:?}",
+                        "parse error when scan student in {} \n detail: {}",
                         room_name, err
                     )
                 });
@@ -179,7 +179,6 @@ impl Context {
         let mut body = HashMap::new();
         body.insert("act", "resv_leave");
         body.insert("dev_id", id.as_str());
-        println!("body: {:?}", body);
 
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
 

@@ -5,7 +5,7 @@ use std::io::Write;
 use serde::{Deserialize, Serialize};
 
 /// Info struct is used to store the information of the user's state.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub struct Login {
     username: String,
     password: String,

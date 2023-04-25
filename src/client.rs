@@ -11,7 +11,7 @@ pub fn get_name_info(resp: Value, name: String) -> Option<Vec<Site>> {
     let data = resp["data"].as_array()?;
     for i in data {
         let site: Site = serde_json::from_value((*i).clone())
-            .unwrap_or_else(|err| panic!("parse site in response \n detail: \n {:?}", err));
+            .unwrap_or_else(|err| panic!("parse site in response \n detail: \n {}", err));
 
         let ts = site.ts()?;
         for j in ts {

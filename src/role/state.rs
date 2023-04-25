@@ -10,6 +10,16 @@ pub struct State {
     pub end_time: String,
 }
 
+impl std::fmt::Display for State {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "id: {} site: {} start_time: {} end_time: {}\n",
+            self.id, self.site, self.start_time, self.end_time
+        )
+    }
+}
+
 impl State {
     pub fn new(id: String, site: String, start_time: String, end_time: String) -> Self {
         State {
