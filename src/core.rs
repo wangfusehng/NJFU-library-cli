@@ -3,7 +3,7 @@ use crate::cli::{Action, Reserve};
 use crate::context;
 use crate::utils::def;
 
-/// # Handle the cmd action.
+/// Handle the cmd action.
 pub fn handle_action(action: Action) {
     let context = context::Context::new();
     // Perform the action.
