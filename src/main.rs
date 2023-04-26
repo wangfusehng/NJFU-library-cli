@@ -1,6 +1,5 @@
 #![allow(dead_code, unused_imports)]
 mod cli;
-mod client;
 mod context;
 mod core;
 mod role;

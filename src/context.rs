@@ -1,10 +1,10 @@
 use super::cli::Day;
-use crate::client;
 use crate::role::login::Login;
 use crate::role::site::*;
 use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
+use crate::utils::json;
 use crate::utils::*;
 use chrono::{DateTime, Local};
 use std::collections::HashMap;
@@ -48,7 +48,7 @@ impl Context {
                     )
                 });
 
-            match client::get_name_info(resp, name.clone()) {
+            match json::get_name_info(resp, name.clone()) {
                 Ok(info) => {
                     ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
                 }
@@ -80,7 +80,7 @@ impl Context {
                 let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), body)
                     .expect("net error when querying site");
 
-                client::get_site_info(resp)
+                json::get_site_info(resp)
             }
             Err(e) => Err(e.to_string()),
         }
@@ -97,7 +97,7 @@ impl Context {
         body.insert("pwd", login.password());
         let resp = http::post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
-            Ok(resp) => client::get_login_info(resp),
+            Ok(resp) => json::get_login_info(resp),
             Err(e) => Err(e.to_string()),
         }
     }
@@ -121,7 +121,7 @@ impl Context {
 
         let resp = http::post(def::CENTER_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
-            Ok(resp) => client::get_state_info(resp),
+            Ok(resp) => json::get_state_info(resp),
             Err(e) => Err(e.to_string()),
         }
     }
@@ -137,7 +137,7 @@ impl Context {
 
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
-            Ok(resp) => client::get_cancel_info(resp),
+            Ok(resp) => json::get_cancel_info(resp),
             Err(e) => Err(e.to_string()),
         }
     }
@@ -169,7 +169,7 @@ impl Context {
 
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
-            Ok(resp) => client::get_reserve_info(resp),
+            Ok(resp) => json::get_reserve_info(resp),
             Err(e) => Err(e.to_string()),
         }
     }
@@ -185,7 +185,7 @@ impl Context {
 
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
-            Ok(resp) => client::get_check_out_info(resp),
+            Ok(resp) => json::get_check_out_info(resp),
             Err(e) => Err(e.to_string()),
         }
     }
