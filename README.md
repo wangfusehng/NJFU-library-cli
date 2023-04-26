@@ -79,7 +79,7 @@ njfulib c <id>
 
 ```bash
 njfulib in <id>
-# or 
+# or
 njfulib i <id>
 ```
 
@@ -102,3 +102,4 @@ cargo run help
 ## roadmap
 
 - 支持签到
+- 支持空间预约

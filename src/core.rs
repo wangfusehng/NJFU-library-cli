@@ -11,19 +11,22 @@ pub fn handle_action(action: Action) {
         Query { day, name, site } => {
             println!("Result:");
             print!("{}", def::LINE_SEPARATOR.as_str());
+
             if name.is_some() {
-                match context.query_by_name(day, name.unwrap()) {
-                    Some(result) => {
+                match context.query_by_name(day.clone(), name.unwrap()) {
+                    Ok(result) => {
                         result.iter().for_each(|x| println!("{}", x));
                     }
-                    None => println!("No such student in library."),
+                    Err(e) => println!("{}", e),
                 }
-            } else if site.is_some() {
+            }
+
+            if site.is_some() {
                 match context.query_by_site(day, site.unwrap()) {
-                    Some(result) => {
+                    Ok(result) => {
                         println!("{}", result);
                     }
-                    None => println!("no site info"),
+                    Err(e) => println!("{}", e),
                 }
             }
         }
@@ -32,8 +35,8 @@ pub fn handle_action(action: Action) {
             println!("Login result:");
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.login(username, password) {
-                Some(result) => println!("{}", result),
-                None => println!("Login failed."),
+                Ok(result) => println!("{}", result),
+                Err(e) => println!("{}", e),
             }
         }
 
@@ -41,11 +44,11 @@ pub fn handle_action(action: Action) {
             println!("State:");
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.status() {
-                Some(result) => {
+                Ok(result) => {
                     println!("id\t\tsite\t\tstart_time\t\tend_time");
                     result.iter().for_each(|x| println!("{}", x));
                 }
-                None => println!("no state data."),
+                Err(e) => println!("{}", e),
             }
         }
 
@@ -53,8 +56,8 @@ pub fn handle_action(action: Action) {
             println!("Cancel result:");
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.cancel(id) {
-                Some(result) => println!("{}", result),
-                None => println!("Cancel failed."),
+                Ok(result) => println!("{}", result),
+                Err(e) => println!("{}", e),
             }
         }
 
@@ -67,8 +70,8 @@ pub fn handle_action(action: Action) {
             println!("Reserve result:");
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.reserve(site, day, start, end) {
-                Some(result) => println!("{}", result),
-                None => println!("Reserve failed."),
+                Ok(result) => println!("{}", result),
+                Err(e) => println!("{}", e),
             }
         }
 
@@ -80,8 +83,8 @@ pub fn handle_action(action: Action) {
             println!("Check out result:");
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.check_out(id) {
-                Some(result) => println!("{}", result),
-                None => println!("Check out failed."),
+                Ok(result) => println!("{}", result),
+                Err(e) => println!("{}", e),
             }
         }
     };

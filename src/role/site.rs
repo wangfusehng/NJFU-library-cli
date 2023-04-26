@@ -61,7 +61,7 @@ impl Site {
 }
 
 /// tranform the site to the site id
-pub fn get_site_id(site: String) -> Result<String, Box<dyn std::error::Error>> {
+pub fn get_site_id(site: String) -> Result<String, String> {
     let _floor = &site[0..4];
     match &site[4..].parse() {
         Ok(_site) => {
@@ -79,6 +79,6 @@ pub fn get_site_id(site: String) -> Result<String, Box<dyn std::error::Error>> {
                 None => Err("parse room id error".into()),
             }
         }
-        Err(_) => Err("parse site id error".into()),
+        Err(e) => Err(e.to_string()),
     }
 }

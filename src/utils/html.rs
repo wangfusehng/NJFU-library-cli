@@ -13,12 +13,12 @@ pub fn parse_state(resp: Value) -> Result<Vec<State>, Box<dyn std::error::Error>
     let mut ret: Vec<State> = Vec::new();
 
     for item in context {
-        if let (Ok(id), Ok(name), Ok(start_time), Ok(end_time)) = (
-            parse_id(&item),
+        if let (Ok(name), Ok(start_time), Ok(end_time)) = (
             parse_name(&item),
             parse_start_time(&item),
             parse_end_time(&item),
         ) {
+            let id = parse_id(&item)?;
             ret.push(State::new(id, name, start_time, end_time));
         }
     }
@@ -53,22 +53,31 @@ fn parse_end_time(item: &ElementRef) -> Result<String, Box<dyn std::error::Error
 }
 
 fn parse_id(item: &ElementRef) -> Result<String, Box<dyn std::error::Error>> {
-    let id_selector = Selector::parse(".text-center a")?;
+    let id_selector = Selector::parse(".text-center .click")?;
     let text_center_a = item.select(&id_selector).next();
     match text_center_a {
-        Some(text_center_a) => Ok(text_center_a
-            .value()
-            .attr("rsvid")
-            .ok_or("no rsvid in text-center")?
-            .to_string()),
-        None => Ok("".to_string()),
+        Some(text_center_a) => {
+            let rsv_id = text_center_a.value().attr("rsvid");
+            match rsv_id {
+                Some(id) => Ok(id.to_string()),
+                None => {
+                    let onclick = text_center_a.value().attr("onclick");
+                    match onclick {
+                        Some(onclick) => {
+                            let id = onclick
+                                .split("(")
+                                .nth(1)
+                                .ok_or("no id in onclick")?
+                                .split(")")
+                                .nth(0)
+                                .ok_or("no id in onclick")?;
+                            Ok(id.to_string())
+                        }
+                        None => Ok("none".to_string()),
+                    }
+                }
+            }
+        }
+        None => Ok("none".to_string()),
     }
-}
-
-#[test]
-fn test_html() {
-    use std::fs::File;
-    let f = File::open("C:/Users/jyf/code/NJFU-library-cli/resp/center.json");
-    let ret = parse_state(serde_json::from_reader(f.unwrap()).unwrap());
-    println!("{:?}", ret);
 }

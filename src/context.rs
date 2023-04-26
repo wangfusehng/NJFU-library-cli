@@ -21,7 +21,7 @@ impl Context {
     }
 
     /// # Query the information of a student.
-    pub fn query_by_name(&self, day: Day, name: String) -> Option<Vec<Site>> {
+    pub fn query_by_name(&self, day: Day, name: String) -> Result<Vec<Site>, String> {
         let mut body = HashMap::new();
         body.insert("byType", "devcls");
         body.insert("classkind", "8");
@@ -40,7 +40,6 @@ impl Context {
             let mut data = body.clone();
             data.insert("room_id", room_id.as_str());
 
-            println!("querying room {}", room_name);
             let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), data)
                 .unwrap_or_else(|err| {
                     panic!(
@@ -50,20 +49,22 @@ impl Context {
                 });
 
             match client::get_name_info(resp, name.clone()) {
-                Some(info) => {
+                Ok(info) => {
                     ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
                 }
-                None => {}
+                Err(err) => {
+                    println!(
+                        "parse error when scan student in {} \n detail: {}",
+                        room_name, err
+                    );
+                }
             }
         }
-        if ret.len() == 0 {
-            return None;
-        }
-        return Some(ret);
+        Ok(ret)
     }
 
     /// # Query the information of a site.
-    pub fn query_by_site(&self, day: Day, site: String) -> Option<Site> {
+    pub fn query_by_site(&self, day: Day, site: String) -> Result<Site, String> {
         let dev_id = get_site_id(site.clone());
         match dev_id {
             Ok(dev_id) => {
@@ -81,12 +82,12 @@ impl Context {
 
                 client::get_site_info(resp)
             }
-            Err(_) => None,
+            Err(e) => Err(e.to_string()),
         }
     }
 
     /// # handle actual login to the server.
-    fn handle_login(&self) -> Option<Student> {
+    fn handle_login(&self) -> Result<Student, String> {
         let mut login = Login::new("".to_string(), "".to_string());
         login.read_from_file().expect("read student info failed");
 
@@ -94,80 +95,88 @@ impl Context {
         body.insert("act", "login");
         body.insert("id", login.username());
         body.insert("pwd", login.password());
-        let resp = http::post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body)
-            .expect("net error when login");
-
-        client::get_login_info(resp)
+        let resp = http::post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body);
+        match resp {
+            Ok(resp) => client::get_login_info(resp),
+            Err(e) => Err(e.to_string()),
+        }
     }
 
     /// # login to the server.
-    pub fn login(&self, username: String, password: String) -> Option<Student> {
+    pub fn login(&self, username: String, password: String) -> Result<Student, String> {
         let student = Login::new(username.clone(), password.clone());
         student.save_to_file().expect("save student info failed");
         self.handle_login()
     }
 
     /// # query the user status.
-    pub fn status(&self) -> Option<Vec<State>> {
+    pub fn status(&self) -> Result<Vec<State>, String> {
         //login
-        self.handle_login();
+        self.handle_login()?;
 
         let mut body = HashMap::new();
         body.insert("act", "get_History_resv");
         body.insert("strat", "90");
         body.insert("StatFlag", "New");
 
-        let resp = http::post(def::CENTER_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
-
-        client::get_state_info(resp)
+        let resp = http::post(def::CENTER_URL.as_str(), def::HEADERMAP.clone(), body);
+        match resp {
+            Ok(resp) => client::get_state_info(resp),
+            Err(e) => Err(e.to_string()),
+        }
     }
 
     /// # cancel the reservation.
-    pub fn cancel(&self, id: String) -> Option<String> {
+    pub fn cancel(&self, id: String) -> Result<String, String> {
         //login
-        self.handle_login();
+        self.handle_login()?;
 
         let mut body = HashMap::new();
         body.insert("act", "del_resv");
         body.insert("id", id.as_str());
 
-        let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body).ok()?;
-
-        client::get_cancel_info(resp)
-    }
-
-    /// # reserve the site.
-    pub fn reserve(&self, site: String, day: Day, start: String, end: String) -> Option<String> {
-        //login
-        self.handle_login();
-
-        let id = get_site_id(site);
-
-        match id {
-            Ok(id) => {
-                let mut body = HashMap::new();
-                body.insert("act", "set_resv");
-                body.insert("dev_id", id.as_str());
-                let day = match day {
-                    Day::Today => time::get_date_today("%Y-%m-%d"),
-                    Day::Tomorrow => time::get_date_tomorrow("%Y-%m-%d"),
-                };
-                let start_time = format!("{} {}", day, start);
-                let end_time = format!("{} {}", day, end);
-                body.insert("start", start_time.as_str());
-                body.insert("end", end_time.as_str());
-
-                let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
-
-                client::get_reserve_info(resp.ok()?)
-            }
-            Err(_) => None,
+        let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
+        match resp {
+            Ok(resp) => client::get_cancel_info(resp),
+            Err(e) => Err(e.to_string()),
         }
     }
 
-    pub fn check_out(&self, id: String) -> Option<String> {
+    /// # reserve the site.
+    pub fn reserve(
+        &self,
+        site: String,
+        day: Day,
+        start: String,
+        end: String,
+    ) -> Result<String, String> {
         //login
-        self.handle_login();
+        self.handle_login()?;
+
+        let id = get_site_id(site)?;
+
+        let mut body = HashMap::new();
+        body.insert("act", "set_resv");
+        body.insert("dev_id", id.as_str());
+        let day = match day {
+            Day::Today => time::get_date_today("%Y-%m-%d"),
+            Day::Tomorrow => time::get_date_tomorrow("%Y-%m-%d"),
+        };
+        let start_time = format!("{} {}", day, start);
+        let end_time = format!("{} {}", day, end);
+        body.insert("start", start_time.as_str());
+        body.insert("end", end_time.as_str());
+
+        let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
+        match resp {
+            Ok(resp) => client::get_reserve_info(resp),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+
+    pub fn check_out(&self, id: String) -> Result<String, String> {
+        //login
+        self.handle_login()?;
 
         let mut body = HashMap::new();
         body.insert("act", "resv_leave");
@@ -175,7 +184,9 @@ impl Context {
         body.insert("resv_id", id.as_str());
 
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
-
-        client::get_check_out_info(resp.ok()?)
+        match resp {
+            Ok(resp) => client::get_check_out_info(resp),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }
