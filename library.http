@@ -63,4 +63,5 @@ https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 ### 签退
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 ?act=resv_leave
+&type=2
 &resv_id=142008395

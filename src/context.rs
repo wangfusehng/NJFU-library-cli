@@ -171,7 +171,8 @@ impl Context {
 
         let mut body = HashMap::new();
         body.insert("act", "resv_leave");
-        body.insert("dev_id", id.as_str());
+        body.insert("type", "2");
+        body.insert("resv_id", id.as_str());
 
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
 
