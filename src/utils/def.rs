@@ -3,6 +3,8 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 lazy_static! {
+    /// line separator
+    pub static ref LINE_SEPARATOR: String = String::from("--------------------\n");
     ///Library base url
     pub static ref BASE_URL: String = String::from("https://libic.njfu.edu.cn/ClientWeb/pro/ajax/");
     ///Library device url

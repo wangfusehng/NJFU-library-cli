@@ -78,4 +78,3 @@ pub fn get_check_out_info(resp: Value) -> Option<String> {
         None => panic!("no msg in check out response"),
     }
 }
-

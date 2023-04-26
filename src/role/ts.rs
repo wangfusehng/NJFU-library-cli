@@ -15,7 +15,7 @@ impl std::fmt::Display for Ts {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(
             f,
-            "owner: {}, start: {}, end: {}, status: {}\n",
+            "owner: {}\nstart: {}\nend: {}\nstatus: {}\n",
             self.owner, self.start, self.end, self.state
         )
     }

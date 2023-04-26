@@ -14,14 +14,11 @@ pub struct Site {
 
 impl std::fmt::Display for Site {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "dev_name: {}, dev_id: {}\n -------------\n",
-            self.dev_name, self.dev_id
-        )?;
+        write!(f, "dev_name: {}\ndev_id: {}\n", self.dev_name, self.dev_id)?;
         self.ts.as_ref().map(|ts| -> Result<(), std::fmt::Error> {
             for t in ts {
                 write!(f, "{}", t)?;
+                write!(f, "{}", def::LINE_SEPARATOR.as_str())?;
             }
             Ok(())
         });

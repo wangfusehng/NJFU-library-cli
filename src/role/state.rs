@@ -1,3 +1,4 @@
+use crate::utils::def;
 use serde::{Deserialize, Serialize};
 
 /// # State struct
@@ -14,7 +15,7 @@ impl std::fmt::Display for State {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "id: {} site: {} start_time: {} end_time: {}\n",
+            "{}\t{}\t\t{}\t\t{}\n",
             self.id, self.site, self.start_time, self.end_time
         )
     }
