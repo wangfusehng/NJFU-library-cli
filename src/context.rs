@@ -7,7 +7,6 @@ use crate::role::student::Student;
 use crate::role::ts::Ts;
 use crate::utils::*;
 use chrono::{DateTime, Local};
-use log::*;
 use std::collections::HashMap;
 
 /// The context of the program.
@@ -41,7 +40,7 @@ impl Context {
             let mut data = body.clone();
             data.insert("room_id", room_id.as_str());
 
-            info!("querying room {}", room_name);
+            println!("querying room {}", room_name);
             let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), data)
                 .unwrap_or_else(|err| {
                     panic!(
@@ -82,10 +81,7 @@ impl Context {
 
                 client::get_site_info(resp)
             }
-            Err(e) => {
-                error!("error when querying site: {}", e);
-                return None;
-            }
+            Err(_) => None,
         }
     }
 
@@ -165,10 +161,7 @@ impl Context {
 
                 client::get_reserve_info(resp.ok()?)
             }
-            Err(e) => {
-                error!("get site id error: {}", e);
-                None
-            }
+            Err(_) => None,
         }
     }
 

@@ -2,12 +2,9 @@ use crate::cli::Action::*;
 use crate::cli::{Action, Reserve};
 use crate::context;
 use crate::utils::def;
-use log::*;
 
 /// # Handle the cmd action.
 pub fn handle_action(action: Action) {
-    debug!("Action: {:?}", action);
-
     let context = context::Context::new();
     // Perform the action.
     match action {
