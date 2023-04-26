@@ -11,8 +11,7 @@ use cli::CommandLineArgs;
 use std::env::set_var;
 use structopt::StructOpt;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     // Get the command-line arguments.
     let CommandLineArgs { action } = CommandLineArgs::from_args();
     handle_action(action);
