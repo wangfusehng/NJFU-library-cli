@@ -6,6 +6,7 @@ use crate::role::student::Student;
 use crate::role::ts::Ts;
 use crate::utils::json;
 use crate::utils::*;
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local};
 use std::collections::HashMap;
 
@@ -21,7 +22,7 @@ impl Context {
     }
 
     /// # Query the information of a student.
-    pub fn query_by_name(&self, day: Day, name: String) -> Result<Vec<Site>, String> {
+    pub fn query_by_name(&self, day: Day, name: String) -> Result<Vec<Site>> {
         let mut body = HashMap::new();
         body.insert("byType", "devcls");
         body.insert("classkind", "8");
@@ -52,19 +53,14 @@ impl Context {
                 Ok(info) => {
                     ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
                 }
-                Err(err) => {
-                    println!(
-                        "parse error when scan student in {} \n detail: {}",
-                        room_name, err
-                    );
-                }
+                Err(err) => return Err(err),
             }
         }
         Ok(ret)
     }
 
     /// # Query the information of a site.
-    pub fn query_by_site(&self, day: Day, site: String) -> Result<Site, String> {
+    pub fn query_by_site(&self, day: Day, site: String) -> Result<Site> {
         let dev_id = get_site_id(site.clone());
         match dev_id {
             Ok(dev_id) => {
@@ -82,12 +78,12 @@ impl Context {
 
                 json::get_site_info(resp)
             }
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(e),
         }
     }
 
     /// # handle actual login to the server.
-    fn handle_login(&self) -> Result<Student, String> {
+    fn handle_login(&self) -> Result<Student> {
         let mut login = Login::new("".to_string(), "".to_string());
         login.read_from_file().expect("read student info failed");
 
@@ -98,19 +94,19 @@ impl Context {
         let resp = http::post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_login_info(resp),
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(e),
         }
     }
 
     /// # login to the server.
-    pub fn login(&self, username: String, password: String) -> Result<Student, String> {
+    pub fn login(&self, username: String, password: String) -> Result<Student> {
         let student = Login::new(username.clone(), password.clone());
         student.save_to_file().expect("save student info failed");
         self.handle_login()
     }
 
     /// # query the user status.
-    pub fn status(&self) -> Result<Vec<State>, String> {
+    pub fn status(&self) -> Result<Vec<State>> {
         //login
         self.handle_login()?;
 
@@ -122,12 +118,12 @@ impl Context {
         let resp = http::post(def::CENTER_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_state_info(resp),
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(e),
         }
     }
 
     /// # cancel the reservation.
-    pub fn cancel(&self, id: String) -> Result<String, String> {
+    pub fn cancel(&self, id: String) -> Result<String> {
         //login
         self.handle_login()?;
 
@@ -138,18 +134,12 @@ impl Context {
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_cancel_info(resp),
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(e),
         }
     }
 
     /// # reserve the site.
-    pub fn reserve(
-        &self,
-        site: String,
-        day: Day,
-        start: String,
-        end: String,
-    ) -> Result<String, String> {
+    pub fn reserve(&self, site: String, day: Day, start: String, end: String) -> Result<String> {
         //login
         self.handle_login()?;
 
@@ -170,11 +160,11 @@ impl Context {
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_reserve_info(resp),
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(e),
         }
     }
 
-    pub fn check_out(&self, id: String) -> Result<String, String> {
+    pub fn check_out(&self, id: String) -> Result<String> {
         //login
         self.handle_login()?;
 
@@ -186,7 +176,7 @@ impl Context {
         let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_check_out_info(resp),
-            Err(e) => Err(e.to_string()),
+            Err(e) => Err(e),
         }
     }
 }

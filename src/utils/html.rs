@@ -1,13 +1,14 @@
 use crate::role::state::State;
+use anyhow::{anyhow, Context, Result};
 use scraper::{ElementRef, Html, Selector};
 use serde_json::Value;
 
-pub fn parse_state(resp: Value) -> Result<Vec<State>, Box<dyn std::error::Error>> {
-    let msg = resp["msg"].as_str().ok_or("no msg in response")?;
+pub fn parse_state(resp: Value) -> Result<Vec<State>> {
+    let msg = resp["msg"].as_str().ok_or(anyhow!("no msg in response"))?;
     let correct_html = msg.replace("tbody", "table");
     let msg = Html::parse_fragment(correct_html.as_str());
 
-    let context_selector = Selector::parse("table")?;
+    let context_selector = Selector::parse("table").expect("no table in response");
     let context = msg.select(&context_selector);
 
     let mut ret: Vec<State> = Vec::new();
@@ -18,42 +19,43 @@ pub fn parse_state(resp: Value) -> Result<Vec<State>, Box<dyn std::error::Error>
             parse_start_time(&item),
             parse_end_time(&item),
         ) {
-            let id = parse_id(&item)?;
+            let id = parse_id(&item).context("no id in item of response")?;
             ret.push(State::new(id, name, start_time, end_time));
         }
     }
     Ok(ret)
 }
 
-fn parse_name(item: &ElementRef) -> Result<String, Box<dyn std::error::Error>> {
-    let a_selector = Selector::parse(".box a")?;
+fn parse_name(item: &ElementRef) -> Result<String> {
+    let a_selector = Selector::parse(".box a").expect("no .box a in response");
     Ok(item
         .select(&a_selector)
         .nth(0)
-        .ok_or("no name in item of response")?
+        .ok_or(anyhow!("no name in item of response"))?
         .inner_html())
 }
 
-fn parse_start_time(item: &ElementRef) -> Result<String, Box<dyn std::error::Error>> {
-    let time_selector = Selector::parse(".text-primary")?;
+fn parse_start_time(item: &ElementRef) -> Result<String> {
+    let time_selector = Selector::parse(".text-primary").expect("no .text-primary in response");
     Ok(item
         .select(&time_selector)
         .nth(0)
-        .ok_or("no start_time in item of response")?
+        .ok_or(anyhow!("no start_time in item of response"))?
         .inner_html())
 }
 
-fn parse_end_time(item: &ElementRef) -> Result<String, Box<dyn std::error::Error>> {
-    let time_selector = Selector::parse(".text-primary")?;
+fn parse_end_time(item: &ElementRef) -> Result<String> {
+    let time_selector = Selector::parse(".text-primary").expect("no .text-primary in response");
     Ok(item
         .select(&time_selector)
         .nth(1)
-        .ok_or("no end_time in item of response")?
+        .ok_or(anyhow!("no end_time in item of response"))?
         .inner_html())
 }
 
-fn parse_id(item: &ElementRef) -> Result<String, Box<dyn std::error::Error>> {
-    let id_selector = Selector::parse(".text-center .click")?;
+fn parse_id(item: &ElementRef) -> Result<String> {
+    let id_selector =
+        Selector::parse(".text-center .click").expect("no .text-center .click in response");
     let text_center_a = item.select(&id_selector).next();
     match text_center_a {
         Some(text_center_a) => {
@@ -67,10 +69,10 @@ fn parse_id(item: &ElementRef) -> Result<String, Box<dyn std::error::Error>> {
                             let id = onclick
                                 .split("(")
                                 .nth(1)
-                                .ok_or("no id in onclick")?
+                                .ok_or(anyhow!("no id in onclick"))?
                                 .split(")")
                                 .nth(0)
-                                .ok_or("no id in onclick")?;
+                                .ok_or(anyhow!("no id in onclick"))?;
                             Ok(id.to_string())
                         }
                         None => Ok("none".to_string()),

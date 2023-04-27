@@ -1,6 +1,9 @@
 use super::ts::Ts;
 use crate::utils::def;
+use anyhow::anyhow;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
+
 /// # Site struct
 /// Site struct is used to store the information of the site.
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -61,7 +64,7 @@ impl Site {
 }
 
 /// tranform the site to the site id
-pub fn get_site_id(site: String) -> Result<String, String> {
+pub fn get_site_id(site: String) -> Result<String> {
     let _floor = &site[0..4];
     match &site[4..].parse() {
         Ok(_site) => {
@@ -73,12 +76,12 @@ pub fn get_site_id(site: String) -> Result<String, String> {
                     if id >= floor.dev_start() && id <= floor.dev_end() {
                         Ok(id.to_string())
                     } else {
-                        Err("parse room id error".into())
+                        Err(anyhow!("parse room id error"))
                     }
                 }
-                None => Err("parse room id error".into()),
+                None => Err(anyhow!("parse room id error")),
             }
         }
-        Err(e) => Err(e.to_string()),
+        Err(e) => Err(anyhow!("parse room id error: {}", e)),
     }
 }

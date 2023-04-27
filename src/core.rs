@@ -17,7 +17,7 @@ pub fn handle_action(action: Action) {
                     Ok(result) => {
                         result.iter().for_each(|x| println!("{}", x));
                     }
-                    Err(e) => println!("{}", e),
+                    Err(e) => panic!("{}", e),
                 }
             }
 
@@ -26,7 +26,7 @@ pub fn handle_action(action: Action) {
                     Ok(result) => {
                         println!("{}", result);
                     }
-                    Err(e) => println!("{}", e),
+                    Err(e) => panic!("{}", e),
                 }
             }
         }
@@ -36,7 +36,7 @@ pub fn handle_action(action: Action) {
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.login(username, password) {
                 Ok(result) => println!("{}", result),
-                Err(e) => println!("{}", e),
+                Err(e) => panic!("{}", e),
             }
         }
 
@@ -48,7 +48,7 @@ pub fn handle_action(action: Action) {
                     println!("id\t\tsite\t\tstart_time\t\tend_time");
                     result.iter().for_each(|x| println!("{}", x));
                 }
-                Err(e) => println!("{}", e),
+                Err(e) => panic!("{}", e),
             }
         }
 
@@ -57,7 +57,7 @@ pub fn handle_action(action: Action) {
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.cancel(id) {
                 Ok(result) => println!("{}", result),
-                Err(e) => println!("{}", e),
+                Err(e) => panic!("{}", e),
             }
         }
 
@@ -71,12 +71,12 @@ pub fn handle_action(action: Action) {
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.reserve(site, day, start, end) {
                 Ok(result) => println!("{}", result),
-                Err(e) => println!("{}", e),
+                Err(e) => panic!("{}", e),
             }
         }
 
         In { site } => {
-            println!("check in is not supported yet.")
+            panic!("check in is not supported yet.")
         }
 
         Out { id } => {
@@ -84,7 +84,7 @@ pub fn handle_action(action: Action) {
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.check_out(id) {
                 Ok(result) => println!("{}", result),
-                Err(e) => println!("{}", e),
+                Err(e) => panic!("{}", e),
             }
         }
     };

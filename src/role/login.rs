@@ -1,8 +1,8 @@
+use anyhow::Result;
 use home::home_dir;
+use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::Write;
-
-use serde::{Deserialize, Serialize};
 
 /// Info struct is used to store the information of the user's state.
 #[derive(Serialize, Deserialize)]
@@ -17,7 +17,7 @@ impl Login {
         Login { username, password }
     }
     /// save the user's state to the file
-    pub fn save_to_file(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn save_to_file(&self) -> Result<()> {
         let root = home_dir().unwrap();
         let path = root.join(".njfu-library-cli.json");
 
@@ -29,7 +29,7 @@ impl Login {
 
     /// # read_from_file
     /// read the user's state from the file
-    pub fn read_from_file(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn read_from_file(&mut self) -> Result<()> {
         let root = home_dir().unwrap();
         let path = root.join(".njfu-library-cli.json");
 

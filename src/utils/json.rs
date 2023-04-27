@@ -3,16 +3,19 @@ use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
 use crate::utils::html;
+use anyhow::{anyhow, Context, Result};
 use serde_json::Value;
 
 /// get_name_info
-pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>, Box<dyn std::error::Error>> {
+pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>> {
     let mut ret: Vec<Site> = Vec::new();
-    let data = resp["data"].as_array().ok_or("parse site in response")?;
+    let data = resp["data"]
+        .as_array()
+        .ok_or(anyhow!("parse site in response"))?;
     for i in data {
         let site: Site = serde_json::from_value((*i).clone())?;
 
-        let ts = site.ts().ok_or("parse ts in site")?;
+        let ts = site.ts().ok_or(anyhow!("parse ts in site"))?;
         for j in ts {
             if j.owner() == name {
                 ret.push(Site::new(
@@ -27,55 +30,51 @@ pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>, Box<dyn std
 }
 
 /// get_site_info
-pub fn get_site_info(resp: Value) -> Result<Site, String> {
+pub fn get_site_info(resp: Value) -> Result<Site> {
     let data = resp["data"]
         .as_array()
-        .ok_or("parse site in response".to_string())?;
+        .ok_or(anyhow!("parse site in response"))?;
 
-    serde_json::from_value(data[0].clone()).unwrap_or(Err("parse site in response".to_string()))
+    serde_json::from_value(data[0].clone()).context("parse site error")
 }
 
 /// get_login_info
-pub fn get_login_info(resp: Value) -> Result<Student, String> {
+pub fn get_login_info(resp: Value) -> Result<Student> {
     let data = resp["data"].clone();
     match data {
-        Value::Null => Err(resp["msg"].as_str().unwrap().to_string()),
+        Value::Null => Err(anyhow!(resp["msg"].as_str().unwrap().to_string())),
         _ => {
-            let student: Student =
-                serde_json::from_value(data).unwrap_or_else(|err| panic!("{}", err));
+            let student: Student = serde_json::from_value(data).context("parse student error")?;
             Ok(student)
         }
     }
 }
 
 /// get_state_info
-pub fn get_state_info(resp: Value) -> Result<Vec<State>, String> {
-    match html::parse_state(resp) {
-        Ok(state) => Ok(state),
-        Err(err) => Err(err.to_string()),
-    }
+pub fn get_state_info(resp: Value) -> Result<Vec<State>> {
+    html::parse_state(resp)
 }
 
 /// get_cancel_info
-pub fn get_cancel_info(resp: Value) -> Result<String, String> {
+pub fn get_cancel_info(resp: Value) -> Result<String> {
     resp["msg"]
         .as_str()
         .map(|s| s.to_string())
-        .ok_or("no msg in cancel response".to_string())
+        .context("parse cancel info error")
 }
 
 /// get_reserve_info
-pub fn get_reserve_info(resp: Value) -> Result<String, String> {
+pub fn get_reserve_info(resp: Value) -> Result<String> {
     resp["msg"]
         .as_str()
         .map(|s| s.to_string())
-        .ok_or("no msg in reserve response".to_string())
+        .context("parse reserve info error")
 }
 
 /// get_check_out_info
-pub fn get_check_out_info(resp: Value) -> Result<String, String> {
+pub fn get_check_out_info(resp: Value) -> Result<String> {
     resp["msg"]
         .as_str()
         .map(|s| s.to_string())
-        .ok_or("no msg in check out response".to_string())
+        .context("parse check out info error")
 }
