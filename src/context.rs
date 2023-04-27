@@ -1,4 +1,4 @@
-use super::cli::Day;
+use super::cli::day::Day;
 use crate::role::login::Login;
 use crate::role::site::*;
 use crate::role::state::State;

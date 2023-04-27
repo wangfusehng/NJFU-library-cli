@@ -8,9 +8,27 @@
 
 NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签到,签退,取消的命令行工具
 
+## install
+
+### for windows
+
+- [click here to download](https://github.com/jyf-111/NJFU-library-cli/releases/download/v1.0.0/njfulib.exe)
+
+- if you use scoop
+
+```powershell
+scoop install https://raw.githubusercontent.com/jyf-111/scoop-self/master/bucket/njfulib.json
+# for chinese, if you are facing net work error, you can try pgproxy.com
+scoop install https://ghproxy.com/https://raw.githubusercontent.com/jyf-111/scoop-self/master/bucket/njfulib.json
+```
+
+### for linux and macos
+
+- [click here](#build-from-source)
+
 ## how to use
 
-- 查看帮助
+### 查看帮助
 
 ```bash
 njfulib --help
@@ -18,10 +36,11 @@ njfulib --help
 njfulib -h
 ```
 
-- 登录
-  - 首次预约,取消,签退需要登录
-  - 查询不需要登录
-  - login 会把密码保存在`~/.njfu-library-cli.json`
+### 登录
+
+- 首次预约,取消,签退需要登录
+- 查询不需要登录
+- login 会把密码保存在`~/.njfu-library-cli.json`
 
 ```bash
 njfulib login --username <username> --password <password>
@@ -29,7 +48,7 @@ njfulib login --username <username> --password <password>
 njfulib l -u <username> -p <password>
 ```
 
-- 查询
+### 查询
 
 ```bash
 # 按学生姓名查询
@@ -45,21 +64,21 @@ njfulib q -s <site name>
 
 所有楼层
 
-```txt
-2F-A
-2F-B
-3F-A
-3F-B
-3F-C
-3FA- # 三楼夹层
-4F-A
-4FA- # 四楼夹层
-5F-A
-6F-A
-7F-A
-```
+|floor|   name  |
+| --- |   ---   |
+|2F-A | 二层A区 |
+|2F-B | 二层B区 |
+|3F-A | 三层A区 |
+|3F-B | 三层B区 |
+|3F-C | 三层C区 |
+|3FA- | 三楼夹层|
+|4F-A | 四层A区 |
+|4FA- | 四楼夹层|
+|5F-A | 五层A区 |
+|6F-A | 六层    |
+|7F-A | 七层北侧|
 
-- 查看所有预约
+### 查看所有预约
 
 ```bash
 njfulib statue
@@ -67,7 +86,7 @@ njfulib statue
 njfulib s
 ```
 
-- 预约
+### 预约
 
 ```bash
 njfulib reserve --day today --site <site> --start <start time> --end <end time>
@@ -75,7 +94,7 @@ njfulib reserve --day today --site <site> --start <start time> --end <end time>
 njfulib r -s <site> --start <start time> --end <end time> # --start --end 不可缩写
 ```
 
-- 取消
+### 取消
 
 ```bash
 njfulib cancel <id> # 使用njfulib statue获取未到期预约id
@@ -83,7 +102,7 @@ njfulib c <id>
 
 ```
 
-- 签到(not support yet)
+### 签到(not support yet)
 
 ```bash
 njfulib in <id>
@@ -91,7 +110,7 @@ njfulib in <id>
 njfulib i <id>
 ```
 
-- 签退
+### 签退
 
 ```bash
 njfulib out <id> # 使用njfulib statue获取到期预约id
@@ -111,3 +130,4 @@ cargo run -- help
 
 - 支持签到
 - 支持空间预约
+- 查询楼层座位分布图

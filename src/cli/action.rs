@@ -1,38 +1,6 @@
+use super::day::Day;
+use super::reserve::Reserve;
 use structopt::StructOpt;
-use strum::{EnumString, EnumVariantNames, VariantNames};
-
-#[derive(EnumString, EnumVariantNames, Debug, Clone)]
-#[strum(serialize_all = "kebab_case")]
-pub enum Day {
-    Today,
-    Tomorrow,
-}
-
-#[derive(Debug, StructOpt)]
-///reserve a site
-pub struct Reserve {
-    /// the site to reserve
-    #[structopt(short, long)]
-    pub site: String,
-
-    /// the day to reserve
-    #[structopt(
-        short,
-        long,
-        possible_values = &["today","tomorrow"],
-        case_insensitive = true,
-        default_value = "today"
-    )]
-    pub day: Day,
-
-    /// the start time to reserve
-    #[structopt(long)]
-    pub start: String,
-
-    /// the end time to reserve
-    #[structopt(long)]
-    pub end: String,
-}
 
 ///Command line arguments
 #[derive(Debug, StructOpt)]
@@ -92,14 +60,4 @@ pub enum Action {
     /// check out
     #[structopt(alias = "o")]
     Out { id: String },
-}
-
-#[derive(Debug, StructOpt)]
-#[structopt(
-    name = "NJFU-library-cli",
-    about = "A command line connect NJFU library written in Rust"
-)]
-pub struct CommandLineArgs {
-    #[structopt(subcommand)]
-    pub action: Action,
 }

@@ -5,13 +5,13 @@ mod core;
 mod role;
 mod utils;
 
-use crate::core::handle_action;
-use cli::CommandLineArgs;
-use std::env::set_var;
 use structopt::StructOpt;
+
+use crate::cli::opt::Opt;
+use crate::core::handle_action;
 
 fn main() {
     // Get the command-line arguments.
-    let CommandLineArgs { action } = CommandLineArgs::from_args();
+    let Opt { action } = Opt::from_args();
     handle_action(action);
 }

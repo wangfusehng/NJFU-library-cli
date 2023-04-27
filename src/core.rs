@@ -1,5 +1,5 @@
-use crate::cli::Action::*;
-use crate::cli::{Action, Reserve};
+use crate::cli::action::Action::{self, *};
+use crate::cli::reserve::Reserve;
 use crate::context;
 use crate::utils::def;
 
