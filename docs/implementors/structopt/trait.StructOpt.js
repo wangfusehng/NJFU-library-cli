@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"njfulib":[["impl StructOpt for <a class=\"struct\" href=\"njfulib/cli/struct.Reserve.html\" title=\"struct njfulib::cli::Reserve\">Reserve</a>"],["impl StructOpt for <a class=\"enum\" href=\"njfulib/cli/enum.Action.html\" title=\"enum njfulib::cli::Action\">Action</a>"],["impl StructOpt for <a class=\"struct\" href=\"njfulib/cli/struct.CommandLineArgs.html\" title=\"struct njfulib::cli::CommandLineArgs\">CommandLineArgs</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

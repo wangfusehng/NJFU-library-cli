@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["BASE_URL","Library base url"],["CENTER_URL","Library center url"],["CLIENT",""],["DEVICE_URL","Library device url"],["HEADERMAP","rewest header"],["LINE_SEPARATOR","line separator"],["LOGIN_URL","Library login url"],["RESERVE_URL","Library reserve url"],["ROOMS","Library room info"]]};
