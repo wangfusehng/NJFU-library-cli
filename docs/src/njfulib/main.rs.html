@@ -22,14 +22,14 @@
 <span class="kw">mod </span>role;
 <span class="kw">mod </span>utils;
 
-<span class="kw">use </span><span class="kw">crate</span>::core::handle_action;
-<span class="kw">use </span>cli::CommandLineArgs;
-<span class="kw">use </span>std::env::set_var;
 <span class="kw">use </span>structopt::StructOpt;
+
+<span class="kw">use </span><span class="kw">crate</span>::cli::opt::Opt;
+<span class="kw">use </span><span class="kw">crate</span>::core::handle_action;
 
 <span class="kw">fn </span>main() {
     <span class="comment">// Get the command-line arguments.
-    </span><span class="kw">let </span>CommandLineArgs { action } = CommandLineArgs::from_args();
+    </span><span class="kw">let </span>Opt { action } = Opt::from_args();
     handle_action(action);
 }
 </code></pre></div>
