@@ -6,7 +6,7 @@
 ![LICENSE](https://img.shields.io/badge/LICENSE-MIT-yellow)
 ![wakatime](https://wakatime.com/badge/user/cfee0eb2-658b-4917-a1ed-9801e76b961f/project/896c2bad-d07b-4cfd-bf71-35a4cb5d13dc.svg)
 
-NJFU-library-cli 是使用rust编写的实现图书馆查询,预约,签到,签退的命令行工具
+NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签到,签退,取消的命令行工具
 
 ## how to use
 
@@ -67,6 +67,14 @@ njfulib statue
 njfulib s
 ```
 
+- 预约
+
+```bash
+njfulib reserve --day today --site <site> --start <start time> --end <end time>
+# or
+njfulib r -s <site> --start <start time> --end <end time> # --start --end 不可缩写
+```
+
 - 取消
 
 ```bash
@@ -96,7 +104,7 @@ njfulib o <id>
 git clone https://github.com/jyf-111/NJFU-library-cli.git
 cd NJFU-library-cli
 cargo build
-cargo run help
+cargo run -- help
 ```
 
 ## roadmap

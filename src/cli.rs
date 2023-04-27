@@ -87,7 +87,7 @@ pub enum Action {
 
     /// check in (not support yet)
     #[structopt(alias = "i")]
-    In { site: String },
+    In { _id: String },
 
     /// check out
     #[structopt(alias = "o")]

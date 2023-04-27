@@ -75,7 +75,7 @@ pub fn handle_action(action: Action) {
             }
         }
 
-        In { site } => {
+        In { _id } => {
             panic!("check in is not supported yet.")
         }
 
