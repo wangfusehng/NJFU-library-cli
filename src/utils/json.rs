@@ -6,12 +6,11 @@ use crate::utils::html;
 use serde_json::Value;
 
 /// get_name_info
-pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>, String> {
+pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>, Box<dyn std::error::Error>> {
     let mut ret: Vec<Site> = Vec::new();
     let data = resp["data"].as_array().ok_or("parse site in response")?;
     for i in data {
-        let site: Site = serde_json::from_value((*i).clone())
-            .unwrap_or_else(|err| panic!("parse site in response \n detail: \n {}", err));
+        let site: Site = serde_json::from_value((*i).clone())?;
 
         let ts = site.ts().ok_or("parse ts in site")?;
         for j in ts {
