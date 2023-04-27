@@ -9,9 +9,7 @@ use serde_json::Value;
 /// get_name_info
 pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>> {
     let mut ret: Vec<Site> = Vec::new();
-    let data = resp["data"]
-        .as_array()
-        .ok_or(anyhow!("parse site in response"))?;
+    let data = resp["data"].as_array().context("parse site in response")?;
     for i in data {
         let site: Site = serde_json::from_value((*i).clone())?;
 
@@ -31,9 +29,7 @@ pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>> {
 
 /// get_site_info
 pub fn get_site_info(resp: Value) -> Result<Site> {
-    let data = resp["data"]
-        .as_array()
-        .ok_or(anyhow!("parse site in response"))?;
+    let data = resp["data"].as_array().context("parse site in response")?;
 
     serde_json::from_value(data[0].clone()).context("parse site error")
 }

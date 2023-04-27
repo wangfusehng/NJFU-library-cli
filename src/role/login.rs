@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use home::home_dir;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -18,7 +18,7 @@ impl Login {
     }
     /// save the user's state to the file
     pub fn save_to_file(&self) -> Result<()> {
-        let root = home_dir().unwrap();
+        let root = home_dir().context("can not get home dir")?;
         let path = root.join(".njfu-library-cli.json");
 
         let mut output = File::create(path)?;
@@ -30,10 +30,10 @@ impl Login {
     /// # read_from_file
     /// read the user's state from the file
     pub fn read_from_file(&mut self) -> Result<()> {
-        let root = home_dir().unwrap();
+        let root = home_dir().context("can not get home dir")?;
         let path = root.join(".njfu-library-cli.json");
 
-        let input = File::open(path)?;
+        let input = File::open(path).context("please login first")?;
         let student: Login = serde_json::from_reader(input)?;
         self.username = student.username;
         self.password = student.password;

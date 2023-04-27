@@ -4,7 +4,7 @@ use scraper::{ElementRef, Html, Selector};
 use serde_json::Value;
 
 pub fn parse_state(resp: Value) -> Result<Vec<State>> {
-    let msg = resp["msg"].as_str().ok_or(anyhow!("no msg in response"))?;
+    let msg = resp["msg"].as_str().context("no msg in response")?;
     let correct_html = msg.replace("tbody", "table");
     let msg = Html::parse_fragment(correct_html.as_str());
 
@@ -31,7 +31,7 @@ fn parse_name(item: &ElementRef) -> Result<String> {
     Ok(item
         .select(&a_selector)
         .nth(0)
-        .ok_or(anyhow!("no name in item of response"))?
+        .context("no name in item of response")?
         .inner_html())
 }
 
@@ -40,7 +40,7 @@ fn parse_start_time(item: &ElementRef) -> Result<String> {
     Ok(item
         .select(&time_selector)
         .nth(0)
-        .ok_or(anyhow!("no start_time in item of response"))?
+        .context("no start_time in item of response")?
         .inner_html())
 }
 
@@ -49,7 +49,7 @@ fn parse_end_time(item: &ElementRef) -> Result<String> {
     Ok(item
         .select(&time_selector)
         .nth(1)
-        .ok_or(anyhow!("no end_time in item of response"))?
+        .context("no end_time in item of response")?
         .inner_html())
 }
 
@@ -69,10 +69,10 @@ fn parse_id(item: &ElementRef) -> Result<String> {
                             let id = onclick
                                 .split("(")
                                 .nth(1)
-                                .ok_or(anyhow!("no id in onclick"))?
+                                .context("no id in onclick")?
                                 .split(")")
                                 .nth(0)
-                                .ok_or(anyhow!("no id in onclick"))?;
+                                .context("no id in onclick")?;
                             Ok(id.to_string())
                         }
                         None => Ok("none".to_string()),

@@ -126,6 +126,8 @@ cargo build
 cargo run -- help
 ```
 
+[here is doc](https://wycis.me/NJFU-library-cli/njfulib/)
+
 ## roadmap
 
 - 支持签到
