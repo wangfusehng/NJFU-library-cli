@@ -7,7 +7,6 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 pub enum Action {
     ///Query library site or student
-    #[structopt(alias = "q")]
     Query {
         /// the day to query
         #[structopt(
@@ -29,42 +28,35 @@ pub enum Action {
     },
 
     ///Login library
-    #[structopt(alias = "l")]
     Login {
         /// username to login
-        #[structopt(short, long)]
+        #[structopt(short, long, env = "NJFUUSERNAME")]
         username: String,
 
         /// password to login
-        #[structopt(short, long)]
+        #[structopt(short, long, env = "NJFUPASSWORD", hide_env_values = true)]
         password: String,
     },
 
     ///list personal status
-    #[structopt(alias = "s")]
     State {},
 
     ///cancel the reservation
-    #[structopt(alias = "c")]
     Cancel {
         /// the id of the reservation to cancel
         id: String,
     },
 
     ///reserve a site
-    #[structopt(alias = "r")]
     Reserve(Reserve),
 
     /// check in (not support yet)
-    #[structopt(alias = "i")]
     In { _id: String },
 
     /// check out
-    #[structopt(alias = "o")]
     Out { id: String },
 
     /// show info
-    #[structopt()]
     Info {
         #[structopt(
             possible_values = &["floor","author","user"],

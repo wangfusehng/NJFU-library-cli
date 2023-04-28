@@ -12,7 +12,7 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签�
 
 ### for windows
 
-- [click here to download](https://github.com/jyf-111/NJFU-library-cli/releases/download/v1.0.0/njfulib.exe)
+- [click here to download](https://github.com/jyf-111/NJFU-library-cli/releases/)
 
 - if you use scoop
 
@@ -41,11 +41,13 @@ njfulib -h
 - 首次预约,取消,签退需要登录
 - 查询不需要登录
 - login 会把密码保存在`~/.njfu-library-cli.json`
+- 可以通过`--username`和`--password`将账号密码传递给程序
+- 也可以通过`NJFUUSERNAME`和`NJFUPASSWORD`将账号密码传递给程序
 
 ```bash
 njfulib login --username <username> --password <password>
 # or
-njfulib l -u <username> -p <password>
+njfulib login -u <username> -p <password>
 ```
 
 ### 查询
@@ -54,12 +56,12 @@ njfulib l -u <username> -p <password>
 # 按学生姓名查询
 njfulib query --day=today --name <your name>
 # or
-njfulib q -n <your name> # 参数day默认为today
+njfulib query -n <your name> # 参数day默认为today
 
 # 按作为查询
 njfulib query --site <site name>
 # or
-njfulib q -s <site name>
+njfulib query -s <site name>
 ```
 
 所有楼层
@@ -81,9 +83,7 @@ njfulib q -s <site name>
 ### 查看所有预约
 
 ```bash
-njfulib statue
-# or
-njfulib s
+njfulib state
 ```
 
 ### 预约
@@ -91,14 +91,13 @@ njfulib s
 ```bash
 njfulib reserve --day today --site <site> --start <start time> --end <end time>
 # or
-njfulib r -s <site> --start <start time> --end <end time> # --start --end 不可缩写
+njfulib reserve -s <site> --start <start time> --end <end time> # --start --end 不可缩写
 ```
 
 ### 取消
 
 ```bash
 njfulib cancel <id> # 使用njfulib statue获取未到期预约id
-njfulib c <id>
 
 ```
 
@@ -106,15 +105,12 @@ njfulib c <id>
 
 ```bash
 njfulib in <id>
-# or
-njfulib i <id>
 ```
 
 ### 签退
 
 ```bash
 njfulib out <id> # 使用njfulib statue获取到期预约id
-njfulib o <id>
 ```
 
 ### info
@@ -122,6 +118,7 @@ njfulib o <id>
 ```bash
 njfulib info floor
 njfulib info author
+njfulib info user
 ```
 
 ## build from source
