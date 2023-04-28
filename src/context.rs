@@ -42,8 +42,8 @@ impl Context {
             let mut data = body.clone();
             data.insert("room_id", room_id.as_str());
 
-            let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), data)
-                .unwrap_or_else(|err| {
+            let resp =
+                http::post(def::DEVICE_URL, def::HEADERMAP.clone(), data).unwrap_or_else(|err| {
                     panic!(
                         "parse error when scan student in {} \n detail: {}",
                         room_name, err
@@ -74,7 +74,7 @@ impl Context {
                 };
                 body.insert("date", date.as_str());
 
-                let resp = http::post(def::DEVICE_URL.as_str(), def::HEADERMAP.clone(), body)
+                let resp = http::post(def::DEVICE_URL, def::HEADERMAP.clone(), body)
                     .expect("net error when querying site");
 
                 json::get_site_info(resp)
@@ -92,7 +92,7 @@ impl Context {
         body.insert("act", "login");
         body.insert("id", login.username());
         body.insert("pwd", login.password());
-        let resp = http::post(def::LOGIN_URL.as_str(), def::HEADERMAP.clone(), body);
+        let resp = http::post(def::LOGIN_URL, def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_login_info(resp),
             Err(e) => Err(e),
@@ -101,7 +101,7 @@ impl Context {
 
     /// # login to the server.
     pub fn login(&self, username: String, password: String) -> Result<Student> {
-        let student = Login::new(username.clone(), password.clone());
+        let student = Login::new(username, password);
         student.save_to_file().expect("save student info failed");
         self.handle_login()
     }
@@ -116,7 +116,7 @@ impl Context {
         body.insert("strat", "90");
         body.insert("StatFlag", "New");
 
-        let resp = http::post(def::CENTER_URL.as_str(), def::HEADERMAP.clone(), body);
+        let resp = http::post(def::CENTER_URL, def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_state_info(resp),
             Err(e) => Err(e),
@@ -132,7 +132,7 @@ impl Context {
         body.insert("act", "del_resv");
         body.insert("id", id.as_str());
 
-        let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
+        let resp = http::post(def::RESERVE_URL, def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_cancel_info(resp),
             Err(e) => Err(e),
@@ -154,7 +154,7 @@ impl Context {
         body.insert("start", start_time.as_str());
         body.insert("end", end_time.as_str());
 
-        let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
+        let resp = http::post(def::RESERVE_URL, def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_reserve_info(resp),
             Err(e) => Err(e),
@@ -199,7 +199,7 @@ impl Context {
         body.insert("type", "2");
         body.insert("resv_id", id.as_str());
 
-        let resp = http::post(def::RESERVE_URL.as_str(), def::HEADERMAP.clone(), body);
+        let resp = http::post(def::RESERVE_URL, def::HEADERMAP.clone(), body);
         match resp {
             Ok(resp) => json::get_check_out_info(resp),
             Err(e) => Err(e),

@@ -2,23 +2,17 @@ use crate::role::floor::Floor;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
+pub const LINE_SEPARATOR: &str = "--------------------";
+pub const BASE_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/";
+pub const DEVICE_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx";
+pub const LOGIN_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.aspx";
+pub const CENTER_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/center.aspx";
+pub const RESERVE_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx";
+
 lazy_static! {
     pub static ref FLOOR: Vec<&'static str> = vec![
-            "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
-        ];
-    /// line separator
-    pub static ref LINE_SEPARATOR: String = String::from("--------------------\n");
-    ///Library base url
-    pub static ref BASE_URL: String = String::from("https://libic.njfu.edu.cn/ClientWeb/pro/ajax/");
-    ///Library device url
-    pub static ref DEVICE_URL: String = BASE_URL.to_owned() + "device.aspx";
-    ///Library login url
-    pub static ref LOGIN_URL: String = BASE_URL.to_owned() + "login.aspx";
-    ///Library center url
-    pub static ref CENTER_URL: String = BASE_URL.to_owned() + "center.aspx";
-    /// Library reserve url
-    pub static ref RESERVE_URL: String = BASE_URL.to_owned() + "reserve.aspx";
-    /// Library room info
+        "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
+    ];
     pub static ref ROOMS: HashMap<&'static str, Floor> = {
         let mut map = HashMap::new();
         map.insert("2F-A", Floor::new(100455344, 100455361, 100455800, 440));
@@ -39,11 +33,11 @@ lazy_static! {
     pub static ref HEADERMAP: reqwest::header::HeaderMap = {
         let mut headermap = reqwest::header::HeaderMap::new();
         headermap.insert(
-            reqwest::header::USER_AGENT,
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-                .parse()
-                .unwrap(),
-        );
+                reqwest::header::USER_AGENT,
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+                    .parse()
+                    .unwrap(),
+            );
         headermap.insert(
             reqwest::header::CONTENT_TYPE,
             "application/x-www-form-urlencoded".parse().unwrap(),

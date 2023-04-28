@@ -14,7 +14,7 @@ pub fn handle_action(action: Action) {
     match action {
         Query { day, name, site } => {
             println!("Result:");
-            print!("{}", def::LINE_SEPARATOR.as_str());
+            println!("{}", def::LINE_SEPARATOR);
 
             if name.is_some() {
                 match context.query_by_name(day.clone(), name.unwrap()) {
@@ -37,7 +37,7 @@ pub fn handle_action(action: Action) {
 
         Login { username, password } => {
             println!("Login result:");
-            print!("{}", def::LINE_SEPARATOR.as_str());
+            println!("{}", def::LINE_SEPARATOR);
             match context.login(username, password) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
@@ -46,7 +46,7 @@ pub fn handle_action(action: Action) {
 
         State {} => {
             println!("State:");
-            print!("{}", def::LINE_SEPARATOR.as_str());
+            println!("{}", def::LINE_SEPARATOR);
             match context.status() {
                 Ok(result) => {
                     println!("site\t\tstart_time\t\tend_time\t\tid");
@@ -58,7 +58,7 @@ pub fn handle_action(action: Action) {
 
         Cancel { id } => {
             println!("Cancel result:");
-            print!("{}", def::LINE_SEPARATOR.as_str());
+            println!("{}", def::LINE_SEPARATOR);
             match context.cancel(id) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
@@ -72,7 +72,7 @@ pub fn handle_action(action: Action) {
             end,
         }) => {
             println!("Reserve result:");
-            print!("{}", def::LINE_SEPARATOR.as_str());
+            println!("{}", def::LINE_SEPARATOR);
             match context.reserve(sites, day, start, end) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
@@ -85,7 +85,7 @@ pub fn handle_action(action: Action) {
 
         Out { id } => {
             println!("Check out result:");
-            print!("{}", def::LINE_SEPARATOR.as_str());
+            println!("{}", def::LINE_SEPARATOR);
             match context.check_out(id) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
@@ -94,10 +94,10 @@ pub fn handle_action(action: Action) {
 
         Info { infomation } => {
             println!("Info result:");
-            print!("{}", def::LINE_SEPARATOR.as_str());
+            println!("{}", def::LINE_SEPARATOR);
             match infomation {
                 Infomation::Floor => {
-                    println!("name id\t\tstart\tend\t\tnumber");
+                    println!("name id\t\t\tstart\t\tend\t\tnumber");
                     for (name, floor) in def::ROOMS.iter() {
                         println!("{} {}", name, floor);
                     }
