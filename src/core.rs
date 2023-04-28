@@ -1,7 +1,10 @@
 use crate::cli::action::Action::{self, *};
+use crate::cli::infomation::Infomation;
 use crate::cli::reserve::Reserve;
 use crate::context;
 use crate::utils::def;
+use ferris_says::say;
+use std::io::{stdout, BufWriter};
 
 /// Handle the cmd action.
 pub fn handle_action(action: Action) {
@@ -85,6 +88,24 @@ pub fn handle_action(action: Action) {
             match context.check_out(id) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
+            }
+        }
+
+        Info { infomation } => {
+            println!("Info result:");
+            print!("{}", def::LINE_SEPARATOR.as_str());
+            match infomation {
+                Infomation::Floor => {
+                    println!(
+                        "{:?}",
+                        context.floor_state().expect("get floor state failed.")
+                    )
+                }
+                Infomation::Author => {
+                    let author = context.author_state().expect("get floor state failed.");
+                    let writer = BufWriter::new(stdout());
+                    say(&author, 24, writer).expect("say failed.")
+                }
             }
         }
     };

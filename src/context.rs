@@ -4,6 +4,7 @@ use crate::role::site::*;
 use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
+use crate::utils::def;
 use crate::utils::json;
 use crate::utils::*;
 use anyhow::{anyhow, Result};
@@ -178,5 +179,15 @@ impl Context {
             Ok(resp) => json::get_check_out_info(resp),
             Err(e) => Err(e),
         }
+    }
+
+    pub fn floor_state(&self) -> Result<Vec<&'static str>> {
+        Ok(vec![
+            "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
+        ])
+    }
+
+    pub fn author_state(&self) -> Result<String> {
+        Ok(String::from("author: 蒋雨峰\n南京林业大学20级本科生\n"))
     }
 }

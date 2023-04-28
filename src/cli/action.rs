@@ -1,5 +1,6 @@
-use super::day::Day;
-use super::reserve::Reserve;
+use crate::cli::day::Day;
+use crate::cli::infomation::Infomation;
+use crate::cli::reserve::Reserve;
 use structopt::StructOpt;
 
 ///Command line arguments
@@ -38,6 +39,7 @@ pub enum Action {
         #[structopt(short, long)]
         password: String,
     },
+
     ///list personal status
     #[structopt(alias = "s")]
     State {},
@@ -60,4 +62,17 @@ pub enum Action {
     /// check out
     #[structopt(alias = "o")]
     Out { id: String },
+
+    /// show info
+    #[structopt()]
+    Info {
+        #[structopt(
+        short,
+        long,
+        possible_values = &["floor","author"],
+        case_insensitive = true,
+        default_value = "floor"
+        )]
+        infomation: Infomation,
+    },
 }
