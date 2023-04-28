@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["action",""],["day",""],["opt",""],["reserve",""]]};
+window.SIDEBAR_ITEMS = {"mod":[["action",""],["day",""],["infomation",""],["opt",""],["reserve",""]]};

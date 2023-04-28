@@ -74,10 +74,6 @@
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::role::site::Site;
 <span class="kw">use </span><span class="kw">crate</span>::role::state::State;
 <span class="kw">use </span><span class="kw">crate</span>::role::student::Student;
@@ -89,9 +85,7 @@
 <span class="doccomment">/// get_name_info
 </span><span class="kw">pub fn </span>get_name_info(resp: Value, name: String) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;Site&gt;&gt; {
     <span class="kw">let </span><span class="kw-2">mut </span>ret: Vec&lt;Site&gt; = Vec::new();
-    <span class="kw">let </span>data = resp[<span class="string">&quot;data&quot;</span>]
-        .as_array()
-        .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;parse site in response&quot;</span>))<span class="question-mark">?</span>;
+    <span class="kw">let </span>data = resp[<span class="string">&quot;data&quot;</span>].as_array().context(<span class="string">&quot;parse site in response&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">for </span>i <span class="kw">in </span>data {
         <span class="kw">let </span>site: Site = serde_json::from_value((<span class="kw-2">*</span>i).clone())<span class="question-mark">?</span>;
 
@@ -111,9 +105,7 @@
 
 <span class="doccomment">/// get_site_info
 </span><span class="kw">pub fn </span>get_site_info(resp: Value) -&gt; <span class="prelude-ty">Result</span>&lt;Site&gt; {
-    <span class="kw">let </span>data = resp[<span class="string">&quot;data&quot;</span>]
-        .as_array()
-        .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;parse site in response&quot;</span>))<span class="question-mark">?</span>;
+    <span class="kw">let </span>data = resp[<span class="string">&quot;data&quot;</span>].as_array().context(<span class="string">&quot;parse site in response&quot;</span>)<span class="question-mark">?</span>;
 
     serde_json::from_value(data[<span class="number">0</span>].clone()).context(<span class="string">&quot;parse site error&quot;</span>)
 }

@@ -61,15 +61,20 @@
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
 <a href="#63" id="63">63</a>
-</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::day::Day;
-<span class="kw">use </span><span class="kw">super</span>::reserve::Reserve;
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
+<a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::cli::day::Day;
+<span class="kw">use </span><span class="kw">crate</span>::cli::infomation::Infomation;
+<span class="kw">use </span><span class="kw">crate</span>::cli::reserve::Reserve;
 <span class="kw">use </span>structopt::StructOpt;
 
 <span class="doccomment">///Command line arguments
 </span><span class="attr">#[derive(Debug, StructOpt)]
 </span><span class="kw">pub enum </span>Action {
     <span class="doccomment">///Query library site or student
-    </span><span class="attr">#[structopt(alias = <span class="string">&quot;q&quot;</span>)]
     </span>Query {
         <span class="doccomment">/// the day to query
         </span><span class="attr">#[structopt(
@@ -91,38 +96,43 @@
     },
 
     <span class="doccomment">///Login library
-    </span><span class="attr">#[structopt(alias = <span class="string">&quot;l&quot;</span>)]
     </span>Login {
         <span class="doccomment">/// username to login
-        </span><span class="attr">#[structopt(short, long)]
+        </span><span class="attr">#[structopt(short, long, env = <span class="string">&quot;NJFUUSERNAME&quot;</span>)]
         </span>username: String,
 
         <span class="doccomment">/// password to login
-        </span><span class="attr">#[structopt(short, long)]
+        </span><span class="attr">#[structopt(short, long, env = <span class="string">&quot;NJFUPASSWORD&quot;</span>, hide_env_values = <span class="bool-val">true</span>)]
         </span>password: String,
     },
+
     <span class="doccomment">///list personal status
-    </span><span class="attr">#[structopt(alias = <span class="string">&quot;s&quot;</span>)]
     </span>State {},
 
     <span class="doccomment">///cancel the reservation
-    </span><span class="attr">#[structopt(alias = <span class="string">&quot;c&quot;</span>)]
     </span>Cancel {
         <span class="doccomment">/// the id of the reservation to cancel
         </span>id: String,
     },
 
     <span class="doccomment">///reserve a site
-    </span><span class="attr">#[structopt(alias = <span class="string">&quot;r&quot;</span>)]
     </span>Reserve(Reserve),
 
     <span class="doccomment">/// check in (not support yet)
-    </span><span class="attr">#[structopt(alias = <span class="string">&quot;i&quot;</span>)]
     </span>In { _id: String },
 
     <span class="doccomment">/// check out
-    </span><span class="attr">#[structopt(alias = <span class="string">&quot;o&quot;</span>)]
     </span>Out { id: String },
+
+    <span class="doccomment">/// show info
+    </span>Info {
+        <span class="attr">#[structopt(
+            possible_values = <span class="kw-2">&amp;</span>[<span class="string">&quot;floor&quot;</span>,<span class="string">&quot;author&quot;</span>,<span class="string">&quot;user&quot;</span>]</span>,
+            case_insensitive = <span class="bool-val">true</span>,
+            default_value = <span class="string">&quot;floor&quot;
+        </span>)]
+        infomation: Infomation,
+    },
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="njfulib" data-themes="" data-resource-suffix="" data-rustdoc-version="1.68.2 (9eb3afe9e 2023-03-27)" data-search-js="search-98d53477a794af0b.js" data-settings-js="settings-c3c521c753752a1a.js" data-settings-css="settings-08ddfdda51b8ee2e.css" ></div></body></html>

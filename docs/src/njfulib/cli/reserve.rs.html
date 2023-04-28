@@ -33,8 +33,8 @@
 </span><span class="doccomment">///reserve a site
 </span><span class="kw">pub struct </span>Reserve {
     <span class="doccomment">/// the site to reserve
-    </span><span class="attr">#[structopt(short, long)]
-    </span><span class="kw">pub </span>site: String,
+    </span><span class="attr">#[structopt(short, long, required = <span class="bool-val">true</span>)]
+    </span><span class="kw">pub </span>sites: Vec&lt;String&gt;,
 
     <span class="doccomment">/// the day to reserve
     </span><span class="attr">#[structopt(

@@ -180,12 +180,39 @@
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
 <a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::cli::day::Day;
 <span class="kw">use </span><span class="kw">crate</span>::role::login::Login;
 <span class="kw">use </span><span class="kw">crate</span>::role::site::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::role::state::State;
 <span class="kw">use </span><span class="kw">crate</span>::role::student::Student;
 <span class="kw">use </span><span class="kw">crate</span>::role::ts::Ts;
+<span class="kw">use </span><span class="kw">crate</span>::utils::def;
 <span class="kw">use </span><span class="kw">crate</span>::utils::json;
 <span class="kw">use </span><span class="kw">crate</span>::utils::<span class="kw-2">*</span>;
 <span class="kw">use </span>anyhow::{anyhow, <span class="prelude-ty">Result</span>};
@@ -243,7 +270,7 @@
 
     <span class="doccomment">/// # Query the information of a site.
     </span><span class="kw">pub fn </span>query_by_site(<span class="kw-2">&amp;</span><span class="self">self</span>, day: Day, site: String) -&gt; <span class="prelude-ty">Result</span>&lt;Site&gt; {
-        <span class="kw">let </span>dev_id = get_site_id(site.clone());
+        <span class="kw">let </span>dev_id = site_name_to_id(site.clone());
         <span class="kw">match </span>dev_id {
             <span class="prelude-val">Ok</span>(dev_id) =&gt; {
                 <span class="kw">let </span><span class="kw-2">mut </span>body = HashMap::new();
@@ -320,12 +347,8 @@
         }
     }
 
-    <span class="doccomment">/// # reserve the site.
-    </span><span class="kw">pub fn </span>reserve(<span class="kw-2">&amp;</span><span class="self">self</span>, site: String, day: Day, start: String, end: String) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
-        <span class="comment">//login
-        </span><span class="self">self</span>.handle_login()<span class="question-mark">?</span>;
-
-        <span class="kw">let </span>id = get_site_id(site)<span class="question-mark">?</span>;
+    <span class="kw">fn </span>handle_reserve(<span class="kw-2">&amp;</span><span class="self">self</span>, site: String, day: Day, start: String, end: String) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="kw">let </span>id = site_name_to_id(site)<span class="question-mark">?</span>;
 
         <span class="kw">let </span><span class="kw-2">mut </span>body = HashMap::new();
         body.insert(<span class="string">&quot;act&quot;</span>, <span class="string">&quot;set_resv&quot;</span>);
@@ -346,7 +369,36 @@
         }
     }
 
-    <span class="kw">pub fn </span>check_out(<span class="kw-2">&amp;</span><span class="self">self</span>, id: String) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+    <span class="doccomment">/// # reserve the site.
+    </span><span class="kw">pub fn </span>reserve(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        sites: Vec&lt;String&gt;,
+        day: Day,
+        start: String,
+        end: String,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
+        <span class="comment">//login
+        </span><span class="self">self</span>.handle_login()<span class="question-mark">?</span>;
+
+        <span class="kw">let </span><span class="kw-2">mut </span>ret = String::new();
+
+        <span class="kw">for </span>site <span class="kw">in </span>sites {
+            <span class="kw">let </span>resp = <span class="self">self</span>.handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
+            <span class="kw">match </span>resp {
+                <span class="prelude-val">Ok</span>(resp) =&gt; {
+                    ret.push_str(<span class="macro">format!</span>(<span class="string">&quot;{}: {}\n&quot;</span>, site, resp).as_str());
+                    <span class="kw">if </span>resp.contains(<span class="string">&quot;成功&quot;</span>) {
+                        <span class="kw">return </span><span class="prelude-val">Ok</span>(ret);
+                    }
+                }
+                <span class="prelude-val">Err</span>(e) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(e),
+            }
+        }
+        <span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;no site from put in can be reserved&quot;</span>))
+    }
+
+    <span class="doccomment">/// check out site
+    </span><span class="kw">pub fn </span>check_out(<span class="kw-2">&amp;</span><span class="self">self</span>, id: String) -&gt; <span class="prelude-ty">Result</span>&lt;String&gt; {
         <span class="comment">//login
         </span><span class="self">self</span>.handle_login()<span class="question-mark">?</span>;
 

@@ -60,11 +60,17 @@
 <a href="#60" id="60">60</a>
 <a href="#61" id="61">61</a>
 <a href="#62" id="62">62</a>
+<a href="#63" id="63">63</a>
+<a href="#64" id="64">64</a>
+<a href="#65" id="65">65</a>
 </pre><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::role::floor::Floor;
 <span class="kw">use </span>lazy_static::lazy_static;
 <span class="kw">use </span>std::collections::HashMap;
 
 <span class="macro">lazy_static! </span>{
+    <span class="kw">pub static </span><span class="kw-2">ref </span>FLOOR: Vec&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str&gt; = <span class="macro">vec!</span>[
+            <span class="string">&quot;2F-A&quot;</span>, <span class="string">&quot;2F-B&quot;</span>, <span class="string">&quot;3F-A&quot;</span>, <span class="string">&quot;3F-B&quot;</span>, <span class="string">&quot;3F-C&quot;</span>, <span class="string">&quot;3FA-&quot;</span>, <span class="string">&quot;4F-A&quot;</span>, <span class="string">&quot;4FA-&quot;</span>, <span class="string">&quot;5F-A&quot;</span>, <span class="string">&quot;6F-A&quot;</span>, <span class="string">&quot;7F-A&quot;</span>,
+        ];
     <span class="doccomment">/// line separator
     </span><span class="kw">pub static </span><span class="kw-2">ref </span>LINE_SEPARATOR: String = String::from(<span class="string">&quot;--------------------\n&quot;</span>);
     <span class="doccomment">///Library base url

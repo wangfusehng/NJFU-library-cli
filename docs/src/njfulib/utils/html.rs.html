@@ -89,7 +89,7 @@
 <span class="kw">use </span>serde_json::Value;
 
 <span class="kw">pub fn </span>parse_state(resp: Value) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;State&gt;&gt; {
-    <span class="kw">let </span>msg = resp[<span class="string">&quot;msg&quot;</span>].as_str().ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no msg in response&quot;</span>))<span class="question-mark">?</span>;
+    <span class="kw">let </span>msg = resp[<span class="string">&quot;msg&quot;</span>].as_str().context(<span class="string">&quot;no msg in response&quot;</span>)<span class="question-mark">?</span>;
     <span class="kw">let </span>correct_html = msg.replace(<span class="string">&quot;tbody&quot;</span>, <span class="string">&quot;table&quot;</span>);
     <span class="kw">let </span>msg = Html::parse_fragment(correct_html.as_str());
 
@@ -116,7 +116,7 @@
     <span class="prelude-val">Ok</span>(item
         .select(<span class="kw-2">&amp;</span>a_selector)
         .nth(<span class="number">0</span>)
-        .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no name in item of response&quot;</span>))<span class="question-mark">?
+        .context(<span class="string">&quot;no name in item of response&quot;</span>)<span class="question-mark">?
         </span>.inner_html())
 }
 
@@ -125,7 +125,7 @@
     <span class="prelude-val">Ok</span>(item
         .select(<span class="kw-2">&amp;</span>time_selector)
         .nth(<span class="number">0</span>)
-        .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no start_time in item of response&quot;</span>))<span class="question-mark">?
+        .context(<span class="string">&quot;no start_time in item of response&quot;</span>)<span class="question-mark">?
         </span>.inner_html())
 }
 
@@ -134,7 +134,7 @@
     <span class="prelude-val">Ok</span>(item
         .select(<span class="kw-2">&amp;</span>time_selector)
         .nth(<span class="number">1</span>)
-        .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no end_time in item of response&quot;</span>))<span class="question-mark">?
+        .context(<span class="string">&quot;no end_time in item of response&quot;</span>)<span class="question-mark">?
         </span>.inner_html())
 }
 
@@ -154,10 +154,10 @@
                             <span class="kw">let </span>id = onclick
                                 .split(<span class="string">&quot;(&quot;</span>)
                                 .nth(<span class="number">1</span>)
-                                .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no id in onclick&quot;</span>))<span class="question-mark">?
+                                .context(<span class="string">&quot;no id in onclick&quot;</span>)<span class="question-mark">?
                                 </span>.split(<span class="string">&quot;)&quot;</span>)
                                 .nth(<span class="number">0</span>)
-                                .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;no id in onclick&quot;</span>))<span class="question-mark">?</span>;
+                                .context(<span class="string">&quot;no id in onclick&quot;</span>)<span class="question-mark">?</span>;
                             <span class="prelude-val">Ok</span>(id.to_string())
                         }
                         <span class="prelude-val">None </span>=&gt; <span class="prelude-val">Ok</span>(<span class="string">&quot;none&quot;</span>.to_string()),
