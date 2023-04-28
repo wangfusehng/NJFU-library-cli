@@ -65,14 +65,14 @@ pub fn handle_action(action: Action) {
         }
 
         Reserve(Reserve {
-            site,
+            sites,
             day,
             start,
             end,
         }) => {
             println!("Reserve result:");
             print!("{}", def::LINE_SEPARATOR.as_str());
-            match context.reserve(site, day, start, end) {
+            match context.reserve(sites, day, start, end) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
             }

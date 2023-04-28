@@ -5,8 +5,8 @@ use structopt::StructOpt;
 ///reserve a site
 pub struct Reserve {
     /// the site to reserve
-    #[structopt(short, long)]
-    pub site: String,
+    #[structopt(short, long, required = true)]
+    pub sites: Vec<String>,
 
     /// the day to reserve
     #[structopt(

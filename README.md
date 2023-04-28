@@ -89,9 +89,10 @@ njfulib state
 ### 预约
 
 ```bash
-njfulib reserve --day today --site <site> --start <start time> --end <end time>
+# 预约到第一个成功的座位为止
+njfulib reserve --day today --site <site1> <site2>... --start <start time> --end <end time>
 # or
-njfulib reserve -s <site> --start <start time> --end <end time> # --start --end 不可缩写
+njfulib reserve -s <site1> <site2>... --start <start time> --end <end time> # --start --end 不可缩写
 ```
 
 ### 取消

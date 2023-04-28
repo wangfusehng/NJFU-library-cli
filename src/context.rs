@@ -139,11 +139,7 @@ impl Context {
         }
     }
 
-    /// # reserve the site.
-    pub fn reserve(&self, site: String, day: Day, start: String, end: String) -> Result<String> {
-        //login
-        self.handle_login()?;
-
+    fn handle_reserve(&self, site: String, day: Day, start: String, end: String) -> Result<String> {
         let id = get_site_id(site)?;
 
         let mut body = HashMap::new();
@@ -163,6 +159,34 @@ impl Context {
             Ok(resp) => json::get_reserve_info(resp),
             Err(e) => Err(e),
         }
+    }
+
+    /// # reserve the site.
+    pub fn reserve(
+        &self,
+        sites: Vec<String>,
+        day: Day,
+        start: String,
+        end: String,
+    ) -> Result<String> {
+        //login
+        self.handle_login()?;
+
+        let mut ret = String::new();
+
+        for site in sites {
+            let resp = self.handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
+            match resp {
+                Ok(resp) => {
+                    ret.push_str(format!("{}: {}\n", site, resp).as_str());
+                    if resp.contains("成功") {
+                        return Ok(ret);
+                    }
+                }
+                Err(e) => return Err(e),
+            }
+        }
+        Err(anyhow!("no site from put in can be reserved"))
     }
 
     /// check out site
