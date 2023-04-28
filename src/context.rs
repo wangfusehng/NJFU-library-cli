@@ -62,7 +62,7 @@ impl Context {
 
     /// # Query the information of a site.
     pub fn query_by_site(&self, day: Day, site: String) -> Result<Site> {
-        let dev_id = get_site_id(site.clone());
+        let dev_id = site_name_to_id(site.clone());
         match dev_id {
             Ok(dev_id) => {
                 let mut body = HashMap::new();
@@ -140,7 +140,7 @@ impl Context {
     }
 
     fn handle_reserve(&self, site: String, day: Day, start: String, end: String) -> Result<String> {
-        let id = get_site_id(site)?;
+        let id = site_name_to_id(site)?;
 
         let mut body = HashMap::new();
         body.insert("act", "set_resv");
@@ -204,24 +204,5 @@ impl Context {
             Ok(resp) => json::get_check_out_info(resp),
             Err(e) => Err(e),
         }
-    }
-
-    /// get all floors
-    pub fn floor_state(&self) -> Result<Vec<&'static str>> {
-        Ok(vec![
-            "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
-        ])
-    }
-
-    /// get author info
-    pub fn author_state(&self) -> Result<String> {
-        Ok(String::from("author: 蒋雨峰\n南京林业大学20级本科生\n"))
-    }
-
-    /// get user info
-    pub fn user_state(&self) -> Result<Login> {
-        let mut login = Login::new("".to_string(), "".to_string());
-        login.read_from_file()?;
-        Ok(login)
     }
 }

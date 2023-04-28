@@ -64,7 +64,7 @@ impl Site {
 }
 
 /// tranform the site to the site id
-pub fn get_site_id(site: String) -> Result<String> {
+pub fn site_name_to_id(site: String) -> Result<String> {
     let _floor = &site[0..4];
     match &site[4..].parse() {
         Ok(_site) => {
@@ -84,4 +84,28 @@ pub fn get_site_id(site: String) -> Result<String> {
         }
         Err(e) => Err(anyhow!("parse room id error: {}", e)),
     }
+}
+
+/// tranform site id to site name
+pub fn site_id_to_name(id: u32) -> Result<String> {
+    let mut floor = "";
+    for (k, v) in def::ROOMS.iter() {
+        if id >= v.dev_start() && id <= v.dev_end() {
+            floor = k;
+            break;
+        }
+    }
+    if floor == "" {
+        return Err(anyhow!("parse room name error"));
+    }
+    let site = id - def::ROOMS.get(floor).unwrap().dev_start() + 1;
+    Ok(format!("{}{:03}", floor, site))
+}
+
+#[test]
+fn test_site() {
+    let site = "5F-A100".to_string();
+    let get_site =
+        site_id_to_name(site_name_to_id(site.to_string()).unwrap().parse().unwrap()).unwrap();
+    assert_eq!(site, get_site);
 }

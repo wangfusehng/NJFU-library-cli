@@ -2,6 +2,7 @@ use crate::cli::action::Action::{self, *};
 use crate::cli::infomation::Infomation;
 use crate::cli::reserve::Reserve;
 use crate::context;
+use crate::role::login;
 use crate::utils::def;
 use ferris_says::say;
 use std::io::{stdout, BufWriter};
@@ -96,19 +97,20 @@ pub fn handle_action(action: Action) {
             print!("{}", def::LINE_SEPARATOR.as_str());
             match infomation {
                 Infomation::Floor => {
-                    println!(
-                        "{:?}",
-                        context.floor_state().expect("get floor state failed.")
-                    )
+                    println!("name id\t\tstart\tend\t\tnumber");
+                    for (name, floor) in def::ROOMS.iter() {
+                        println!("{} {}", name, floor);
+                    }
                 }
                 Infomation::Author => {
-                    let author = context.author_state().expect("get floor state failed.");
+                    let author = String::from("author: 蒋雨峰\n南京林业大学20级本科生\n");
                     let writer = BufWriter::new(stdout());
                     say(&author, 24, writer).expect("say failed.")
                 }
                 Infomation::User => {
-                    let user = context.user_state().expect("get user info state failed");
-                    println!("{}", user);
+                    let mut login = login::Login::new("".to_string(), "".to_string());
+                    login.read_from_file().expect("read config error");
+                    println!("{}", login);
                 }
             }
         }

@@ -3,6 +3,9 @@ use lazy_static::lazy_static;
 use std::collections::HashMap;
 
 lazy_static! {
+    pub static ref FLOOR: Vec<&'static str> = vec![
+            "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
+        ];
     /// line separator
     pub static ref LINE_SEPARATOR: String = String::from("--------------------\n");
     ///Library base url
