@@ -165,6 +165,7 @@ impl Context {
         }
     }
 
+    /// check out site
     pub fn check_out(&self, id: String) -> Result<String> {
         //login
         self.handle_login()?;
@@ -181,13 +182,22 @@ impl Context {
         }
     }
 
+    /// get all floors
     pub fn floor_state(&self) -> Result<Vec<&'static str>> {
         Ok(vec![
             "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
         ])
     }
 
+    /// get author info
     pub fn author_state(&self) -> Result<String> {
         Ok(String::from("author: 蒋雨峰\n南京林业大学20级本科生\n"))
+    }
+
+    /// get user info
+    pub fn user_state(&self) -> Result<Login> {
+        let mut login = Login::new("".to_string(), "".to_string());
+        login.read_from_file()?;
+        Ok(login)
     }
 }

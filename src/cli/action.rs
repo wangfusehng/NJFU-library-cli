@@ -67,11 +67,9 @@ pub enum Action {
     #[structopt()]
     Info {
         #[structopt(
-        short,
-        long,
-        possible_values = &["floor","author"],
-        case_insensitive = true,
-        default_value = "floor"
+            possible_values = &["floor","author","user"],
+            case_insensitive = true,
+            default_value = "floor"
         )]
         infomation: Infomation,
     },

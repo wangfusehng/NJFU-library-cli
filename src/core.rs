@@ -48,7 +48,7 @@ pub fn handle_action(action: Action) {
             print!("{}", def::LINE_SEPARATOR.as_str());
             match context.status() {
                 Ok(result) => {
-                    println!("id\t\tsite\t\tstart_time\t\tend_time");
+                    println!("site\t\tstart_time\t\tend_time\t\tid");
                     result.iter().for_each(|x| println!("{}", x));
                 }
                 Err(e) => panic!("{}", e),
@@ -105,6 +105,10 @@ pub fn handle_action(action: Action) {
                     let author = context.author_state().expect("get floor state failed.");
                     let writer = BufWriter::new(stdout());
                     say(&author, 24, writer).expect("say failed.")
+                }
+                Infomation::User => {
+                    let user = context.user_state().expect("get user info state failed");
+                    println!("{}", user);
                 }
             }
         }

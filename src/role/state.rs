@@ -15,8 +15,8 @@ impl std::fmt::Display for State {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}\t{}\t\t{}\t\t{}",
-            self.id, self.site, self.start_time, self.end_time
+            "{}\t\t{}\t\t{}\t\t{}",
+            self.site, self.start_time, self.end_time, self.id
         )
     }
 }

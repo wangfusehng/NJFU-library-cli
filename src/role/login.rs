@@ -11,6 +11,12 @@ pub struct Login {
     password: String,
 }
 
+impl std::fmt::Display for Login {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "username: {}\npassword: {}", self.username, "*********")
+    }
+}
+
 impl Login {
     /// create a new Info struct
     pub fn new(username: String, password: String) -> Self {

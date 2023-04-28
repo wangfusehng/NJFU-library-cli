@@ -117,6 +117,13 @@ njfulib out <id> # 使用njfulib statue获取到期预约id
 njfulib o <id>
 ```
 
+### info
+
+```bash
+njfulib info floor
+njfulib info author
+```
+
 ## build from source
 
 ```bash
