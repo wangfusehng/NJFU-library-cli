@@ -66,13 +66,24 @@ pub fn handle_action(action: Action) {
 
         Reserve(Reserve {
             sites,
+            filter,
             day,
             start,
             end,
         }) => {
             println!("Reserve result:");
             println!("{}", def::LINE_SEPARATOR);
-            match reserve(sites, day, start, end) {
+
+            // default is def::FLOOR
+            let floor = match filter {
+                Some(f) => f,
+                None => def::FLOOR
+                    .iter()
+                    .map(|item| item.to_string())
+                    .collect::<Vec<String>>(),
+            };
+
+            match reserve(sites, floor, day, start, end) {
                 Ok(_) => {}
                 Err(e) => panic!("{}", e),
             }

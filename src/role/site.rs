@@ -97,10 +97,29 @@ pub fn site_id_to_name(id: u32) -> Result<String> {
         }
     }
     if floor == "" {
-        return Err(anyhow!("parse room name error"));
+        return Err(anyhow!("parse id to name error"));
     }
     let site = id - def::ROOMS.get(floor).unwrap().dev_start() + 1;
     Ok(format!("{}{:03}", floor, site))
+}
+
+/// site id fiter ny floor
+pub fn site_id_fiter_by_floor(id: u32, floor: Vec<String>) -> Result<bool> {
+    let mut floor_name = "";
+    for i in floor.iter() {
+        let v = def::ROOMS
+            .get(i.as_str())
+            .ok_or(anyhow!("parse room error"))?;
+
+        if id >= v.dev_start() && id <= v.dev_end() {
+            floor_name = i.as_str();
+            break;
+        }
+    }
+    if floor_name == "" {
+        return Ok(false);
+    }
+    Ok(true)
 }
 
 /// get random site name in libray

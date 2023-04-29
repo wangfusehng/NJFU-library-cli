@@ -8,6 +8,9 @@ pub struct Reserve {
     #[structopt(short, long)]
     pub sites: Option<Vec<String>>,
 
+    #[structopt(short, long)]
+    pub filter: Option<Vec<String>>,
+
     /// the day to reserve
     #[structopt(
         short,

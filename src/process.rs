@@ -154,13 +154,24 @@ fn handle_reserve(site: String, day: Day, start: String, end: String) -> Result<
 }
 
 /// # reserve the site.
-pub fn reserve(sites: Option<Vec<String>>, day: Day, start: String, end: String) -> Result<()> {
+pub fn reserve(
+    sites: Option<Vec<String>>,
+    filter: Vec<String>,
+    day: Day,
+    start: String,
+    end: String,
+) -> Result<()> {
     //login
     handle_login()?;
 
     match sites {
         Some(sites) => {
             for site in sites {
+                // filter by floor
+                if false == site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?
+                {
+                    continue;
+                }
                 let resp = handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
                 match resp {
                     Ok(resp) => {
@@ -178,6 +189,12 @@ pub fn reserve(sites: Option<Vec<String>>, day: Day, start: String, end: String)
             let mut cnt = 0;
             while cnt < 20 {
                 let site = site::get_random_site_name()?;
+
+                // filter by floor
+                if false == site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?
+                {
+                    continue;
+                }
                 let resp = handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
                 match resp {
                     Ok(resp) => {
