@@ -10,7 +10,7 @@ use structopt::StructOpt;
     njfulib login -u <username> -p <password>
     njfulib query -n <your name>
     njfulib statue
-    njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time>
+    njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
     njfulib cancel <id>"##
 )]
 pub struct Opt {

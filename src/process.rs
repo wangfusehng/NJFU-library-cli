@@ -160,6 +160,7 @@ pub fn reserve(
     day: Day,
     start: String,
     end: String,
+    retry: u32,
 ) -> Result<()> {
     //login
     handle_login()?;
@@ -187,7 +188,7 @@ pub fn reserve(
         }
         None => {
             let mut cnt = 0;
-            while cnt < 20 {
+            while cnt < retry {
                 let site = site::get_random_site_name()?;
 
                 // filter by floor

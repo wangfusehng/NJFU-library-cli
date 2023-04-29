@@ -70,6 +70,7 @@ pub fn handle_action(action: Action) {
             day,
             start,
             end,
+            retry,
         }) => {
             println!("Reserve result:");
             println!("{}", def::LINE_SEPARATOR);
@@ -83,7 +84,7 @@ pub fn handle_action(action: Action) {
                     .collect::<Vec<String>>(),
             };
 
-            match reserve(sites, floor, day, start, end) {
+            match reserve(sites, floor, day, start, end, retry) {
                 Ok(_) => {}
                 Err(e) => panic!("{}", e),
             }

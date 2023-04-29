@@ -17,9 +17,9 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签�
 - if you use scoop
 
 ```powershell
-scoop install https://raw.githubusercontent.com/jyf-111/scoop-self/master/bucket/njfulib.json
-# for chinese, if you are facing net work error, you can try pgproxy.com
-scoop install https://ghproxy.com/https://raw.githubusercontent.com/jyf-111/scoop-self/master/bucket/njfulib.json
+scoop bucket add jyf-scoop-self https://github.com/jyf-111/scoop-self
+scoop update
+scoop install njfulib
 ```
 
 ### for linux and macos
@@ -80,9 +80,9 @@ njfulib state
 
 ```bash
 # 预约到第一个成功的座位为止
-njfulib reserve --day today [--sites <site>...] [--filter <floor>...] --start <start time> --end <end time>
+njfulib reserve --day today [--sites <site>...] [--filter <floor>...] --start <start time> --end <end time> --retry 30
 # or
-njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> # --start --end 不可缩写
+njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
 ```
 
 - --day:
@@ -91,6 +91,9 @@ njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end t
 - -s,--site:
   - 后面可跟多个座位,预约从前往后,直到第一个预约成功
   - 若不指定site列表,则随机预约一个空座位
+
+- -r --retry:
+  - 随即预约的最大尝试次数(默认为30次)
 
 - -f --floor:
 

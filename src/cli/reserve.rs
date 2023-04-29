@@ -28,4 +28,8 @@ pub struct Reserve {
     /// the end time to reserve
     #[structopt(long)]
     pub end: String,
+
+    /// retry times for random reserve
+    #[structopt(short, long, default_value = "30")]
+    pub retry: u32,
 }
