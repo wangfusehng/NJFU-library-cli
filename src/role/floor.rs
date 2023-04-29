@@ -14,7 +14,7 @@ impl std::fmt::Display for Floor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}\t\t{}\t\t{}\t\t{}",
+            "{}\t{}\t\t{}\t\t{}",
             self.room_id,
             site_id_to_name(self.dev_start).expect("Invalid site id"),
             site_id_to_name(self.dev_end).expect("Invalid site id"),

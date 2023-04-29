@@ -66,10 +66,10 @@ impl Site {
 
 /// tranform the site to the site id
 pub fn site_name_to_id(site: String) -> Result<u32> {
-    let _floor = &site[0..4];
+    let floor = &site[0..4];
     match &site[4..].parse() {
         Ok(_site) => {
-            let floor = def::ROOMS.get(_floor);
+            let floor = def::ROOMS.get(floor);
             match floor {
                 Some(floor) => {
                     let id = floor.dev_start() + _site - 1;

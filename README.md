@@ -141,7 +141,7 @@ njfulib out <id>
 njfulib info <item>
 ```
 
-- `<item>`: 可选的值 `floor` `author` `user`
+- `<item>`: 可选的值 `floor` `author` `user`, 默认值`floor`
 
 ## build from source
 
