@@ -2,6 +2,7 @@ use super::ts::Ts;
 use crate::utils::def;
 use anyhow::anyhow;
 use anyhow::Result;
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 /// # Site struct
@@ -64,7 +65,7 @@ impl Site {
 }
 
 /// tranform the site to the site id
-pub fn site_name_to_id(site: String) -> Result<String> {
+pub fn site_name_to_id(site: String) -> Result<u32> {
     let _floor = &site[0..4];
     match &site[4..].parse() {
         Ok(_site) => {
@@ -74,7 +75,7 @@ pub fn site_name_to_id(site: String) -> Result<String> {
                     let id = floor.dev_start() + _site - 1;
 
                     if id >= floor.dev_start() && id <= floor.dev_end() {
-                        Ok(id.to_string())
+                        Ok(id)
                     } else {
                         Err(anyhow!("parse room id error"))
                     }
@@ -102,10 +103,20 @@ pub fn site_id_to_name(id: u32) -> Result<String> {
     Ok(format!("{}{:03}", floor, site))
 }
 
+/// get random site name in libray
+pub fn get_random_site_name() -> Result<String> {
+    let mut rng = rand::thread_rng();
+    let floor_name = def::FLOOR
+        .get(rng.gen_range(0..def::FLOOR.len()))
+        .expect("get floor name error");
+    let floor = def::ROOMS.get(floor_name).expect("get floor error");
+    let site_id = rng.gen_range(floor.dev_start()..floor.dev_end() + 1);
+    Ok(site_id_to_name(site_id)?)
+}
+
 #[test]
 fn test_site() {
     let site = "5F-A100".to_string();
-    let get_site =
-        site_id_to_name(site_name_to_id(site.to_string()).unwrap().parse().unwrap()).unwrap();
+    let get_site = site_id_to_name(site_name_to_id(site.to_string()).unwrap()).unwrap();
     assert_eq!(site, get_site);
 }

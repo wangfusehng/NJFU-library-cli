@@ -1,5 +1,6 @@
 use super::cli::day::Day;
 use crate::role::login::Login;
+use crate::role::site;
 use crate::role::site::*;
 use crate::role::state::State;
 use crate::role::student::Student;
@@ -16,8 +17,6 @@ use std::collections::HashMap;
 pub struct Context {}
 
 impl Context {
-    /// # Context constructor.
-    /// Create a new context.
     pub fn new() -> Self {
         Self {}
     }
@@ -66,7 +65,8 @@ impl Context {
         match dev_id {
             Ok(dev_id) => {
                 let mut body = HashMap::new();
-                body.insert("dev_id", dev_id.as_str());
+                let dev_id_binding = dev_id.to_string();
+                body.insert("dev_id", dev_id_binding.as_str());
                 body.insert("act", "get_rsv_sta");
                 let date = match day {
                     Day::Today => time::get_date_today("%Y-%m-%d"),
@@ -144,7 +144,8 @@ impl Context {
 
         let mut body = HashMap::new();
         body.insert("act", "set_resv");
-        body.insert("dev_id", id.as_str());
+        let id_binding = id.to_string();
+        body.insert("dev_id", id_binding.as_str());
         let day = match day {
             Day::Today => time::get_date_today("%Y-%m-%d"),
             Day::Tomorrow => time::get_date_tomorrow("%Y-%m-%d"),
@@ -164,29 +165,51 @@ impl Context {
     /// # reserve the site.
     pub fn reserve(
         &self,
-        sites: Vec<String>,
+        sites: Option<Vec<String>>,
         day: Day,
         start: String,
         end: String,
-    ) -> Result<String> {
+    ) -> Result<()> {
         //login
         self.handle_login()?;
 
-        let mut ret = String::new();
-
-        for site in sites {
-            let resp = self.handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
-            match resp {
-                Ok(resp) => {
-                    ret.push_str(format!("{}: {}\n", site, resp).as_str());
-                    if resp.contains("成功") {
-                        return Ok(ret);
+        match sites {
+            Some(sites) => {
+                for site in sites {
+                    let resp =
+                        self.handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
+                    match resp {
+                        Ok(resp) => {
+                            println!("{}", format!("{}: {}\n", site, resp));
+                            if resp.contains("成功") {
+                                return Ok(());
+                            }
+                        }
+                        Err(e) => return Err(e),
                     }
                 }
-                Err(e) => return Err(e),
+                Err(anyhow!("no site from put in can be reserved"))
+            }
+            None => {
+                let mut cnt = 0;
+                while cnt < 20 {
+                    let site = site::get_random_site_name()?;
+                    let resp =
+                        self.handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
+                    match resp {
+                        Ok(resp) => {
+                            println!("{}", format!("{}: {}\n", site, resp));
+                            if resp.contains("成功") {
+                                return Ok(());
+                            }
+                        }
+                        Err(e) => return Err(e),
+                    }
+                    cnt += 1;
+                }
+                Err(anyhow!("time out for reserve random site"))
             }
         }
-        Err(anyhow!("no site from put in can be reserved"))
     }
 
     /// check out site

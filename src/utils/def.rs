@@ -8,7 +8,6 @@ pub const DEVICE_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/devic
 pub const LOGIN_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.aspx";
 pub const CENTER_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/center.aspx";
 pub const RESERVE_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx";
-
 lazy_static! {
     pub static ref FLOOR: Vec<&'static str> = vec![
         "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
