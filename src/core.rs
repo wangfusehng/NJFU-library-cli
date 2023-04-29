@@ -1,7 +1,7 @@
 use crate::cli::action::Action::{self, *};
 use crate::cli::infomation::Infomation;
 use crate::cli::reserve::Reserve;
-use crate::context;
+use crate::process::*;
 use crate::role::login;
 use crate::utils::def;
 use ferris_says::say;
@@ -9,7 +9,6 @@ use std::io::{stdout, BufWriter};
 
 /// Handle the cmd action.
 pub fn handle_action(action: Action) {
-    let context = context::Context::new();
     // Perform the action.
     match action {
         Query { day, name, site } => {
@@ -17,7 +16,7 @@ pub fn handle_action(action: Action) {
             println!("{}", def::LINE_SEPARATOR);
 
             if name.is_some() {
-                match context.query_by_name(day.clone(), name.unwrap()) {
+                match query_by_name(day.clone(), name.unwrap()) {
                     Ok(result) => {
                         result.iter().for_each(|x| println!("{}", x));
                     }
@@ -26,7 +25,7 @@ pub fn handle_action(action: Action) {
             }
 
             if site.is_some() {
-                match context.query_by_site(day, site.unwrap()) {
+                match query_by_site(day, site.unwrap()) {
                     Ok(result) => {
                         println!("{}", result);
                     }
@@ -38,7 +37,7 @@ pub fn handle_action(action: Action) {
         Login { username, password } => {
             println!("Login result:");
             println!("{}", def::LINE_SEPARATOR);
-            match context.login(username, password) {
+            match login(username, password) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
             }
@@ -47,7 +46,7 @@ pub fn handle_action(action: Action) {
         State {} => {
             println!("State:");
             println!("{}", def::LINE_SEPARATOR);
-            match context.status() {
+            match status() {
                 Ok(result) => {
                     println!("site\t\tstart_time\t\tend_time\t\tid");
                     result.iter().for_each(|x| println!("{}", x));
@@ -59,7 +58,7 @@ pub fn handle_action(action: Action) {
         Cancel { id } => {
             println!("Cancel result:");
             println!("{}", def::LINE_SEPARATOR);
-            match context.cancel(id) {
+            match cancel(id) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
             }
@@ -73,7 +72,7 @@ pub fn handle_action(action: Action) {
         }) => {
             println!("Reserve result:");
             println!("{}", def::LINE_SEPARATOR);
-            match context.reserve(sites, day, start, end) {
+            match reserve(sites, day, start, end) {
                 Ok(_) => {}
                 Err(e) => panic!("{}", e),
             }
@@ -86,7 +85,7 @@ pub fn handle_action(action: Action) {
         Out { id } => {
             println!("Check out result:");
             println!("{}", def::LINE_SEPARATOR);
-            match context.check_out(id) {
+            match check_out(id) {
                 Ok(result) => println!("{}", result),
                 Err(e) => panic!("{}", e),
             }
