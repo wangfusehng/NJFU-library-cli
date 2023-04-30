@@ -115,6 +115,9 @@ njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end t
 |6F-A | 六层    |
 |7F-A | 七层北侧|
 
+- --start:
+  - eg. 8:00   13:00   18:00
+  - 如果预约时间小于当前时间,则自动设置为当前时间+4min
 
 ### 取消
 
@@ -123,7 +126,9 @@ njfulib cancel <id>
 
 ```
 
-- `<id>`: 使用`njfulib statue`获取未到期预约id
+- `<id>`:
+  - 使用`njfulib statue`获取未到期预约id
+  - 无法取消将在四分钟之内生效和已经生效的预约
 
 ### 签到(not support yet)
 
@@ -137,7 +142,9 @@ njfulib in <id>
 njfulib out <id>
 ```
 
-- `<id>`: 使用njfulib statue获取未到期预约id
+- `<id>`:
+  - 使用njfulib statue获取未到期预约id
+  - 只能签退已经生效的预约
 
 ### info
 
