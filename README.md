@@ -49,7 +49,7 @@ njfulib login -u <username> -p <password>
 - 查询不需要登录
 - login 会把密码保存在`~/.njfu-library-cli.json`
 - 可以通过`--username`和`--password`将账号密码传递给程序
-- 也可以通过`NJFUUSERNAME`和`NJFUPASSWORD`将账号密码传递给程序
+- 也可以通过`NJFU_USERNAME`和`NJFU_PASSWORD`将账号密码传递给程序
 
 ### 查询
 
@@ -86,7 +86,7 @@ njfulib reserve --day today [--sites <site>...] [--filter <floor>...] --start <s
 njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
 ```
 
-- --day:
+- -d --day:
 可选的值为 `today` `tomorrow`, 默认为`today`
 
 - -s,--site:
@@ -96,10 +96,8 @@ njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end t
 - -r --retry:
   - 随即预约的最大尝试次数(默认为30次)
 
-- -f --floor:
-
-- `<floor>` :所有楼层
-`njfulib info floor`查看详细信息
+- -f --filter:
+  - `<floor>` :所有楼层,使用`njfulib info floor`查看详细信息
 
 |floor|   name  |
 | --- |   ---   |

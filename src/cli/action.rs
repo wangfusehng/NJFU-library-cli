@@ -30,11 +30,11 @@ pub enum Action {
     ///Login library
     Login {
         /// username to login
-        #[structopt(short, long, env = "NJFUUSERNAME")]
+        #[structopt(short, long, env = "NJFU_USERNAME")]
         username: String,
 
         /// password to login
-        #[structopt(short, long, env = "NJFUPASSWORD", hide_env_values = true)]
+        #[structopt(short, long, env = "NJFU_PASSWORD", hide_env_values = true)]
         password: String,
     },
 
