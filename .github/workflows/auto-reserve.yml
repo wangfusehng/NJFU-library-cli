@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: "${{env.CRON}}"
+    - cron: "0 18 * * 1-6"
 
   workflow_dispatch:
 
@@ -14,7 +14,9 @@ jobs:
         with:
             toolchain: stable
             override: true
+      - name: build
+        run: cargo run --release
       - name: run
         run: |
-          cargo run login -u ${{secrets.NJFUUSERNAME}} -p ${{secrets.NJFUPASSWORD}}
-          cargo run reserve --day tomorrow --filter 4F-A --start ${{env.START}} --end ${{env.END}} -r 50
+          cargo run --release login -u ${{secrets.NJFUUSERNAME}} -p ${{secrets.NJFUPASSWORD}}
+          cargo run --release reserve --filter 4F-A --start ${{vars.START}} --end ${{vars.END}} -r 50
