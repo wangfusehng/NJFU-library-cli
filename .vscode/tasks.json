@@ -2,17 +2,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "qeury name",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "run",
-                "query",
-                "--name",
-                "汪聂蕊"
-            ]
-        },
-        {
             "label": "qeury site",
             "type": "shell",
             "command": "cargo",
@@ -30,19 +19,6 @@
             "args": [
                 "run",
                 "state"
-            ]
-        },
-        {
-            "label": "login",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "run",
-                "login",
-                "-u",
-                "200855110",
-                "-p",
-                "njfu10003x!"
             ]
         },
         {

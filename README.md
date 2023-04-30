@@ -4,6 +4,7 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签�
 
 ![LICENSE](https://img.shields.io/badge/LICENSE-MIT-yellow)
 ![wakatime](https://wakatime.com/badge/user/cfee0eb2-658b-4917-a1ed-9801e76b961f/project/896c2bad-d07b-4cfd-bf71-35a4cb5d13dc.svg)
+[![auto-reserve](https://github.com/jyf-111/NJFU-library-cli/actions/workflows/auto-reserve.yml/badge.svg)](https://github.com/jyf-111/NJFU-library-cli/actions/workflows/auto-reserve.yml)
 
 ![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg)
 ![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)
