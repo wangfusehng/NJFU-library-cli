@@ -9,7 +9,15 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签�
 ![forthebadge](https://forthebadge.com/images/badges/made-with-rust.svg)
 ![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)
 
-## install
+## Features
+
+- 登录
+- 查询姓名和座位
+- 预约,随机预约
+- 取消预约
+- 签退
+
+## Install
 
 ### for windows
 
@@ -25,134 +33,21 @@ scoop install njfulib
 
 ### for linux and macos
 
-- [build from source](#build-from-source)
+- see [Build from source](#Build-from-source)
 
 ## how to use
 
-### 查看帮助
-
 ```bash
-njfulib --help
-# or
-njfulib -h
-```
-
-### 登录
-
-```bash
-njfulib login --username <username> --password <password>
-# or
 njfulib login -u <username> -p <password>
-```
-
-- 首次预约,取消,签退需要登录
-- 查询不需要登录
-- login 会把密码保存在`~/.njfu-library-cli.json`
-- 可以通过`--username`和`--password`将账号密码传递给程序
-- 也可以通过`NJFU_USERNAME`和`NJFU_PASSWORD`将账号密码传递给程序
-
-### 查询
-
-```bash
-# 按学生姓名查询
-njfulib query --day=today --name <your name>
-# or
 njfulib query -n <your name>
-
-# 按作为查询
-njfulib query --site <site name>
-# or
-njfulib query -s <site name>
-```
-
-- --day:
-可选的值为 `today` `tomorrow`, 默认为`today`
-
-- `<site>`:
-`njfulib info floor`可以查看所有支持的座位
-
-### 查看所有预约
-
-```bash
-njfulib state
-```
-
-### 预约
-
-```bash
-# 预约到第一个成功的座位为止
-njfulib reserve --day today [--sites <site>...] [--filter <floor>...] --start <start time> --end <end time> --retry 30
-# or
+njfulib statue
 njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
-```
-
-- -d --day:
-可选的值为 `today` `tomorrow`, 默认为`today`
-
-- -s,--site:
-  - 后面可跟多个座位,预约从前往后,直到第一个预约成功
-  - 若不指定site列表,则随机预约一个空座位
-
-- -r --retry:
-  - 随即预约的最大尝试次数(默认为30次)
-
-- -f --filter:
-  - `<floor>` :所有楼层,使用`njfulib info floor`查看详细信息
-
-|floor|   name  |
-| --- |   ---   |
-|2F-A | 二层A区 |
-|2F-B | 二层B区 |
-|3F-A | 三层A区 |
-|3F-B | 三层B区 |
-|3F-C | 三层C区 |
-|3FA- | 三楼夹层|
-|4F-A | 四层A区 |
-|4FA- | 四楼夹层|
-|5F-A | 五层A区 |
-|6F-A | 六层    |
-|7F-A | 七层北侧|
-
-- --start:
-  - eg. 8:00   13:00   18:00
-  - 如果预约时间小于当前时间,则自动设置为当前时间+4min
-
-### 取消
-
-```bash
 njfulib cancel <id>
-
 ```
 
-- `<id>`:
-  - 使用`njfulib statue`获取未到期预约id
-  - 无法取消将在四分钟之内生效和已经生效的预约
+[具体参数解释](https://github.com/jyf-111/NJFU-library-cli/wiki/参数解释)
 
-### 签到(not support yet)
-
-```bash
-njfulib in <id>
-```
-
-### 签退
-
-```bash
-njfulib out <id>
-```
-
-- `<id>`:
-  - 使用njfulib statue获取未到期预约id
-  - 只能签退已经生效的预约
-
-### info
-
-```bash
-njfulib info <item>
-```
-
-- `<item>`: 可选的值 `floor` `author` `user`, 默认值`floor`
-
-## build from source
+## Build from source
 
 ```bash
 git clone https://github.com/jyf-111/NJFU-library-cli.git
@@ -161,7 +56,7 @@ cargo build
 cargo run -- help
 ```
 
-## roadmap
+## Roadmap
 
 - 支持签到
 - 支持空间预约

@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: "0 18 * * 0,1,2,3,4,6"
+    - cron: "0 18 * * 0-4,6"
   workflow_dispatch:
 
 jobs:
@@ -27,4 +27,6 @@ jobs:
           end: ${{vars.END}}
           day: ${{vars.DAY}}
           filter: ${{vars.FILTER}}
-        run: cargo run --release reserve -d $day -f $filter --start $start --end $end
+        run: |
+          date
+          cargo run --release reserve -d $day -f $filter --start $start --end $end

@@ -108,7 +108,7 @@ pub fn handle_action(action: Action) {
             println!("{}", def::LINE_SEPARATOR);
             match infomation {
                 Infomation::Floor => {
-                    println!("name\tid\t\ttstart\t\tend\t\tnumber");
+                    println!("name\tstart\t\tend\t\tnumber");
                     for (name, floor) in def::ROOMS.iter() {
                         println!("{}\t{}", name, floor);
                     }
