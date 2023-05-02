@@ -1,4 +1,5 @@
 use super::cli::day::Day;
+use crate::cli::reserve;
 use crate::role::login::Login;
 use crate::role::site;
 use crate::role::site::*;
@@ -7,9 +8,11 @@ use crate::role::student::Student;
 use crate::role::ts::Ts;
 use crate::utils::def;
 use crate::utils::json;
+use crate::utils::json::get_site_info;
 use crate::utils::*;
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local};
+use reqwest::Body;
 use std::collections::HashMap;
 
 /// # Query the information of a student.
@@ -20,8 +23,8 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
     body.insert("cld_name", "default");
     body.insert("act", "get_rsv_sta");
     let date = match day {
-        Day::Today => time::get_date_today("%Y-%m-%d"),
-        Day::Tomorrow => time::get_date_tomorrow("%Y-%m-%d"),
+        Day::Today => time::get_today_time("%Y-%m-%d"),
+        Day::Tomorrow => time::get_tomorrow_time("%Y-%m-%d"),
     };
     body.insert("date", date.as_str());
 
@@ -60,8 +63,8 @@ pub fn query_by_site(day: Day, site: String) -> Result<Site> {
             body.insert("dev_id", dev_id_binding.as_str());
             body.insert("act", "get_rsv_sta");
             let date = match day {
-                Day::Today => time::get_date_today("%Y-%m-%d"),
-                Day::Tomorrow => time::get_date_tomorrow("%Y-%m-%d"),
+                Day::Today => time::get_today_time("%Y-%m-%d"),
+                Day::Tomorrow => time::get_tomorrow_time("%Y-%m-%d"),
             };
             body.insert("date", date.as_str());
 
@@ -98,8 +101,10 @@ pub fn login(username: String, password: String) -> Result<Student> {
 }
 
 /// # query the user status.
-pub fn status() -> Result<Vec<State>> {
+pub fn state() -> Result<Vec<State>> {
     //login
+    let mut header = def::HEADERMAP.clone();
+    header.insert("Content-Length", "0".parse().unwrap());
     handle_login()?;
 
     let mut body = HashMap::new();
@@ -138,8 +143,8 @@ fn handle_reserve(site: String, day: Day, start: String, end: String) -> Result<
     let id_binding = id.to_string();
     body.insert("dev_id", id_binding.as_str());
     let day = match day {
-        Day::Today => time::get_date_today("%Y-%m-%d"),
-        Day::Tomorrow => time::get_date_tomorrow("%Y-%m-%d"),
+        Day::Today => time::get_today_time("%Y-%m-%d"),
+        Day::Tomorrow => time::get_tomorrow_time("%Y-%m-%d"),
     };
     let start_time = format!("{} {}", day, start);
     let end_time = format!("{} {}", day, end);
@@ -211,6 +216,42 @@ pub fn reserve(
             Err(anyhow!("time out for reserve random site"))
         }
     }
+}
+
+///check in reserve on time
+pub fn check_in(site: String, time: u32) -> Result<String> {
+    // get site info
+    let site = query_by_site(Day::Today, site)?;
+    // get stduent info
+    let student = handle_login()?;
+
+    let mut header = def::HEADERMAP.clone();
+    header.insert(reqwest::header::CONTENT_LENGTH, "0".parse()?);
+
+    let mut body = HashMap::new();
+    body.insert("lab", site.lab_id());
+    body.insert("dev", site.dev_id());
+    body.insert("msn", student.msn());
+
+    let resp = def::CLIENT
+        .post(def::WXSEATSIGN)
+        .headers(header.clone())
+        .form(&body)
+        .send()?;
+
+    let mut body = HashMap::new();
+    body.insert("DoUserIn", "true");
+    let time_binding = time.to_string();
+    body.insert("dwUseMin", time_binding.as_str());
+
+    let resp = def::CLIENT
+        .post(def::WXSEATSIGN)
+        .headers(header)
+        .form(&body)
+        .send()?
+        .text()?;
+
+    Ok("in ok".to_string())
 }
 
 /// check out site

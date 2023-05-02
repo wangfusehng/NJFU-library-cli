@@ -50,8 +50,16 @@ pub enum Action {
     ///reserve a site
     Reserve(Reserve),
 
-    /// check in (not support yet)
-    In { _id: String },
+    /// check in
+    In {
+        // the site to check in
+        #[structopt(short, long)]
+        site: String,
+
+        // the time to use the site in minutes
+        #[structopt(short, long)]
+        time: u32,
+    },
 
     /// check out
     Out { id: String },

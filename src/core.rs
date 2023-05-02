@@ -46,7 +46,7 @@ pub fn handle_action(action: Action) {
         State {} => {
             println!("State:");
             println!("{}", def::LINE_SEPARATOR);
-            match status() {
+            match state() {
                 Ok(result) => {
                     println!("site\t\tstart_time\t\tend_time\t\tid");
                     result.iter().for_each(|x| println!("{}", x));
@@ -90,8 +90,13 @@ pub fn handle_action(action: Action) {
             }
         }
 
-        In { _id } => {
-            panic!("check in is not supported yet.")
+        In { site, time } => {
+            println!("Check in result:");
+            println!("{}", def::LINE_SEPARATOR);
+            match check_in(site, time) {
+                Ok(result) => println!("{}", result),
+                Err(e) => panic!("{}", e),
+            }
         }
 
         Out { id } => {
