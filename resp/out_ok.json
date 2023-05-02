@@ -1,0 +1,7 @@
+{
+    "ret": 1,
+    "act": "resv_leave",
+    "msg": "退出成功本次使用【0】分钟",
+    "data": null,
+    "ext": null
+}

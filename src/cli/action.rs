@@ -44,6 +44,7 @@ pub enum Action {
     ///cancel the reservation
     Cancel {
         /// the id of the reservation to cancel
+        #[structopt(short, long)]
         id: String,
     },
 
@@ -58,11 +59,15 @@ pub enum Action {
 
         // the time to use the site in minutes
         #[structopt(short, long)]
-        time: u32,
+        time: Option<u32>,
     },
 
     /// check out
-    Out { id: String },
+    Out {
+        /// the reserve id to check out
+        #[structopt(short, long)]
+        id: String,
+    },
 
     /// show info
     Info {

@@ -1,10 +1,8 @@
 use crate::role::state::State;
 use anyhow::{anyhow, Context, Result};
 use scraper::{ElementRef, Html, Selector};
-use serde_json::Value;
 
-pub fn parse_state(resp: Value) -> Result<Vec<State>> {
-    let msg = resp["msg"].as_str().context("no msg in response")?;
+pub fn parse_state(msg: String) -> Result<Vec<State>> {
     let correct_html = msg.replace("tbody", "table");
     let msg = Html::parse_fragment(correct_html.as_str());
 

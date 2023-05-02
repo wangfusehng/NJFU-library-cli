@@ -223,7 +223,7 @@ pub fn reserve(
 }
 
 ///check in reserve on time
-pub fn check_in(site: String, time: u32) -> Result<String> {
+pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
     // get site info
     let site = query_by_site(Day::Today, site)?;
     // get stduent info
@@ -245,7 +245,7 @@ pub fn check_in(site: String, time: u32) -> Result<String> {
 
     let mut body = HashMap::new();
     body.insert("DoUserIn", "true");
-    let time_binding = time.to_string();
+    let time_binding = time.map_or_else(|| "120".to_string(), |t| t.to_string());
     body.insert("dwUseMin", time_binding.as_str());
 
     let resp = def::CLIENT

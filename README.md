@@ -42,7 +42,9 @@ njfulib login -u <username> -p <password>
 njfulib query -n <your name>
 njfulib statue
 njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
-njfulib cancel <id>
+njfulib cancel -i <id>
+njfulib in -s <site> [-t time]
+njfulib out -i <id>
 ```
 
 [具体参数解释](https://github.com/jyf-111/NJFU-library-cli/wiki/参数解释)

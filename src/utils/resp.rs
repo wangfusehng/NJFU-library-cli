@@ -10,11 +10,13 @@ use reqwest::blocking::Response;
 pub fn get_name_info(resp: Response, name: String) -> Result<Vec<Site>> {
     let resp = resp.json::<serde_json::Value>()?;
     let mut ret: Vec<Site> = Vec::new();
-    let data = resp["data"].as_array().context("parse site in response")?;
+    let data = resp["data"]
+        .as_array()
+        .context("parse site in get_name_info error")?;
     for i in data {
         let site: Site = serde_json::from_value((*i).clone())?;
 
-        let ts = site.ts().ok_or(anyhow!("parse ts in site"))?;
+        let ts = site.ts().context("parse ts in get_name_info error")?;
         for j in ts {
             if j.owner() == name {
                 ret.push(Site::new(
@@ -53,7 +55,12 @@ pub fn get_login_info(resp: Response) -> Result<Student> {
 /// get_state_info
 pub fn get_state_info(resp: Response) -> Result<Vec<State>> {
     let resp = resp.json::<serde_json::Value>()?;
-    html::parse_state(resp)
+    let msg = resp["msg"]
+        .as_str()
+        .context("no msg in response")?
+        .to_string();
+
+    html::parse_state(msg)
 }
 
 /// get_cancel_info

@@ -48,16 +48,16 @@ https://libic.njfu.edu.cn/ClientWeb/pro/ajax/center.aspx
 &strat=90
 &StatFlag=New
 
-### 删除预约
+### 取消预约
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 ?act=del_resv
-&id=141976788
+&id=142116135
 
 ### 预约
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 ?dev_id={{dev_id}}
-&start=2023-04-26 18:00
-&end=2023-04-26 22:00
+&start=2023-05-02 20:00
+&end=2023-05-02 22:00
 &act=set_resv
 
 ### 登录指定座位
