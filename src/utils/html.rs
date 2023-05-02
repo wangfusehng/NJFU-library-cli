@@ -1,3 +1,5 @@
+use std::io::{Read, Write};
+
 use crate::role::state::State;
 use anyhow::{anyhow, Context, Result};
 use scraper::{ElementRef, Html, Selector};
@@ -24,6 +26,51 @@ pub fn parse_state(msg: String) -> Result<Vec<State>> {
     Ok(ret)
 }
 
+pub fn parse_in(item: String) -> Result<String> {
+    let html = Html::parse_document(item.as_str());
+    let in_selector = Selector::parse("p").expect("no p in response");
+    let vec = html.select(&in_selector).into_iter().collect::<Vec<_>>();
+    let state = vec[0].inner_html();
+    if state.contains("当前使用中") {
+        let mut ret = String::new();
+        ret.push_str(vec[0].inner_html().as_str());
+        let str = vec[1].inner_html();
+        let str = str.split(")").nth(1).context("no ) in response")?;
+        ret.push_str(str);
+        return Err(anyhow!(ret));
+    }
+
+    if state.contains("操作成功") {
+        let detail = vec[vec.len() - 1].inner_html();
+
+        let html = Html::parse_fragment(detail.as_str());
+        let opt_selector = Selector::parse("option").expect("no opt in response");
+        let label_selector = Selector::parse("label").expect("no label in response");
+        let mut opt = html.select(&opt_selector);
+        let mut label = html.select(&label_selector);
+        let opt = opt.next().context("no opt in response")?.inner_html();
+        let label = label.next().context("no label in response")?.inner_html();
+        return Ok(format!("{}\n{}\n{}", state, label, opt));
+    }
+
+    if state.contains("操作失败") {
+        let mut ret = String::new();
+        vec.iter()
+            .for_each(|item| ret.push_str(item.inner_html().as_str()));
+        return Err(anyhow!(ret));
+    }
+    Err(anyhow!("no state in response"))
+}
+
+#[test]
+fn test_parse_in() {
+    use std::fs::File;
+    let mut f = File::open("C:/Users/jyf/code/NJFU-library-cli/resp/in_site_doing.html").unwrap();
+    let mut buf: String = String::new();
+    f.read_to_string(&mut buf);
+    let ret = parse_in(buf).unwrap();
+    println!("{:?}", ret);
+}
 fn parse_name(item: &ElementRef) -> Result<String> {
     let a_selector = Selector::parse(".box a").expect("no .box a in response");
     Ok(item

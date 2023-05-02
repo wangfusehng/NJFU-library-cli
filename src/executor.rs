@@ -1,5 +1,4 @@
 use super::cli::day::Day;
-use crate::cli::reserve;
 use crate::role::login::Login;
 use crate::role::site;
 use crate::role::site::*;
@@ -7,6 +6,7 @@ use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
 use crate::utils::*;
+use crate::{cli::reserve, utils::html::parse_in};
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local};
 use reqwest::Body;
@@ -241,7 +241,9 @@ pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
         .post(def::WXSEATSIGN)
         .headers(header.clone())
         .form(&body)
-        .send()?;
+        .send()?
+        .text()?;
+    html::parse_in(resp)?;
 
     let mut body = HashMap::new();
     body.insert("DoUserIn", "true");
@@ -255,7 +257,7 @@ pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
         .send()?
         .text()?;
 
-    Ok("in ok".to_string())
+    parse_in(resp)
 }
 
 /// check out site
