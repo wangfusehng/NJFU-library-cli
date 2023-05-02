@@ -13,12 +13,15 @@ pub struct Site {
     dev_name: String,
     #[serde(rename = "devId")]
     dev_id: String,
+    #[serde(rename = "labId")]
+    lab_id: String,
     ts: Option<Vec<Ts>>,
 }
 
 impl std::fmt::Display for Site {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "dev_name: {}\ndev_id: {}\n", self.dev_name, self.dev_id)?;
+        writeln!(f, "dev_name: {}", self.dev_name)?;
+        writeln!(f, "owner:")?;
         self.ts.as_ref().map(|ts| -> Result<(), std::fmt::Error> {
             for t in ts {
                 writeln!(f, "{}", t)?;
@@ -31,10 +34,11 @@ impl std::fmt::Display for Site {
 }
 
 impl Site {
-    pub fn new(dev_name: String, dev_id: String, ts: Option<Vec<Ts>>) -> Self {
+    pub fn new(dev_name: String, dev_id: String, lab_id: String, ts: Option<Vec<Ts>>) -> Self {
         Site {
             dev_name,
             dev_id,
+            lab_id,
             ts,
         }
     }
@@ -61,6 +65,14 @@ impl Site {
 
     pub fn set_ts(&mut self, ts: Option<Vec<Ts>>) {
         self.ts = ts;
+    }
+
+    pub fn lab_id(&self) -> &str {
+        self.lab_id.as_ref()
+    }
+
+    pub fn set_lab_id(&mut self, lab_id: String) {
+        self.lab_id = lab_id;
     }
 }
 
@@ -103,7 +115,7 @@ pub fn site_id_to_name(id: u32) -> Result<String> {
     Ok(format!("{}{:03}", floor, site))
 }
 
-/// site id fiter ny floor
+/// site id fiter by floor
 pub fn site_id_fiter_by_floor(id: u32, floor: Vec<String>) -> Result<bool> {
     let mut floor_name = "";
     for i in floor.iter() {

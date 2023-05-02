@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct Student {
     name: String,
     id: String,
+    msn: String,
     dept: String,
     credit: Vec<Vec<String>>,
 }
@@ -23,10 +24,17 @@ impl std::fmt::Display for Student {
 }
 
 impl Student {
-    pub fn new(name: String, id: String, dept: String, credit: Vec<Vec<String>>) -> Self {
+    pub fn new(
+        name: String,
+        id: String,
+        msn: String,
+        dept: String,
+        credit: Vec<Vec<String>>,
+    ) -> Self {
         Student {
             name,
             id,
+            msn,
             dept,
             credit,
         }
@@ -62,5 +70,13 @@ impl Student {
 
     pub fn set_credit(&mut self, credit: Vec<Vec<String>>) {
         self.credit = credit;
+    }
+
+    pub fn msn(&self) -> &str {
+        self.msn.as_ref()
+    }
+
+    pub fn set_msn(&mut self, msn: String) {
+        self.msn = msn;
     }
 }

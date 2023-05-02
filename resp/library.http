@@ -13,7 +13,7 @@
 @6F-A= 100455360
 @7F-A= 106658017
 @room_id = {{4F-A}}
-@dev_id = 100500272
+@dev_id = 100499765
 ### 查询图书馆
 Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 User-Agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
@@ -39,7 +39,7 @@ Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.aspx
 content-type: application/x-www-form-urlencoded
 
 &id=200855110
-&pwd=**********
+&pwd=njfu10003x!
 &act=login
 
 ### 个人中心
@@ -60,8 +60,25 @@ https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 &end=2023-04-26 22:00
 &act=set_resv
 
+### 登录指定座位
+https://libic.njfu.edu.cn/Pages/WxSeatSign.aspx
+?lab=100455336
+&dev=100499765
+&msn=o8QfLt_PTHjQtPIcUjcSYhQM6FJ4
+
+### 签到座位
+# depend on 登陆指定座位
+https://libic.njfu.edu.cn/Pages/WxSeatSign.aspx
+content-type: application/x-www-form-urlencoded
+
+&DoUserIn=true
+&dwUseMin=300
+
 ### 签退
 https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 ?act=resv_leave
 &type=2
 &resv_id=142008395
+
+### 举报
+https://libic.njfu.edu.cn/Pages/WxReport.aspx

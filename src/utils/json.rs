@@ -19,6 +19,7 @@ pub fn get_name_info(resp: Value, name: String) -> Result<Vec<Site>> {
                 ret.push(Site::new(
                     site.dev_name().to_string(),
                     site.dev_id().to_string(),
+                    site.lab_id().to_string(),
                     Some(vec![j.clone()]),
                 ));
             }
