@@ -6,16 +6,13 @@ use crate::role::site::*;
 use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
-use crate::utils::def;
-use crate::utils::json;
-use crate::utils::json::get_site_info;
 use crate::utils::*;
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Local};
 use reqwest::Body;
 use std::collections::HashMap;
 
-/// # Query the information of a student.
+/// Query the information of a student.
 pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
     let mut body = HashMap::new();
     body.insert("byType", "devcls");
@@ -30,20 +27,18 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
 
     let mut ret: Vec<Site> = Vec::new();
 
-    for (room_name, floor) in def::ROOMS.iter() {
+    for (_, floor) in def::ROOMS.iter() {
         let room_id = floor.room_id().to_string();
         let mut data = body.clone();
         data.insert("room_id", room_id.as_str());
 
-        let resp =
-            http::post(def::DEVICE_URL, def::HEADERMAP.clone(), data).unwrap_or_else(|err| {
-                panic!(
-                    "parse error when scan student in {} \n detail: {}",
-                    room_name, err
-                )
-            });
+        let resp = def::CLIENT
+            .post(def::DEVICE_URL)
+            .headers(def::HEADERMAP.clone())
+            .form(&data)
+            .send()?;
 
-        match json::get_name_info(resp, name.clone()) {
+        match resp::get_name_info(resp, name.clone()) {
             Ok(info) => {
                 ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
             }
@@ -53,7 +48,7 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
     Ok(ret)
 }
 
-/// # Query the information of a site.
+/// Query the information of a site.
 pub fn query_by_site(day: Day, site: String) -> Result<Site> {
     let dev_id = site_name_to_id(site.clone());
     match dev_id {
@@ -68,16 +63,19 @@ pub fn query_by_site(day: Day, site: String) -> Result<Site> {
             };
             body.insert("date", date.as_str());
 
-            let resp = http::post(def::DEVICE_URL, def::HEADERMAP.clone(), body)
-                .expect("net error when querying site");
+            let resp = def::CLIENT
+                .post(def::DEVICE_URL)
+                .headers(def::HEADERMAP.clone())
+                .form(&body)
+                .send()?;
 
-            json::get_site_info(resp)
+            resp::get_site_info(resp)
         }
         Err(e) => Err(e),
     }
 }
 
-/// # handle actual login to the server.
+/// handle actual login to the server.
 fn handle_login() -> Result<Student> {
     let mut login = Login::new("".to_string(), "".to_string());
     login.read_from_file().expect("read student info failed");
@@ -86,25 +84,26 @@ fn handle_login() -> Result<Student> {
     body.insert("act", "login");
     body.insert("id", login.username());
     body.insert("pwd", login.password());
-    let resp = http::post(def::LOGIN_URL, def::HEADERMAP.clone(), body);
-    match resp {
-        Ok(resp) => json::get_login_info(resp),
-        Err(e) => Err(e),
-    }
+
+    let resp = def::CLIENT
+        .post(def::LOGIN_URL)
+        .headers(def::HEADERMAP.clone())
+        .form(&body)
+        .send()?;
+
+    resp::get_login_info(resp)
 }
 
-/// # login to the server.
+/// login to the server.
 pub fn login(username: String, password: String) -> Result<Student> {
     let student = Login::new(username, password);
     student.save_to_file().expect("save student info failed");
     handle_login()
 }
 
-/// # query the user status.
+/// query the user status.
 pub fn state() -> Result<Vec<State>> {
     //login
-    let mut header = def::HEADERMAP.clone();
-    header.insert("Content-Length", "0".parse().unwrap());
     handle_login()?;
 
     let mut body = HashMap::new();
@@ -112,14 +111,16 @@ pub fn state() -> Result<Vec<State>> {
     body.insert("strat", "90");
     body.insert("StatFlag", "New");
 
-    let resp = http::post(def::CENTER_URL, def::HEADERMAP.clone(), body);
-    match resp {
-        Ok(resp) => json::get_state_info(resp),
-        Err(e) => Err(e),
-    }
+    let resp = def::CLIENT
+        .post(def::CENTER_URL)
+        .headers(def::HEADERMAP.clone())
+        .form(&body)
+        .send()?;
+
+    resp::get_state_info(resp)
 }
 
-/// # cancel the reservation.
+/// cancel the reservation.
 pub fn cancel(id: String) -> Result<String> {
     //login
     handle_login()?;
@@ -128,11 +129,13 @@ pub fn cancel(id: String) -> Result<String> {
     body.insert("act", "del_resv");
     body.insert("id", id.as_str());
 
-    let resp = http::post(def::RESERVE_URL, def::HEADERMAP.clone(), body);
-    match resp {
-        Ok(resp) => json::get_cancel_info(resp),
-        Err(e) => Err(e),
-    }
+    let resp = def::CLIENT
+        .post(def::RESERVE_URL)
+        .headers(def::HEADERMAP.clone())
+        .form(&body)
+        .send()?;
+
+    resp::get_cancel_info(resp)
 }
 
 fn handle_reserve(site: String, day: Day, start: String, end: String) -> Result<String> {
@@ -151,14 +154,15 @@ fn handle_reserve(site: String, day: Day, start: String, end: String) -> Result<
     body.insert("start", start_time.as_str());
     body.insert("end", end_time.as_str());
 
-    let resp = http::post(def::RESERVE_URL, def::HEADERMAP.clone(), body);
-    match resp {
-        Ok(resp) => json::get_reserve_info(resp),
-        Err(e) => Err(e),
-    }
+    let resp = def::CLIENT
+        .post(def::RESERVE_URL)
+        .headers(def::HEADERMAP.clone())
+        .form(&body)
+        .send()?;
+    resp::get_reserve_info(resp)
 }
 
-/// # reserve the site.
+/// reserve the site.
 pub fn reserve(
     sites: Option<Vec<String>>,
     filter: Vec<String>,
@@ -264,9 +268,7 @@ pub fn check_out(id: String) -> Result<String> {
     body.insert("type", "2");
     body.insert("resv_id", id.as_str());
 
-    let resp = http::post(def::RESERVE_URL, def::HEADERMAP.clone(), body);
-    match resp {
-        Ok(resp) => json::get_check_out_info(resp),
-        Err(e) => Err(e),
-    }
+    let resp = def::CLIENT.post(def::RESERVE_URL).form(&body).send()?;
+
+    resp::get_check_out_info(resp)
 }

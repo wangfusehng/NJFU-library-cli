@@ -1,13 +1,6 @@
 {
     "ret": 0,
     "act": "set_resv",
-    "msg": "参数有误",
-    "data": null,
-    "ext": null
-}
-{
-    "ret": 0,
-    "act": "set_resv",
     "msg": "2023-04-26参数错误，预约开始时间必须小于预约结束时间",
     "data": null,
     "ext": null
