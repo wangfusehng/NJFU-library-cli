@@ -15,6 +15,7 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签�
 - 查询姓名和座位
 - 预约,随机预约
 - 取消预约
+- 签到
 - 签退
 
 ## Install
@@ -54,12 +55,12 @@ njfulib out -i <id>
 ```bash
 git clone https://github.com/jyf-111/NJFU-library-cli.git
 cd NJFU-library-cli
-cargo build
-cargo run -- help
+cargo build --release
+cd target/release
+./njfulib -h
 ```
 
 ## Roadmap
 
-- 支持签到
 - 支持空间预约
 - 查询楼层座位分布图

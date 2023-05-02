@@ -1,7 +1,6 @@
 use super::ts::Ts;
 use crate::utils::def;
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Context, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -139,8 +138,8 @@ pub fn get_random_site_name() -> Result<String> {
     let mut rng = rand::thread_rng();
     let floor_name = def::FLOOR
         .get(rng.gen_range(0..def::FLOOR.len()))
-        .expect("get floor name error");
-    let floor = def::ROOMS.get(floor_name).expect("get floor error");
+        .context("get floor name error")?;
+    let floor = def::ROOMS.get(floor_name).context("get floor error")?;
     let site_id = rng.gen_range(floor.dev_start()..floor.dev_end() + 1);
     Ok(site_id_to_name(site_id)?)
 }

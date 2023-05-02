@@ -7,7 +7,7 @@ use crate::role::student::Student;
 use crate::role::ts::Ts;
 use crate::utils::*;
 use crate::{cli::reserve, utils::html::parse_in};
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Local};
 use reqwest::Body;
 use std::collections::HashMap;
@@ -38,12 +38,9 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
             .form(&data)
             .send()?;
 
-        match resp::get_name_info(resp, name.clone()) {
-            Ok(info) => {
-                ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
-            }
-            Err(err) => return Err(err),
-        }
+        resp::get_name_info(resp, name.clone()).map(|info| {
+            ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
+        })?;
     }
     Ok(ret)
 }
@@ -51,8 +48,8 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
 /// Query the information of a site.
 pub fn query_by_site(day: Day, site: String) -> Result<Site> {
     let dev_id = site_name_to_id(site.clone());
-    match dev_id {
-        Ok(dev_id) => {
+    dev_id
+        .map(|dev_id| {
             let mut body = HashMap::new();
             let dev_id_binding = dev_id.to_string();
             body.insert("dev_id", dev_id_binding.as_str());
@@ -70,15 +67,14 @@ pub fn query_by_site(day: Day, site: String) -> Result<Site> {
                 .send()?;
 
             resp::get_site_info(resp)
-        }
-        Err(e) => Err(e),
-    }
+        })
+        .context("query by site fail")?
 }
 
 /// handle actual login to the server.
 fn handle_login() -> Result<Student> {
     let mut login = Login::new("".to_string(), "".to_string());
-    login.read_from_file().expect("read student info failed");
+    login.read_from_file().context("read student info failed")?;
 
     let mut body = HashMap::new();
     body.insert("act", "login");
@@ -97,7 +93,7 @@ fn handle_login() -> Result<Student> {
 /// login to the server.
 pub fn login(username: String, password: String) -> Result<Student> {
     let student = Login::new(username, password);
-    student.save_to_file().expect("save student info failed");
+    student.save_to_file().context("save student info failed")?;
     handle_login()
 }
 
@@ -170,7 +166,7 @@ pub fn reserve(
     start: String,
     end: String,
     retry: u32,
-) -> Result<()> {
+) -> Result<String> {
     //login
     handle_login()?;
 
@@ -187,7 +183,7 @@ pub fn reserve(
                     Ok(resp) => {
                         println!("{}", format!("{}: {}\n", site, resp));
                         if resp.contains("成功") {
-                            return Ok(());
+                            return Ok(resp);
                         }
                     }
                     Err(e) => return Err(e),
@@ -210,7 +206,7 @@ pub fn reserve(
                     Ok(resp) => {
                         println!("{}", format!("{}: {}\n", site, resp));
                         if resp.contains("成功") {
-                            return Ok(());
+                            return Ok(resp);
                         }
                     }
                     Err(e) => return Err(e),
