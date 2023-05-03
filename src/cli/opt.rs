@@ -11,7 +11,9 @@ use structopt::StructOpt;
     njfulib query -n <your name>
     njfulib statue
     njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
-    njfulib cancel -i <id>"##
+    njfulib cancel -i <id>
+    njfulib in -s <site>
+    njfulib oout -i <id>"##
 )]
 pub struct Opt {
     #[structopt(subcommand)]

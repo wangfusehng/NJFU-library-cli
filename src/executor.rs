@@ -239,11 +239,15 @@ pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
         .form(&body)
         .send()?
         .text()?;
-    html::parse_in(resp)?;
+    // get dafault left time
+    let mut opt = html::parse_in(resp)?;
+    // cut two chinese `分钟`
+    opt.truncate(opt.len() - 6);
 
     let mut body = HashMap::new();
     body.insert("DoUserIn", "true");
-    let time_binding = time.map_or_else(|| "120".to_string(), |t| t.to_string());
+    // default use opt
+    let time_binding = time.map_or(opt.parse()?, |t| t.to_string());
     body.insert("dwUseMin", time_binding.as_str());
 
     let resp = def::CLIENT
