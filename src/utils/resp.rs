@@ -58,11 +58,8 @@ pub fn get_state_info(resp: Response) -> Result<Vec<State>> {
         .as_str()
         .context("no msg in response")?
         .to_string();
-    if msg.contains("成功") {
-        html::parse_state(msg)
-    } else {
-        Err(anyhow!("get state fail"))
-    }
+
+    html::parse_state(msg)
 }
 
 /// get_cancel_info
