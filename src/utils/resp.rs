@@ -67,7 +67,7 @@ pub fn get_cancel_info(resp: Response) -> Result<String> {
     // NOTE: the response is not a stand json
     //       the response contains two json gist,so we need to cut it
     let mut resp = resp.text()?;
-    resp.truncate(resp.find("}").context("parse cancel info error")? + 1);
+    resp.truncate(resp.find('}').context("parse cancel info error")? + 1);
     let resp = serde_json::from_str::<serde_json::Value>(&resp)?;
     let ret = resp["msg"]
         .as_str()
@@ -99,7 +99,7 @@ pub fn get_check_out_info(resp: Response) -> Result<String> {
     // NOTE: the response is not a stand json
     //       the response contains two json gist,so we need to cut it
     let mut resp = resp.text()?;
-    resp.truncate(resp.find("}").context("parse check out info error")? + 1);
+    resp.truncate(resp.find('}').context("parse check out info error")? + 1);
     let resp = serde_json::from_str::<serde_json::Value>(&resp)?;
     let ret = resp["msg"]
         .as_str()

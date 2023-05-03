@@ -29,7 +29,7 @@ pub fn parse_state(msg: String) -> Result<Vec<State>> {
 pub fn parse_in(item: String) -> Result<String> {
     let html = Html::parse_document(item.as_str());
     let in_selector = Selector::parse("p").expect("no p in response");
-    let vec = html.select(&in_selector).into_iter().collect::<Vec<_>>();
+    let vec = html.select(&in_selector).collect::<Vec<_>>();
     let state = vec[0].inner_html();
     if state == "操作成功" {
         // check in site
@@ -39,7 +39,7 @@ pub fn parse_in(item: String) -> Result<String> {
         let mut ret = String::new();
         ret.push_str(vec[0].inner_html().as_str());
         let str = vec[1].inner_html();
-        let str = str.split(")").nth(1).context("no ) in response")?;
+        let str = str.split(')').nth(1).context("no ) in response")?;
         ret.push_str(str);
         Err(anyhow!(ret))
     } else if state.contains("操作成功") {
@@ -67,7 +67,7 @@ fn parse_name(item: &ElementRef) -> Result<String> {
     let a_selector = Selector::parse(".box a").expect("no .box a in response");
     Ok(item
         .select(&a_selector)
-        .nth(0)
+        .next()
         .context("no name in item of response")?
         .inner_html())
 }
@@ -76,7 +76,7 @@ fn parse_start_time(item: &ElementRef) -> Result<String> {
     let time_selector = Selector::parse(".text-primary").expect("no .text-primary in response");
     Ok(item
         .select(&time_selector)
-        .nth(0)
+        .next()
         .context("no start_time in item of response")?
         .inner_html())
 }
@@ -104,11 +104,11 @@ fn parse_id(item: &ElementRef) -> Result<String> {
                     match onclick {
                         Some(onclick) => {
                             let id = onclick
-                                .split("(")
+                                .split('(')
                                 .nth(1)
                                 .context("no id in onclick")?
-                                .split(")")
-                                .nth(0)
+                                .split(')')
+                                .next()
                                 .context("no id in onclick")?;
                             Ok(id.to_string())
                         }

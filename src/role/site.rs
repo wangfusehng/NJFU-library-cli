@@ -107,7 +107,7 @@ pub fn site_id_to_name(id: u32) -> Result<String> {
             break;
         }
     }
-    if floor == "" {
+    if floor.is_empty() {
         return Err(anyhow!("parse id to name error"));
     }
     let site = id - def::ROOMS.get(floor).unwrap().dev_start() + 1;
@@ -127,7 +127,7 @@ pub fn site_id_fiter_by_floor(id: u32, floor: Vec<String>) -> Result<bool> {
             break;
         }
     }
-    if floor_name == "" {
+    if floor_name.is_empty() {
         return Ok(false);
     }
     Ok(true)
@@ -141,7 +141,7 @@ pub fn get_random_site_name() -> Result<String> {
         .context("get floor name error")?;
     let floor = def::ROOMS.get(floor_name).context("get floor error")?;
     let site_id = rng.gen_range(floor.dev_start()..floor.dev_end() + 1);
-    Ok(site_id_to_name(site_id)?)
+    site_id_to_name(site_id)
 }
 
 #[test]

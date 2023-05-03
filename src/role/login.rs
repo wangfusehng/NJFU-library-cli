@@ -13,7 +13,7 @@ pub struct Login {
 
 impl std::fmt::Display for Login {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "username: {}\npassword: {}", self.username, "*********")
+        write!(f, "username: {}\npassword: *********", self.username)
     }
 }
 

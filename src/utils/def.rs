@@ -20,9 +20,9 @@ lazy_static! {
         map.insert("3F-A", Floor::new(100455350, 100456256, 100456658, 403));
         map.insert("3F-B", Floor::new(100455352, 100456660, 100456791, 132));
         map.insert("3F-C", Floor::new(100455354, 100499567, 100499728, 162));
-        map.insert("3FA-", Floor::new(111488386, 111488493, 111488512, 020));
+        map.insert("3FA-", Floor::new(111488386, 111488493, 111488512, 20));
         map.insert("4F-A", Floor::new(100455356, 100499729, 100500156, 428));
-        map.insert("4FA-", Floor::new(111488388, 111488513, 111488536, 024));
+        map.insert("4FA-", Floor::new(111488388, 111488513, 111488536, 24));
         map.insert("5F-A", Floor::new(100455358, 100500173, 100500532, 360));
         map.insert("6F-A", Floor::new(100455360, 100500602, 100500949, 348));
         map.insert("7F-A", Floor::new(106658017, 106744855, 106745104, 224));
@@ -49,11 +49,11 @@ lazy_static! {
         headermap
     };
     pub static ref CLIENT: reqwest::blocking::Client = {
-        let client = reqwest::blocking::ClientBuilder::new()
+
+
+        reqwest::blocking::ClientBuilder::new()
             .cookie_store(true)
             .build()
-            .unwrap();
-
-        client
+            .unwrap()
     };
 }

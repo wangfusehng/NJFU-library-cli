@@ -47,7 +47,7 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
 
 /// Query the information of a site.
 pub fn query_by_site(day: Day, site: String) -> Result<Site> {
-    let dev_id = site_name_to_id(site.clone());
+    let dev_id = site_name_to_id(site);
     dev_id
         .map(|dev_id| {
             let mut body = HashMap::new();
@@ -174,14 +174,13 @@ pub fn reserve(
         Some(sites) => {
             for site in sites {
                 // filter by floor
-                if false == site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?
-                {
+                if !(site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?) {
                     continue;
                 }
                 let resp = handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
                 match resp {
                     Ok(resp) => {
-                        println!("{}", format!("{}: {}\n", site, resp));
+                        println!("{}: {}\n", site, resp);
                         if resp.contains("成功") {
                             return Ok(resp);
                         }
@@ -197,14 +196,13 @@ pub fn reserve(
                 let site = site::get_random_site_name()?;
 
                 // filter by floor
-                if false == site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?
-                {
+                if !(site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?) {
                     continue;
                 }
                 let resp = handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
                 match resp {
                     Ok(resp) => {
-                        println!("{}", format!("{}: {}\n", site, resp));
+                        println!("{}: {}\n", site, resp);
                         if resp.contains("成功") {
                             return Ok(resp);
                         }
