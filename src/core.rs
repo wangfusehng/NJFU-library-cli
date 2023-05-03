@@ -13,7 +13,7 @@ pub fn handle_action(action: Action) -> Result<()> {
     // Perform the action.
     match action {
         Query { day, name, site } => {
-            println!("Result:");
+            println!("Query Result:");
             println!("{}", def::LINE_SEPARATOR);
 
             if name.is_some() {
@@ -34,7 +34,7 @@ pub fn handle_action(action: Action) -> Result<()> {
         }
 
         Login { username, password } => {
-            println!("Login result:");
+            println!("Login Result:");
             println!("{}", def::LINE_SEPARATOR);
             login(username, password)
                 .map(|result| {
@@ -70,7 +70,7 @@ pub fn handle_action(action: Action) -> Result<()> {
             end,
             retry,
         }) => {
-            println!("Reserve result:");
+            println!("Reserve Result:");
             println!("{}", def::LINE_SEPARATOR);
 
             // default is def::FLOOR
@@ -88,19 +88,19 @@ pub fn handle_action(action: Action) -> Result<()> {
         }
 
         In { site, time } => {
-            println!("Check in result:");
+            println!("Check in Result:");
             println!("{}", def::LINE_SEPARATOR);
             check_in(site, time).map(|result| println!("{}", result))?;
         }
 
         Out { id } => {
-            println!("Check out result:");
+            println!("Check out Result:");
             println!("{}", def::LINE_SEPARATOR);
             check_out(id).map(|result| println!("{}", result))?;
         }
 
         Info { infomation } => {
-            println!("Info result:");
+            println!("Info Result:");
             println!("{}", def::LINE_SEPARATOR);
             match infomation {
                 Infomation::Floor => {

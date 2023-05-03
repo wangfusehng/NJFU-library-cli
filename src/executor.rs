@@ -186,7 +186,7 @@ pub fn reserve(
                             return Ok(resp);
                         }
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => println!("{}", e),
                 }
             }
             Err(anyhow!("no site from put in can be reserved"))

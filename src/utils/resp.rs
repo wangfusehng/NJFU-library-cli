@@ -43,12 +43,11 @@ pub fn get_site_info(resp: Response) -> Result<Site> {
 pub fn get_login_info(resp: Response) -> Result<Student> {
     let resp = resp.json::<serde_json::Value>()?;
     let data = resp["data"].clone();
-    match data {
-        serde_json::Value::Null => Err(anyhow!(resp["msg"].as_str().unwrap().to_string())),
-        _ => {
-            let student: Student = serde_json::from_value(data).context("parse student error")?;
-            Ok(student)
-        }
+    if let serde_json::Value::Null = data {
+        Err(anyhow!(resp["msg"].as_str().unwrap().to_string()))
+    } else {
+        let student: Student = serde_json::from_value(data).context("parse student error")?;
+        Ok(student)
     }
 }
 
@@ -59,8 +58,11 @@ pub fn get_state_info(resp: Response) -> Result<Vec<State>> {
         .as_str()
         .context("no msg in response")?
         .to_string();
-
-    html::parse_state(msg)
+    if msg.contains("成功") {
+        html::parse_state(msg)
+    } else {
+        Err(anyhow!("get state fail"))
+    }
 }
 
 /// get_cancel_info
@@ -70,19 +72,29 @@ pub fn get_cancel_info(resp: Response) -> Result<String> {
     let mut resp = resp.text()?;
     resp.truncate(resp.find("}").context("parse cancel info error")? + 1);
     let resp = serde_json::from_str::<serde_json::Value>(&resp)?;
-    resp["msg"]
+    let ret = resp["msg"]
         .as_str()
-        .map(|s| s.to_string())
-        .context("parse cancel info error")
+        .context("parse msg in cancel response error")?
+        .to_string();
+    if ret.contains("成功") {
+        Ok(ret)
+    } else {
+        Err(anyhow!(ret))
+    }
 }
 
 /// get_reserve_info
 pub fn get_reserve_info(resp: Response) -> Result<String> {
     let resp = resp.json::<serde_json::Value>()?;
-    resp["msg"]
+    let ret = resp["msg"]
         .as_str()
-        .map(|s| s.to_string())
-        .context("parse reserve info error")
+        .context("parse msg in reserve response error")?
+        .to_string();
+    if ret.contains("成功") {
+        Ok(ret)
+    } else {
+        Err(anyhow!(ret))
+    }
 }
 
 /// get_check_out_info
@@ -92,8 +104,13 @@ pub fn get_check_out_info(resp: Response) -> Result<String> {
     let mut resp = resp.text()?;
     resp.truncate(resp.find("}").context("parse check out info error")? + 1);
     let resp = serde_json::from_str::<serde_json::Value>(&resp)?;
-    resp["msg"]
+    let ret = resp["msg"]
         .as_str()
-        .map(|s| s.to_string())
-        .context("parse check out info error")
+        .context("parse msg in check out response error")?
+        .to_string();
+    if ret.contains("成功") {
+        Ok(ret)
+    } else {
+        Err(anyhow!(ret))
+    }
 }

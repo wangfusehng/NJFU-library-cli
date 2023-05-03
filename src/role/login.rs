@@ -22,6 +22,12 @@ impl Login {
     pub fn new(username: String, password: String) -> Self {
         Login { username, password }
     }
+    pub fn is_existed(&self) -> Result<bool> {
+        let root = home_dir().context("can not get home dir")?;
+        let path = root.join(".njfu-library-cli.json");
+        Ok(path.exists())
+    }
+
     /// save the user's state to the file
     pub fn save_to_file(&self) -> Result<()> {
         let root = home_dir().context("can not get home dir")?;

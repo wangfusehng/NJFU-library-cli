@@ -2,41 +2,10 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "qeury site",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "run",
-                "query",
-                "--site",
-                "2F-A005"
-            ]
-        },
-        {
-            "label": "state",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "run",
-                "state"
-            ]
-        },
-        {
-            "label": "reserve",
-            "type": "shell",
-            "command": "cargo",
-            "args": [
-                "run",
-                "reserve",
-                "--site",
-                "4F-A008",
-                "--day",
-                "tomorrow",
-                "--start",
-                "18:00",
-                "--end",
-                "20:00"
-            ]
+           "label": "run",
+           "type": "shell",
+           "command": "cargo",
+           "args": ["run"]
         }
     ]
 }
