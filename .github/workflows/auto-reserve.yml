@@ -28,4 +28,15 @@ jobs:
           filter: ${{vars.FILTER}}
         run: |
           date
-          cargo run --release reserve -d $day -f $filter --start $start --end $end
+          end_h=$(echo $end | awk -F : 'print $1')
+          end_m=$(echo $end | awk -F : 'print $2')
+
+          if [ $(date "+%a") == Thu ]; \
+          then \
+            if (( $end_h > 20 )) || (( $end_h == 20 )) && (( $end_m > 0 )); \
+            then \
+              cargo run --release reserve -d $day -f $filter --start $start --end 20:00 \
+            fi
+          else \
+            cargo run --release reserve -d $day -f $filter --start $start --end $end \
+          fi

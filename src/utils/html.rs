@@ -4,6 +4,7 @@ use crate::role::state::State;
 use anyhow::{anyhow, Context, Result};
 use scraper::{ElementRef, Html, Selector};
 
+// parse state html in response
 pub fn parse_state(msg: String) -> Result<Vec<State>> {
     let correct_html = msg.replace("tbody", "table");
     let msg = Html::parse_fragment(correct_html.as_str());
@@ -26,40 +27,77 @@ pub fn parse_state(msg: String) -> Result<Vec<State>> {
     Ok(ret)
 }
 
+// parse html in site login response
+pub fn parse_site_login(item: String) -> Result<u32> {
+    let html = Html::parse_document(item.as_str());
+    let in_selector = Selector::parse("p").expect("no p in response");
+    let vec = html.select(&in_selector).collect::<Vec<_>>();
+    let state = vec[0].inner_html();
+
+    if state == "【 登录成功 】" {
+        // check in when a reserve is at time
+        Ok(0)
+    } else if state == "【 操作成功 】" {
+        // check in without a reserve before
+        let detail = vec[vec.len() - 1].inner_html();
+        let html = Html::parse_fragment(detail.as_str());
+        let option_selector = Selector::parse("option").expect("no opt in response");
+        let mut option = html.select(&option_selector);
+
+        let time = option
+            .next()
+            .context("no option in p")?
+            .value()
+            .attr("value")
+            .context("no value in option")?
+            .parse::<u32>()
+            .context("parse u32 error")?;
+
+        Ok(time)
+    } else if state == "【 当前使用中 】" {
+        // check in when the site is in use by others
+        let mut ret = String::new();
+        ret.push_str(state.as_str());
+        ret.push(' ');
+        let str = vec[1].inner_html();
+        let str = str.split(')').nth(1).context("no ) in response")?;
+        ret.push_str(str);
+        Err(anyhow!(ret))
+    } else if state == "操作失败" {
+        let mut ret = String::new();
+        vec.into_iter().for_each(|x| {
+            ret.push_str(x.inner_html().as_str());
+            ret.push(' ');
+        });
+        Err(anyhow!(ret))
+    } else {
+        let mut ret = String::new();
+        vec.into_iter().for_each(|x| {
+            ret.push_str(x.inner_html().as_str());
+            ret.push(' ');
+        });
+        Err(anyhow!(ret))
+    }
+}
+
+// parse check in site response
 pub fn parse_in(item: String) -> Result<String> {
     let html = Html::parse_document(item.as_str());
     let in_selector = Selector::parse("p").expect("no p in response");
     let vec = html.select(&in_selector).collect::<Vec<_>>();
     let state = vec[0].inner_html();
-    if state == "操作成功" {
-        // check in site
-        Ok(format!("{}\n{}", state, vec[1].inner_html()))
-    } else if state.contains("当前使用中") {
-        // login in site but in use now
-        let mut ret = String::new();
-        ret.push_str(vec[0].inner_html().as_str());
-        let str = vec[1].inner_html();
-        let str = str.split(')').nth(1).context("no ) in response")?;
-        ret.push_str(str);
-        Err(anyhow!(ret))
-    } else if state.contains("操作成功") {
-        // login in site success
-        let detail = vec[vec.len() - 1].inner_html();
 
-        let html = Html::parse_fragment(detail.as_str());
-        let opt_selector = Selector::parse("option").expect("no opt in response");
-        let mut opt = html.select(&opt_selector);
-        let opt = opt.next().context("no opt in response")?.inner_html();
-        Ok(opt)
-    } else if state.contains("操作失败") {
-        // login in site but fail
-        let mut ret = String::new();
-        vec.iter()
-            .for_each(|item| ret.push_str(item.inner_html().as_str()));
+    let mut ret = String::new();
+    vec.iter().for_each(|item| {
+        ret.push_str(item.inner_html().as_str());
+        ret.push(' ');
+    });
+    if state == "操作成功" {
+        Ok(ret)
+    } else if state == "操作失败" {
         Err(anyhow!(ret))
     } else {
-        // other
-        Err(anyhow!("parse state error"))
+        Err(anyhow!(ret))
     }
 }
 
