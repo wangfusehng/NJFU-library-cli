@@ -162,9 +162,11 @@ fn parse_id(item: &ElementRef) -> Result<String> {
 
 fn parse_site_state(item: &ElementRef) -> Result<String> {
     let span_selector = Selector::parse("span").expect("no span in response");
-    let span = item.select(&span_selector).into_iter().collect::<Vec<_>>();
+    let span = item.select(&span_selector).collect::<Vec<_>>();
     let mut ret = String::new();
-    span[span.len() - 3..].into_iter().for_each(|i| {
+    // judge size with 3
+    let start = if span.len() >= 3 { span.len() - 3 } else { 0 };
+    span[start..].iter().for_each(|i| {
         ret.push_str(&i.inner_html());
         ret.push(' ');
     });

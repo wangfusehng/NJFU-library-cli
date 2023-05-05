@@ -1,12 +1,13 @@
-use super::cli::day::Day;
+use crate::cli::day::Day;
+use crate::cli::reserve;
 use crate::role::login::Login;
 use crate::role::site;
 use crate::role::site::*;
 use crate::role::state::State;
 use crate::role::student::Student;
 use crate::role::ts::Ts;
+use crate::utils::html::parse_in;
 use crate::utils::*;
-use crate::{cli::reserve, utils::html::parse_in};
 use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Local};
 use reqwest::Body;
@@ -27,6 +28,25 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
 
     let mut ret: Vec<Site> = Vec::new();
 
+    use std::thread;
+    use std::time::Duration;
+    use std::{cmp::min, fmt::Write};
+
+    use indicatif::{ProgressBar, ProgressState, ProgressStyle};
+    let mut pos = 0;
+    let total = def::FLOOR.len() as u64;
+    let pb = ProgressBar::new(total);
+    pb.set_style(
+        ProgressStyle::with_template(
+            "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {pos}/{len:15}",
+        )
+        .unwrap()
+        .with_key("eta", |state: &ProgressState, w: &mut dyn Write| {
+            write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap()
+        })
+        .progress_chars("#>-"),
+    );
+
     for (_, floor) in def::ROOMS.iter() {
         let room_id = floor.room_id().to_string();
         let mut data = body.clone();
@@ -41,7 +61,13 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
         resp::get_name_info(resp, name.clone()).map(|info| {
             ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
         })?;
+
+        // bar update
+        pos += 1;
+        pb.set_position(pos);
     }
+
+    pb.finish_and_clear();
     Ok(ret)
 }
 
