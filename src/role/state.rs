@@ -11,25 +11,33 @@ pub struct State {
     pub site: String,
     pub start_time: String,
     pub end_time: String,
+    pub state: String,
 }
 
 impl std::fmt::Display for State {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{}\t\t{}\t\t{}\t\t{}",
-            self.site, self.start_time, self.end_time, self.id
+            "{}  {}  {}  {}  {}",
+            self.id, self.site, self.start_time, self.end_time, self.state
         )
     }
 }
 
 impl State {
-    pub fn new(id: String, site: String, start_time: String, end_time: String) -> Self {
+    pub fn new(
+        id: String,
+        site: String,
+        start_time: String,
+        end_time: String,
+        state: String,
+    ) -> Self {
         State {
             id,
             site,
             start_time,
             end_time,
+            state,
         }
     }
 
@@ -63,5 +71,13 @@ impl State {
 
     pub fn set_end_time(&mut self, end_time: String) {
         self.end_time = end_time;
+    }
+
+    pub fn state(&self) -> &str {
+        self.state.as_ref()
+    }
+
+    pub fn set_state(&mut self, state: String) {
+        self.state = state;
     }
 }

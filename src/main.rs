@@ -13,9 +13,5 @@ use structopt::StructOpt;
 fn main() -> Result<()> {
     // Get the command-line arguments.
     let Opt { action } = Opt::from_args();
-    match handle_action(action) {
-        Ok(it) => it,
-        Err(err) => return Err(err),
-    };
-    Ok(())
+    handle_action(action)
 }

@@ -48,7 +48,7 @@ pub fn handle_action(action: Action) -> Result<()> {
             println!("{}", def::LINE_SEPARATOR);
             state()
                 .map(|result| {
-                    println!("site\t\tstart_time\t\tend_time\t\tid");
+                    println!("id\t   site\t    start_time   end_time     state");
                     result.iter().for_each(|x| println!("{}", x));
                 })
                 .context("state failed")?;

@@ -15,13 +15,14 @@ pub fn parse_state(msg: String) -> Result<Vec<State>> {
     let mut ret: Vec<State> = Vec::new();
 
     for item in context {
-        if let (Ok(name), Ok(start_time), Ok(end_time)) = (
+        if let (Ok(name), Ok(start_time), Ok(end_time), Ok(state)) = (
             parse_name(&item),
             parse_start_time(&item),
             parse_end_time(&item),
+            parse_site_state(&item),
         ) {
             let id = parse_id(&item).context("no id in item of response")?;
-            ret.push(State::new(id, name, start_time, end_time));
+            ret.push(State::new(id, name, start_time, end_time, state));
         }
     }
     Ok(ret)
@@ -157,4 +158,15 @@ fn parse_id(item: &ElementRef) -> Result<String> {
         }
         None => Ok("none".to_string()),
     }
+}
+
+fn parse_site_state(item: &ElementRef) -> Result<String> {
+    let span_selector = Selector::parse("span").expect("no span in response");
+    let span = item.select(&span_selector).into_iter().collect::<Vec<_>>();
+    let mut ret = String::new();
+    span[span.len() - 3..].into_iter().for_each(|i| {
+        ret.push_str(&i.inner_html());
+        ret.push(' ');
+    });
+    Ok(ret)
 }
