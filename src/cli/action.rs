@@ -39,7 +39,7 @@ pub enum Action {
     },
 
     ///list personal status
-    State {},
+    Status {},
 
     ///cancel the reservation
     Cancel {

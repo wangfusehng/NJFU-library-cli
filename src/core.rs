@@ -43,8 +43,8 @@ pub fn handle_action(action: Action) -> Result<()> {
                 .context("login failed")?;
         }
 
-        State {} => {
-            println!("State:");
+        Status {} => {
+            println!("Status:");
             println!("{}", def::LINE_SEPARATOR);
             state()
                 .map(|result| {
