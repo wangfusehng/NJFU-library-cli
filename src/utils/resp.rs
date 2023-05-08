@@ -111,3 +111,12 @@ pub fn get_check_out_info(resp: Response) -> Result<String> {
         Err(anyhow!(ret))
     }
 }
+
+/// get_account_info
+pub fn get_account_info(resp: Response) -> Result<String> {
+    let resp = resp.json::<serde_json::Value>()?;
+    Ok(resp[0]["id"]
+        .as_str()
+        .context("parse msg in account info response error")?
+        .to_string())
+}

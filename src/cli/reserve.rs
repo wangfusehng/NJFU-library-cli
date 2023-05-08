@@ -4,18 +4,23 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt)]
 ///reserve a site
 pub struct Reserve {
-    /// the site to reserve
+    /// the site list to try reserve
     #[structopt(short, long)]
     pub sites: Option<Vec<String>>,
 
+    /// filter the site by a list of floor
     #[structopt(short, long)]
     pub filter: Option<Vec<String>>,
+
+    /// the user to reserve, work when reserve space
+    #[structopt(short, long)]
+    pub user: Option<Vec<String>>,
 
     /// the day to reserve
     #[structopt(
         short,
         long,
-        possible_values = &["today","tomorrow"],
+        possible_values = &["today","tomorrow","overmorrow"],
         case_insensitive = true,
         default_value = "today"
     )]

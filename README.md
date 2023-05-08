@@ -13,7 +13,7 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签�
 
 - 登录
 - 查询姓名和座位
-- 预约,随机预约
+- 预约座位或空间,随机预约座位
 - 取消预约
 - 签到
 - 签退
@@ -49,6 +49,7 @@ njfulib login -u <username> -p <password>
 njfulib query -n <your name>
 njfulib statue
 njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
+njfulib reserve -s <site>... -d overmorrow --start <start time> --end <end time> -u <user>...
 njfulib cancel -i <id>
 njfulib in -s <site>
 njfulib out -i <id>
@@ -68,5 +69,4 @@ cd target/release
 
 ## Roadmap
 
-- 支持空间预约
 - 查询楼层座位分布图

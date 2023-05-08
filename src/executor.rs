@@ -41,8 +41,9 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
     let mut body = HashMap::new();
     body.insert("act", "get_rsv_sta");
     let date = match day {
-        Day::Today => time::get_today_time("%Y-%m-%d"),
-        Day::Tomorrow => time::get_tomorrow_time("%Y-%m-%d"),
+        Day::Today => time::get_date_with_offset("%Y-%m-%d", 0),
+        Day::Tomorrow => time::get_date_with_offset("%Y-%m-%d", 1),
+        Day::Overmorrow => time::get_date_with_offset("%Y-%m-%d", 2),
     };
     body.insert("date", date.as_str());
 
@@ -91,7 +92,7 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
 
 /// Query the information of a site.
 pub fn query_by_site(day: Day, site: String) -> Result<Site> {
-    let dev_id = site_name_to_id(site);
+    let dev_id = name_to_id(site);
     dev_id
         .map(|dev_id| {
             let mut body = HashMap::new();
@@ -99,8 +100,9 @@ pub fn query_by_site(day: Day, site: String) -> Result<Site> {
             body.insert("dev_id", dev_id_binding.as_str());
             body.insert("act", "get_rsv_sta");
             let date = match day {
-                Day::Today => time::get_today_time("%Y-%m-%d"),
-                Day::Tomorrow => time::get_tomorrow_time("%Y-%m-%d"),
+                Day::Today => time::get_date_with_offset("%Y-%m-%d", 0),
+                Day::Tomorrow => time::get_date_with_offset("%Y-%m-%d", 1),
+                Day::Overmorrow => time::get_date_with_offset("%Y-%m-%d", 2),
             };
             body.insert("date", date.as_str());
 
@@ -162,22 +164,59 @@ pub fn cancel(id: String) -> Result<String> {
     resp::get_cancel_info(resp)
 }
 
-fn handle_reserve(site: String, day: Day, start: String, end: String) -> Result<String> {
-    let id = site_name_to_id(site)?;
+/// use card id to get user id in library
+fn search_account(card_id: String) -> Result<String> {
+    let ret = CLIENT
+        .post(def::SEARCHACCOUNT_URL)
+        .form(&[("term", card_id)])
+        .send()?;
+    resp::get_account_info(ret)
+}
+
+fn handle_reserve(
+    site: String,
+    user: Option<Vec<String>>,
+    day: Day,
+    start: String,
+    end: String,
+) -> Result<String> {
+    let id = name_to_id(site)?;
 
     let mut body = HashMap::new();
     body.insert("act", "set_resv");
     let id_binding = id.to_string();
     body.insert("dev_id", id_binding.as_str());
+
     let day = match day {
-        Day::Today => time::get_today_time("%Y-%m-%d"),
-        Day::Tomorrow => time::get_tomorrow_time("%Y-%m-%d"),
+        Day::Today => time::get_date_with_offset("%Y-%m-%d", 0),
+        Day::Tomorrow => time::get_date_with_offset("%Y-%m-%d", 1),
+        Day::Overmorrow => time::get_date_with_offset("%Y-%m-%d", 2),
     };
     let start_time = format!("{} {}", day, start);
     let end_time = format!("{} {}", day, end);
     body.insert("start", start_time.as_str());
     body.insert("end", end_time.as_str());
 
+    let mut user_list = String::from("$");
+
+    if let Some(user) = user {
+        let users = user
+            .iter()
+            .map(|x| {
+                search_account(x.to_string())
+                    .context("search account error")
+                    .unwrap()
+            })
+            .collect::<Vec<String>>()
+            .join(",");
+
+        user_list.push_str(users.as_str());
+
+        // if have -u or --user
+        body.insert("min_user", "0");
+        body.insert("max_user", "8");
+        body.insert("mb_list", user_list.as_str());
+    }
     let resp = CLIENT.post(def::RESERVE_URL).form(&body).send()?;
     resp::get_reserve_info(resp)
 }
@@ -186,6 +225,7 @@ fn handle_reserve(site: String, day: Day, start: String, end: String) -> Result<
 pub fn reserve(
     sites: Option<Vec<String>>,
     filter: Vec<String>,
+    user: Option<Vec<String>>,
     day: Day,
     start: String,
     end: String,
@@ -197,11 +237,19 @@ pub fn reserve(
     match sites {
         Some(sites) => {
             for site in sites {
-                // filter by floor
-                if !(site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?) {
-                    continue;
+                if split_site(site.clone()).is_ok() {
+                    // filter by floor
+                    if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
+                        continue;
+                    }
                 }
-                let resp = handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
+                let resp = handle_reserve(
+                    site.clone(),
+                    user.clone(),
+                    day.clone(),
+                    start.clone(),
+                    end.clone(),
+                );
                 match resp {
                     Ok(resp) => {
                         println!("{}: {}\n", site, resp);
@@ -209,6 +257,8 @@ pub fn reserve(
                             return Ok(resp);
                         }
                     }
+                    // the current site can not be reserved
+                    // test next site
                     Err(e) => println!("{}", e),
                 }
             }
@@ -220,10 +270,16 @@ pub fn reserve(
                 let site = site::get_random_site_name()?;
 
                 // filter by floor
-                if !(site_id_fiter_by_floor(site_name_to_id(site.clone())?, filter.clone())?) {
+                if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
                     continue;
                 }
-                let resp = handle_reserve(site.clone(), day.clone(), start.clone(), end.clone());
+                let resp = handle_reserve(
+                    site.clone(),
+                    user.clone(),
+                    day.clone(),
+                    start.clone(),
+                    end.clone(),
+                );
                 match resp {
                     Ok(resp) => {
                         println!("{}: {}\n", site, resp);

@@ -13,7 +13,7 @@
 @6F-A= 100455360
 @7F-A= 106658017
 @room_id = {{4F-A}}
-@dev_id = 100504089
+@dev_id = 100504097
 ### 查询图书馆
 Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 ?room_id={{room_id}}
@@ -30,7 +30,7 @@ Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 POST https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx?
 ?classkind=1
 &kind_id=100501645
-&date=20230507
+&date={{$datetime 'YYYY-MM-DD' 8 h}}
 &act=get_rsv_sta
 
 ### 查询学号
@@ -65,12 +65,12 @@ https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
 
 ### 研讨室预约
 POST https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx
-?dev_id=100504089
+?dev_id={{dev_id}}
 &min_user=0
 &max_user=8
 &mb_list=$111507107,116718634,116718858,116718860
-&start=2023-05-08+07:30
-&end=2023-05-08+09:30
+&start=2023-05-09 07:30
+&end=2023-05-09 09:30
 &act=set_resv
 
 ### 登录指定座位

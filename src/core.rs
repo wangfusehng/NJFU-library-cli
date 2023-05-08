@@ -65,6 +65,7 @@ pub fn handle_action(action: Action) -> Result<()> {
         Reserve(Reserve {
             sites,
             filter,
+            user,
             day,
             start,
             end,
@@ -82,7 +83,7 @@ pub fn handle_action(action: Action) -> Result<()> {
                     .collect::<Vec<String>>(),
             };
 
-            reserve(sites, floor, day, start, end, retry).map(|result| {
+            reserve(sites, floor, user, day, start, end, retry).map(|result| {
                 println!("{}", result);
             })?;
         }

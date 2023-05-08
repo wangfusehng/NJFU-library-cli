@@ -9,6 +9,8 @@ pub const LOGIN_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.
 pub const CENTER_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/center.aspx";
 pub const RESERVE_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/reserve.aspx";
 pub const WXSEATSIGN: &str = "https://libic.njfu.edu.cn/Pages/WxSeatSign.aspx";
+pub const SEARCHACCOUNT_URL: &str =
+    "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/data/searchAccount.aspx";
 lazy_static! {
     pub static ref FLOOR: Vec<&'static str> = vec![
         "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
@@ -26,6 +28,16 @@ lazy_static! {
         map.insert("5F-A", Floor::new(100455358, 100500173, 100500532, 360));
         map.insert("6F-A", Floor::new(100455360, 100500602, 100500949, 348));
         map.insert("7F-A", Floor::new(106658017, 106744855, 106745104, 224));
+        map
+    };
+    pub static ref SPACE: HashMap<&'static str, u32> = {
+        let mut map = HashMap::new();
+        map.insert("8A505", 100504089);
+        map.insert("8A506", 100504093);
+        map.insert("8A508", 100504097);
+        map.insert("8A512", 100504101);
+        map.insert("8A513", 100504105);
+        map.insert("8A515", 100504109);
         map
     };
 }

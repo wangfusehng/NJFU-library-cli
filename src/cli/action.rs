@@ -12,7 +12,7 @@ pub enum Action {
         #[structopt(
         short,
         long,
-        possible_values = &["today","tomorrow"],
+        possible_values = &["today","tomorrow","overmorrow"],
         case_insensitive = true,
         default_value = "today"
         )]

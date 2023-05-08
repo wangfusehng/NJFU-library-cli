@@ -6,4 +6,5 @@ use strum::{EnumString, EnumVariantNames, VariantNames};
 pub enum Day {
     Today,
     Tomorrow,
+    Overmorrow,
 }

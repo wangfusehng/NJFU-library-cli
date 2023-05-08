@@ -1,4 +1,4 @@
-use crate::role::site::site_id_to_name;
+use crate::role::site::id_to_name;
 use serde::{Deserialize, Serialize};
 
 /// # Floor information
@@ -15,8 +15,8 @@ impl std::fmt::Display for Floor {
         write!(
             f,
             "{}\t\t{}\t\t{}",
-            site_id_to_name(self.dev_start).expect("Invalid site id"),
-            site_id_to_name(self.dev_end).expect("Invalid site id"),
+            id_to_name(self.dev_start).expect("Invalid site id"),
+            id_to_name(self.dev_end).expect("Invalid site id"),
             self.site_num
         )
     }

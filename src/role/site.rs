@@ -75,31 +75,20 @@ impl Site {
     }
 }
 
-/// tranform the site to the site id
-pub fn site_name_to_id(site: String) -> Result<u32> {
-    let floor = &site[0..4];
-    match &site[4..].parse() {
-        Ok(_site) => {
-            let floor = def::ROOMS.get(floor);
-            match floor {
-                Some(floor) => {
-                    let id = floor.dev_start() + _site - 1;
-
-                    if id >= floor.dev_start() && id <= floor.dev_end() {
-                        Ok(id)
-                    } else {
-                        Err(anyhow!("parse room id error"))
-                    }
-                }
-                None => Err(anyhow!("parse room id error")),
-            }
-        }
-        Err(e) => Err(anyhow!("parse room id error: {}", e)),
-    }
+/// tranform the site or spacec to the site or space id
+pub fn name_to_id(site: String) -> Result<u32> {
+    split_site(site.clone()).or_else(|_| split_space(site))
 }
 
-/// tranform site id to site name
-pub fn site_id_to_name(id: u32) -> Result<String> {
+/// tranform site or space id to site or space name
+pub fn id_to_name(id: u32) -> Result<String> {
+    // search space
+    for (k, v) in def::SPACE.iter() {
+        if id == *v {
+            return Ok(k.to_string());
+        }
+    }
+    // search site
     let mut floor = "";
     for (k, v) in def::ROOMS.iter() {
         if id >= v.dev_start() && id <= v.dev_end() {
@@ -108,14 +97,20 @@ pub fn site_id_to_name(id: u32) -> Result<String> {
         }
     }
     if floor.is_empty() {
-        return Err(anyhow!("parse id to name error"));
+        anyhow::bail!("{} is not a site or space", id);
     }
-    let site = id - def::ROOMS.get(floor).unwrap().dev_start() + 1;
+    let site = id
+        - def::ROOMS
+            .get(floor)
+            .context(format!("Failed to get floor {}", floor))?
+            .dev_start()
+        + 1;
     Ok(format!("{}{:03}", floor, site))
 }
 
 /// site id fiter by floor
-pub fn site_id_fiter_by_floor(id: u32, floor: Vec<String>) -> Result<bool> {
+pub fn site_fiter_by_floor(site: String, floor: Vec<String>) -> Result<bool> {
+    let id = name_to_id(site)?;
     let mut floor_name = "";
     for i in floor.iter() {
         let v = def::ROOMS
@@ -141,12 +136,44 @@ pub fn get_random_site_name() -> Result<String> {
         .context("get floor name error")?;
     let floor = def::ROOMS.get(floor_name).context("get floor error")?;
     let site_id = rng.gen_range(floor.dev_start()..floor.dev_end() + 1);
-    site_id_to_name(site_id)
+    id_to_name(site_id)
+}
+
+pub fn split_space(dev_name: String) -> Result<u32> {
+    if let "8A" = &dev_name[..2] {
+        def::SPACE
+            .get(&dev_name[..5])
+            .cloned()
+            .context(format!("Failed to get space for {}", dev_name))
+    } else {
+        anyhow::bail!("{} is not a space", dev_name)
+    }
+}
+
+pub fn split_site(dev_name: String) -> Result<u32> {
+    let floor = def::ROOMS
+        .get(&dev_name[0..4])
+        .context(format!("Failed to get floor for {}", &dev_name[0..4]))?;
+    let site = &dev_name[4..].parse()?;
+    let id = floor.dev_start() + site - 1;
+
+    if id >= floor.dev_start() && id <= floor.dev_end() {
+        Ok(id)
+    } else {
+        anyhow::bail!("{} is not a site", dev_name)
+    }
 }
 
 #[test]
 fn test_site() {
     let site = "5F-A100".to_string();
-    let get_site = site_id_to_name(site_name_to_id(site.to_string()).unwrap()).unwrap();
+    let get_site = id_to_name(name_to_id(site.to_string()).unwrap()).unwrap();
     assert_eq!(site, get_site);
+}
+
+#[test]
+fn test_space() {
+    let space = "8A507".to_string();
+    let ret = id_to_name(name_to_id(space.to_string()).unwrap()).unwrap();
+    assert_eq!(space, ret);
 }
