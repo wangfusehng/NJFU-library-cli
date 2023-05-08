@@ -28,6 +28,19 @@ pub fn parse_state(msg: String) -> Result<Vec<State>> {
     Ok(ret)
 }
 
+#[test]
+fn test1() {
+    use std::fs::File;
+    let mut file = File::open("resp/center_undo.json").unwrap();
+    let mut str = String::new();
+    file.read_to_string(&mut str).unwrap();
+    let str: serde_json::Value = serde_json::from_str(&str).unwrap();
+    println!(
+        "{:#?}",
+        parse_state(str["msg"].as_str().unwrap().to_string())
+    );
+}
+
 // parse html in site login response
 pub fn parse_site_login(item: String) -> Result<u32> {
     let html = Html::parse_document(item.as_str());
@@ -161,7 +174,7 @@ fn parse_id(item: &ElementRef) -> Result<String> {
 }
 
 fn parse_site_state(item: &ElementRef) -> Result<String> {
-    let span_selector = Selector::parse("span").expect("no span in response");
+    let span_selector = Selector::parse("div span").expect("no span in response");
     let span = item.select(&span_selector).collect::<Vec<_>>();
     let mut ret = String::new();
     // judge size with 3

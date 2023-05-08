@@ -10,15 +10,35 @@ use crate::utils::html::parse_in;
 use crate::utils::*;
 use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Local};
-use reqwest::Body;
+use lazy_static::lazy_static;
 use std::collections::HashMap;
+
+lazy_static! {
+    pub static ref CLIENT: reqwest::blocking::Client = {
+        let mut headers = reqwest::header::HeaderMap::new();
+        headers.insert(
+                reqwest::header::USER_AGENT,
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+                    .parse()
+                    .context("Failed to parse user agent.").unwrap()
+            );
+        headers.insert(
+            reqwest::header::CACHE_CONTROL,
+            reqwest::header::HeaderValue::from_static("private"),
+        );
+
+        reqwest::blocking::ClientBuilder::new()
+            .cookie_store(true)
+            .default_headers(headers)
+            .build()
+            .context("Failed to build client.")
+            .unwrap()
+    };
+}
 
 /// Query the information of a student.
 pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
     let mut body = HashMap::new();
-    body.insert("byType", "devcls");
-    body.insert("classkind", "8");
-    body.insert("cld_name", "default");
     body.insert("act", "get_rsv_sta");
     let date = match day {
         Day::Today => time::get_today_time("%Y-%m-%d"),
@@ -40,9 +60,11 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
         ProgressStyle::with_template(
             "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {pos}/{len:15}",
         )
-        .unwrap()
+        .context("Failed to set style.")?
         .with_key("eta", |state: &ProgressState, w: &mut dyn Write| {
-            write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap()
+            write!(w, "{:.1}s", state.eta().as_secs_f64())
+                .context("Failed to write.")
+                .unwrap()
         })
         .progress_chars("#>-"),
     );
@@ -52,11 +74,7 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
         let mut data = body.clone();
         data.insert("room_id", room_id.as_str());
 
-        let resp = def::CLIENT
-            .post(def::DEVICE_URL)
-            .headers(def::HEADERMAP.clone())
-            .form(&data)
-            .send()?;
+        let resp = CLIENT.post(def::DEVICE_URL).form(&data).send()?;
 
         resp::get_name_info(resp, name.clone()).map(|info| {
             ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
@@ -86,11 +104,7 @@ pub fn query_by_site(day: Day, site: String) -> Result<Site> {
             };
             body.insert("date", date.as_str());
 
-            let resp = def::CLIENT
-                .post(def::DEVICE_URL)
-                .headers(def::HEADERMAP.clone())
-                .form(&body)
-                .send()?;
+            let resp = CLIENT.post(def::DEVICE_URL).form(&body).send()?;
 
             resp::get_site_info(resp)
         })
@@ -107,11 +121,7 @@ fn handle_login() -> Result<Student> {
     body.insert("id", login.username());
     body.insert("pwd", login.password());
 
-    let resp = def::CLIENT
-        .post(def::LOGIN_URL)
-        .headers(def::HEADERMAP.clone())
-        .form(&body)
-        .send()?;
+    let resp = CLIENT.post(def::LOGIN_URL).form(&body).send()?;
 
     resp::get_login_info(resp)
 }
@@ -133,11 +143,7 @@ pub fn state() -> Result<Vec<State>> {
     body.insert("strat", "90");
     body.insert("StatFlag", "New");
 
-    let resp = def::CLIENT
-        .post(def::CENTER_URL)
-        .headers(def::HEADERMAP.clone())
-        .form(&body)
-        .send()?;
+    let resp = CLIENT.post(def::CENTER_URL).form(&body).send()?;
 
     resp::get_state_info(resp)
 }
@@ -151,11 +157,7 @@ pub fn cancel(id: String) -> Result<String> {
     body.insert("act", "del_resv");
     body.insert("id", id.as_str());
 
-    let resp = def::CLIENT
-        .post(def::RESERVE_URL)
-        .headers(def::HEADERMAP.clone())
-        .form(&body)
-        .send()?;
+    let resp = CLIENT.post(def::RESERVE_URL).form(&body).send()?;
 
     resp::get_cancel_info(resp)
 }
@@ -176,11 +178,7 @@ fn handle_reserve(site: String, day: Day, start: String, end: String) -> Result<
     body.insert("start", start_time.as_str());
     body.insert("end", end_time.as_str());
 
-    let resp = def::CLIENT
-        .post(def::RESERVE_URL)
-        .headers(def::HEADERMAP.clone())
-        .form(&body)
-        .send()?;
+    let resp = CLIENT.post(def::RESERVE_URL).form(&body).send()?;
     resp::get_reserve_info(resp)
 }
 
@@ -249,17 +247,16 @@ pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
     // get stduent info
     let student = handle_login()?;
 
-    let mut header = def::HEADERMAP.clone();
-    header.insert(reqwest::header::CONTENT_LENGTH, "0".parse()?);
-
     let mut body = HashMap::new();
     body.insert("lab", site.lab_id());
     body.insert("dev", site.dev_id());
     body.insert("msn", student.msn());
 
-    let resp = def::CLIENT
+    let content_lenth = reqwest::header::HeaderValue::from_str("0")?;
+
+    let resp = CLIENT
         .post(def::WXSEATSIGN)
-        .headers(header.clone())
+        .header(reqwest::header::CONTENT_LENGTH, content_lenth)
         .form(&body)
         .send()?
         .text()?;
@@ -272,12 +269,7 @@ pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
     let time_binding = time.unwrap_or(opt).to_string();
     body.insert("dwUseMin", time_binding.as_str());
 
-    let resp = def::CLIENT
-        .post(def::WXSEATSIGN)
-        .headers(header)
-        .form(&body)
-        .send()?
-        .text()?;
+    let resp = CLIENT.post(def::WXSEATSIGN).form(&body).send()?.text()?;
 
     parse_in(resp)
 }
@@ -292,7 +284,7 @@ pub fn check_out(id: String) -> Result<String> {
     body.insert("type", "2");
     body.insert("resv_id", id.as_str());
 
-    let resp = def::CLIENT.post(def::RESERVE_URL).form(&body).send()?;
+    let resp = CLIENT.post(def::RESERVE_URL).form(&body).send()?;
 
     resp::get_check_out_info(resp)
 }
