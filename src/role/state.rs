@@ -105,6 +105,6 @@ impl State {
         let diff = now - time::get_now_timestamp()?;
 
         // in 30 minutes before the start time, the user is able to check in
-        Ok(diff >= 0 && diff <= 60 * 30)
+        Ok((0..60 * 30).contains(&diff))
     }
 }

@@ -18,11 +18,7 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,签�
 - 签到
 - 签退
 
-结合github action
-
-- [自动预约](https://github.com/jyf-111/NJFU-library-cli/wiki/自动预约)
-- 自动签到
-- 自动签退
+结合github action `自动预约` `自动签到` `自动签退` 参考[wiki](https://github.com/jyf-111/NJFU-library-cli/wiki)
 
 ## Install
 

@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: "0 23 * * *"
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -32,23 +32,5 @@ jobs:
           NJFU_PASSWORD: ${{secrets.NJFU_PASSWORD}}
         run: cargo run --release login
 
-      - name: reserve
-        env:
-          start: ${{vars.START}}
-          end: ${{vars.END}}
-          day: ${{vars.DAY}}
-          filter: ${{vars.FILTER}}
-        run: |
-          date
-          end_h=$(echo $end | awk -F : '{print $1}')
-          end_m=$(echo $end | awk -F : '{print $2}')
-
-          if [ $(date "+%a") == Thu ];
-          then
-            if (( $end_h > 20 )) || (( $end_h == 20 )) && (( $end_m > 0 ));
-            then
-              cargo run --release reserve -d $day -f $filter --start $start --end 20:00
-            fi
-          else
-            cargo run --release reserve -d $day -f $filter --start $start --end $end
-          fi
+      - name: check in
+        run: cargo run --release in --all

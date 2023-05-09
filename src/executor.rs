@@ -59,13 +59,12 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
         .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ "),
     );
 
-    let mut pos = 0;
     let total = def::FLOOR.len() as u64;
     let mut ret: Vec<Site> = Vec::new();
 
-    for (floor_name, floor) in def::ROOMS.iter() {
+    for (pos, (floor_name, floor)) in def::ROOMS.iter().enumerate() {
         pb.set_prefix(format!("[{}/{}]", pos, total));
-        pb.set_message(format!("{}", floor_name));
+        pb.set_message(floor_name.to_string());
 
         let room_id = floor.room_id().to_string();
         let mut data = body.clone();
@@ -76,9 +75,6 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
         resp::get_name_info(resp, name.clone()).map(|info| {
             ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
         })?;
-
-        // bar update
-        pos += 1;
     }
 
     pb.finish_and_clear();
