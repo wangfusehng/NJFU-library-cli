@@ -53,9 +53,12 @@ pub enum Action {
 
     /// check in
     In {
+        #[structopt(short, long)]
+        all: bool,
+
         // the site to check in
         #[structopt(short, long)]
-        site: String,
+        site: Option<String>,
 
         // the time to use the site in minutes
         #[structopt(short, long)]

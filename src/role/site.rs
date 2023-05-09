@@ -173,7 +173,8 @@ fn test_site() {
 
 #[test]
 fn test_space() {
-    let space = "8A507".to_string();
+    let space = "8A506".to_string();
     let ret = id_to_name(name_to_id(space.to_string()).unwrap()).unwrap();
+    println!("{}", ret);
     assert_eq!(space, ret);
 }

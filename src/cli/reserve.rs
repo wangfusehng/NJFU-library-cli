@@ -35,6 +35,6 @@ pub struct Reserve {
     pub end: String,
 
     /// retry times for random reserve
-    #[structopt(short, long, default_value = "30")]
+    #[structopt(short, long, default_value = "50")]
     pub retry: u32,
 }

@@ -1,8 +1,29 @@
+use anyhow::Context;
+use anyhow::Result;
 use chrono::prelude::*;
 use chrono::{DateTime, Utc};
+use chrono::{NaiveDate, NaiveDateTime};
 
-pub fn get_timestamp() -> i64 {
-    Utc::now().timestamp()
+pub fn get_utc_timestamp(month: u32, day: u32, hour: u32, minute: u32) -> Result<i64> {
+    // Time zone offset
+    let offset: chrono::FixedOffset =
+        FixedOffset::east_opt(8 * 3600).expect("time zone offset fail");
+    let time = Utc::now().with_timezone(&offset);
+    let year = time.year();
+
+    let date_time = NaiveDate::from_ymd_opt(year, month, day)
+        .context("time error")?
+        .and_hms_opt(hour, minute, 0)
+        .context("time error")?;
+    Ok((date_time.timestamp() - 60 * 60 * 8) as i64)
+}
+
+pub fn get_now_timestamp() -> Result<i64> {
+    // Time zone offset
+    let offset: chrono::FixedOffset =
+        FixedOffset::east_opt(8 * 3600).expect("time zone offset fail");
+    let time = Utc::now().with_timezone(&offset);
+    Ok(time.timestamp() as i64)
 }
 
 pub fn get_date_with_offset(fmt: &str, day: i64) -> String {

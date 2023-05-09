@@ -1,9 +1,10 @@
 use crate::utils::def;
 use crate::utils::time;
+use anyhow::Context;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-/// # State struct
+/// State struct
 /// State struct is used to store the information of the user's state.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct State {
@@ -79,5 +80,31 @@ impl State {
 
     pub fn set_state(&mut self, state: String) {
         self.state = state;
+    }
+
+    // judge whether the user is able to check in
+    pub fn isable_to_check_in(&self) -> Result<bool> {
+        let start_time = self.start_time.split(' ').collect::<Vec<&str>>();
+        let start_date = start_time[0].split('-').collect::<Vec<&str>>();
+        let start_month = start_date[0]
+            .parse::<u32>()
+            .context("Failed to parse month")?;
+        let start_day = start_date[1]
+            .parse::<u32>()
+            .context("Failed to parse day")?;
+
+        let start_time = start_time[1].split(':').collect::<Vec<&str>>();
+        let start_hour = start_time[0]
+            .parse::<u32>()
+            .context("Failed to parse hour")?;
+        let start_minute = start_time[1]
+            .parse::<u32>()
+            .context("Failed to parse minute")?;
+
+        let now = time::get_utc_timestamp(start_month, start_day, start_hour, start_minute)?;
+        let diff = now - time::get_now_timestamp()?;
+
+        // in 30 minutes before the start time, the user is able to check in
+        Ok(diff >= 0 && diff <= 60 * 30)
     }
 }

@@ -4,7 +4,7 @@ use crate::cli::reserve::Reserve;
 use crate::executor::*;
 use crate::role::login;
 use crate::utils::def;
-use anyhow::{Context, Ok, Result};
+use anyhow::{anyhow, Context, Result};
 use ferris_says::say;
 use std::io::{stdout, BufWriter};
 
@@ -88,10 +88,22 @@ pub fn handle_action(action: Action) -> Result<()> {
             })?;
         }
 
-        In { site, time } => {
+        In { all, site, time } => {
             println!("Check in Result:");
             println!("{}", def::LINE_SEPARATOR);
-            check_in(site, time).map(|result| println!("{}", result))?;
+            if all {
+                // check in all
+                let states = state()?;
+                for state in states {
+                    if state.isable_to_check_in()? {
+                        check_in(state.site, time).map(|result| println!("{}", result))?;
+                    }
+                }
+            } else {
+                // check in one site
+                let site = site.ok_or(anyhow!("site is required"))?;
+                check_in(site, time).map(|result| println!("{}", result))?;
+            }
         }
 
         Out { id } => {
