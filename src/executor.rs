@@ -10,8 +10,11 @@ use crate::utils::html::parse_in;
 use crate::utils::*;
 use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Local};
+use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 use lazy_static::lazy_static;
 use std::collections::HashMap;
+use std::time::Duration;
+use std::{cmp::min, fmt::Write};
 
 lazy_static! {
     pub static ref CLIENT: reqwest::blocking::Client = {
@@ -31,8 +34,7 @@ lazy_static! {
             .cookie_store(true)
             .default_headers(headers)
             .build()
-            .context("Failed to build client.")
-            .unwrap()
+            .expect("Failed to build client.")
     };
 }
 
@@ -47,30 +49,24 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
     };
     body.insert("date", date.as_str());
 
-    let mut ret: Vec<Site> = Vec::new();
-
-    use std::thread;
-    use std::time::Duration;
-    use std::{cmp::min, fmt::Write};
-
-    use indicatif::{ProgressBar, ProgressState, ProgressStyle};
-    let mut pos = 0;
-    let total = def::FLOOR.len() as u64;
-    let pb = ProgressBar::new(total);
+    let pb = ProgressBar::new_spinner();
+    pb.enable_steady_tick(Duration::from_millis(200));
     pb.set_style(
         ProgressStyle::with_template(
-            "{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {pos}/{len:15}",
+            "{spinner:.dim.bold} {prefix:.bold.dim} query floor: {wide_msg}",
         )
-        .context("Failed to set style.")?
-        .with_key("eta", |state: &ProgressState, w: &mut dyn Write| {
-            write!(w, "{:.1}s", state.eta().as_secs_f64())
-                .context("Failed to write.")
-                .unwrap()
-        })
-        .progress_chars("#>-"),
+        .context("Failed to set progress bar style.")?
+        .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ "),
     );
 
-    for (_, floor) in def::ROOMS.iter() {
+    let mut pos = 0;
+    let total = def::FLOOR.len() as u64;
+    let mut ret: Vec<Site> = Vec::new();
+
+    for (floor_name, floor) in def::ROOMS.iter() {
+        pb.set_prefix(format!("[{}/{}]", pos, total));
+        pb.set_message(format!("{}", floor_name));
+
         let room_id = floor.room_id().to_string();
         let mut data = body.clone();
         data.insert("room_id", room_id.as_str());
@@ -83,7 +79,6 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
 
         // bar update
         pos += 1;
-        pb.set_position(pos);
     }
 
     pb.finish_and_clear();
@@ -115,7 +110,7 @@ pub fn query_by_site(day: Day, site: String) -> Result<Site> {
 
 /// handle actual login to the server.
 fn handle_login() -> Result<Student> {
-    let mut login = Login::new("".to_string(), "".to_string());
+    let mut login = Login::default();
     login.read_from_file().context("read student info failed")?;
 
     let mut body = HashMap::new();
@@ -202,11 +197,7 @@ fn handle_reserve(
     if let Some(user) = user {
         let users = user
             .iter()
-            .map(|x| {
-                search_account(x.to_string())
-                    .context("search account error")
-                    .unwrap()
-            })
+            .map(|x| search_account(x.to_string()).expect("search account error"))
             .collect::<Vec<String>>()
             .join(",");
 

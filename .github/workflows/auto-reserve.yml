@@ -28,9 +28,9 @@ jobs:
 
       - name: login
         env:
-          username: ${{secrets.NJFU_USERNAME}}
-          password: ${{secrets.NJFU_PASSWORD}}
-        run: cargo run --release login -u $username -p $password
+          NJFU_USERNAME: ${{secrets.NJFU_USERNAME}}
+          NJFU_PASSWORD: ${{secrets.NJFU_PASSWORD}}
+        run: cargo run --release login
 
       - name: reserve
         env:

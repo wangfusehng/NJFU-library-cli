@@ -18,6 +18,13 @@ impl std::fmt::Display for Login {
 }
 
 impl Login {
+    pub fn default() -> Self {
+        Login {
+            username: String::new(),
+            password: String::new(),
+        }
+    }
+
     /// create a new Info struct
     pub fn new(username: String, password: String) -> Self {
         Login { username, password }
