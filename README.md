@@ -45,7 +45,7 @@ njfulib login -u <username> -p <password>
 njfulib query -n <your name>
 njfulib statue
 njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
-njfulib reserve -s <site>... -d overmorrow --start <start time> --end <end time> -u <user>...
+njfulib reserve -s <space>... -d 2 --start <start time> --end <end time> -u <user>...
 njfulib cancel -i <id>
 njfulib in -s <site>
 njfulib out -i <id>

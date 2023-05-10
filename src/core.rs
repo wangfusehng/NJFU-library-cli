@@ -17,7 +17,7 @@ pub fn handle_action(action: Action) -> Result<()> {
             println!("{}", def::LINE_SEPARATOR);
 
             if name.is_some() {
-                query_by_name(day.clone(), name.unwrap())
+                query_by_name(day, name.unwrap())
                     .map(|result| {
                         result.iter().for_each(|x| println!("{}", x));
                     })

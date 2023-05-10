@@ -1,4 +1,3 @@
-use crate::cli::day::Day;
 use crate::cli::reserve;
 use crate::role::login::Login;
 use crate::role::site;
@@ -39,14 +38,10 @@ lazy_static! {
 }
 
 /// Query the information of a student.
-pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
+pub fn query_by_name(day: u32, name: String) -> Result<Vec<Site>> {
     let mut body = HashMap::new();
     body.insert("act", "get_rsv_sta");
-    let date = match day {
-        Day::Today => time::get_date_with_offset("%Y-%m-%d", 0),
-        Day::Tomorrow => time::get_date_with_offset("%Y-%m-%d", 1),
-        Day::Overmorrow => time::get_date_with_offset("%Y-%m-%d", 2),
-    };
+    let date = time::get_date_with_offset("%Y-%m-%d", day);
     body.insert("date", date.as_str());
 
     let pb = ProgressBar::new_spinner();
@@ -82,7 +77,7 @@ pub fn query_by_name(day: Day, name: String) -> Result<Vec<Site>> {
 }
 
 /// Query the information of a site.
-pub fn query_by_site(day: Day, site: String) -> Result<Site> {
+pub fn query_by_site(day: u32, site: String) -> Result<Site> {
     let dev_id = name_to_id(site);
     dev_id
         .map(|dev_id| {
@@ -90,11 +85,7 @@ pub fn query_by_site(day: Day, site: String) -> Result<Site> {
             let dev_id_binding = dev_id.to_string();
             body.insert("dev_id", dev_id_binding.as_str());
             body.insert("act", "get_rsv_sta");
-            let date = match day {
-                Day::Today => time::get_date_with_offset("%Y-%m-%d", 0),
-                Day::Tomorrow => time::get_date_with_offset("%Y-%m-%d", 1),
-                Day::Overmorrow => time::get_date_with_offset("%Y-%m-%d", 2),
-            };
+            let date = time::get_date_with_offset("%Y-%m-%d", day);
             body.insert("date", date.as_str());
 
             let resp = CLIENT.post(def::DEVICE_URL).form(&body).send()?;
@@ -167,7 +158,7 @@ fn search_account(card_id: String) -> Result<String> {
 fn handle_reserve(
     site: String,
     user: Option<Vec<String>>,
-    day: Day,
+    day: u32,
     start: String,
     end: String,
 ) -> Result<String> {
@@ -178,13 +169,9 @@ fn handle_reserve(
     let id_binding = id.to_string();
     body.insert("dev_id", id_binding.as_str());
 
-    let day = match day {
-        Day::Today => time::get_date_with_offset("%Y-%m-%d", 0),
-        Day::Tomorrow => time::get_date_with_offset("%Y-%m-%d", 1),
-        Day::Overmorrow => time::get_date_with_offset("%Y-%m-%d", 2),
-    };
-    let start_time = format!("{} {}", day, start);
-    let end_time = format!("{} {}", day, end);
+    let date = time::get_date_with_offset("%Y-%m-%d", day);
+    let start_time = format!("{} {}", date, start);
+    let end_time = format!("{} {}", date, end);
     body.insert("start", start_time.as_str());
     body.insert("end", end_time.as_str());
 
@@ -213,7 +200,7 @@ pub fn reserve(
     sites: Option<Vec<String>>,
     filter: Vec<String>,
     user: Option<Vec<String>>,
-    day: Day,
+    day: u32,
     start: String,
     end: String,
     retry: u32,
@@ -286,7 +273,7 @@ pub fn reserve(
 ///check in reserve on time
 pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
     // get site info
-    let site = query_by_site(Day::Today, site)?;
+    let site = query_by_site(0, site)?;
     // get stduent info
     let student = handle_login()?;
 

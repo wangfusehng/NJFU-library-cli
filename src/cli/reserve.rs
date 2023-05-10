@@ -1,4 +1,3 @@
-use super::day::Day;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -17,14 +16,8 @@ pub struct Reserve {
     pub user: Option<Vec<String>>,
 
     /// the day to reserve
-    #[structopt(
-        short,
-        long,
-        possible_values = &["today","tomorrow","overmorrow"],
-        case_insensitive = true,
-        default_value = "today"
-    )]
-    pub day: Day,
+    #[structopt(short, long, default_value = "0")]
+    pub day: u32,
 
     /// the start time to reserve
     #[structopt(long)]

@@ -1,4 +1,3 @@
-use crate::cli::day::Day;
 use crate::cli::infomation::Infomation;
 use crate::cli::reserve::Reserve;
 use structopt::StructOpt;
@@ -9,14 +8,8 @@ pub enum Action {
     ///Query library site or student
     Query {
         /// the day to query
-        #[structopt(
-        short,
-        long,
-        possible_values = &["today","tomorrow","overmorrow"],
-        case_insensitive = true,
-        default_value = "today"
-        )]
-        day: Day,
+        #[structopt(short, long, default_value = "0")]
+        day: u32,
 
         /// the name to query
         #[structopt(short, long)]
