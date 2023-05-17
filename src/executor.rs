@@ -212,6 +212,7 @@ pub fn reserve(
         Some(sites) => {
             for site in sites {
                 if split_site(site.clone()).is_ok() {
+                    // is site
                     // filter by floor
                     if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
                         continue;
@@ -226,19 +227,20 @@ pub fn reserve(
                 );
                 match resp {
                     Ok(resp) => {
-                        println!("{}: {}\n", site, resp);
+                        println!("{}: {}", site, resp);
                         if resp.contains("成功") {
                             return Ok(resp);
                         }
                     }
                     // the current site can not be reserved
                     // test next site
-                    Err(e) => println!("{}", e),
+                    Err(e) => println!("{}: {}", site, e),
                 }
             }
             Err(anyhow!("no site from put in can be reserved"))
         }
         None => {
+            // random reserve
             let mut cnt = 0;
             while cnt < retry {
                 let site = site::get_random_site_name()?;
@@ -256,7 +258,7 @@ pub fn reserve(
                 );
                 match resp {
                     Ok(resp) => {
-                        println!("{}: {}\n", site, resp);
+                        println!("{}: {}", site, resp);
                         if resp.contains("成功") {
                             return Ok(resp);
                         }
@@ -272,10 +274,11 @@ pub fn reserve(
 
 ///check in reserve on time
 pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
-    // get site info
-    let site = query_by_site(0, site)?;
     // get stduent info
     let student = handle_login()?;
+
+    // get site info
+    let site = query_by_site(0, site)?;
 
     let mut body = HashMap::new();
     body.insert("lab", site.lab_id());

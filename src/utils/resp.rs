@@ -41,6 +41,11 @@ pub fn get_site_info(resp: Response) -> Result<Site> {
 
 /// get_login_info
 pub fn get_login_info(resp: Response) -> Result<Student> {
+    if resp.status() == 403 {
+        return Err(anyhow!(
+            "login in forbidden, please use NJFU-WIFI or NJFU VPN"
+        ));
+    }
     let resp = resp.json::<serde_json::Value>()?;
     let data = resp["data"].clone();
     if let serde_json::Value::Null = data {
