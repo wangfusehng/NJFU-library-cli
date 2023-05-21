@@ -218,13 +218,8 @@ pub fn reserve(
                         continue;
                     }
                 }
-                let resp = handle_reserve(
-                    site.clone(),
-                    user.clone(),
-                    day.clone(),
-                    start.clone(),
-                    end.clone(),
-                );
+                let resp =
+                    handle_reserve(site.clone(), user.clone(), day, start.clone(), end.clone());
                 match resp {
                     Ok(resp) => {
                         println!("{}: {}", site, resp);
@@ -249,13 +244,8 @@ pub fn reserve(
                 if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
                     continue;
                 }
-                let resp = handle_reserve(
-                    site.clone(),
-                    user.clone(),
-                    day.clone(),
-                    start.clone(),
-                    end.clone(),
-                );
+                let resp =
+                    handle_reserve(site.clone(), user.clone(), day, start.clone(), end.clone());
                 match resp {
                     Ok(resp) => {
                         println!("{}: {}", site, resp);

@@ -101,9 +101,9 @@ impl State {
             .parse::<u32>()
             .context("Failed to parse minute")?;
 
-        let now = time::get_utc_timestamp(start_month, start_day, start_hour, start_minute)?;
-        let diff = now - time::get_now_timestamp()?;
-
+        let reserve_time =
+            time::get_utc_timestamp(start_month, start_day, start_hour, start_minute)?;
+        let diff = time::get_now_timestamp()? - reserve_time;
         // in 30 minutes before the start time, the user is able to check in
         Ok((0..60 * 30).contains(&diff))
     }

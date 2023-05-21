@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "50 23 * * *"
   workflow_dispatch:
 
 jobs:
@@ -33,4 +33,4 @@ jobs:
         run: cargo run --release login
 
       - name: check in
-        run: cargo run --release in --all
+        run: date && cargo run --release in --all

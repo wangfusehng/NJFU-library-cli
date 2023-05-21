@@ -96,7 +96,12 @@ pub fn handle_action(action: Action) -> Result<()> {
                 let states = state()?;
                 for state in states {
                     if state.isable_to_check_in()? {
-                        check_in(state.site, time).map(|result| println!("{}", result))?;
+                        let res = check_in(state.site().to_string(), time);
+
+                        match res {
+                            Ok(result) => println!("{}: {}", state.site(), result),
+                            Err(e) => println!("{}: Error: {}", state.site(), e),
+                        }
                     }
                 }
             } else {
