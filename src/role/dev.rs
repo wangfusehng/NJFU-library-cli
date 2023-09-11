@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// # Ts struct
-/// Ts is a struct that contains the information of a time slot.
-/// The information includes the owner of the time slot, the start time, the end time and the status of the time slot.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct Dev {
     #[serde(rename = "resvId")]
@@ -13,7 +10,7 @@ pub struct Dev {
 
 impl std::fmt::Display for Dev {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "owner: {}\n", self.resv_id)
+        writeln!(f, "owner: {}", self.resv_id)
     }
 }
 

@@ -1,6 +1,7 @@
+use super::config::Config;
 use super::resv::Resv;
+use super::sign_rec::SignRec;
 use super::site::Site;
-use super::{dev::Dev, sign_rec::SignRec};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -9,17 +10,27 @@ pub enum Data {
     Resv(Resv),
     Site(Site),
     SignRec(SignRec),
+    Config(Config),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Resp {
+    code: u32,
     message: String,
     data: Option<Vec<Data>>,
 }
 
 impl Resp {
-    pub fn new(message: String, data: Option<Vec<Data>>) -> Self {
-        Resp { message, data }
+    pub fn new(code: u32, message: String, data: Option<Vec<Data>>) -> Self {
+        Resp {
+            code,
+            message,
+            data,
+        }
+    }
+
+    pub fn code(&self) -> u32 {
+        self.code
     }
 
     pub fn message(&self) -> &str {

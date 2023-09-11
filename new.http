@@ -3,7 +3,7 @@
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 @today = {{$datetime 'YYYY-MM-DD' 8 h}}
-@cookie = 398fd967-f123-4567-92f9-4d5978a49a4a
+@cookie = f36d172d-22d8-4915-a536-5a209d5e3e14
 
 ### credit
 GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus
@@ -14,7 +14,7 @@ GET https://libseat.njfu.edu.cn/ic-web/reserve/resvInfo?beginDate=2023-09-11&end
 Cookie: ic-cookie={{cookie}}
 
 ### resvId查询account
-GET https://libseat.njfu.edu.cn/ic-web/reserve/getSignRec?resvId=143929012
+GET https://libseat.njfu.edu.cn/ic-web/reserve/getSignRec?resvId=143943737
 Cookie: ic-cookie={{cookie}}
 
 ### 删除
@@ -32,8 +32,9 @@ Cookie: ic-cookie={{cookie}}
 
 ### 预约
 POST https://libseat.njfu.edu.cn/ic-web/reserve
-Cookie: ic-cookie={{cookie}}
+cookie: ic-cookie={{cookie}}
 content-type: {{contentType}}
+content-length: 0
 
 {
     "sysKind": 8,
@@ -41,8 +42,8 @@ content-type: {{contentType}}
     "resvMember": [
         116718634
     ],
-    "resvBeginTime": "2023-09-09 07:30:00",
-    "resvEndTime": "2023-09-09 22:00:00",
+    "resvBeginTime": "2023-09-12 07:30:00",
+    "resvEndTime": "2023-09-12 22:00:00",
     "resvDev": [
         100455621
     ],

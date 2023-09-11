@@ -1,20 +1,19 @@
-use super::config::{self, Config};
 use super::def;
-use crate::cli::reserve;
-use crate::role::dev::Dev;
+
+use crate::role::config::{self, Config};
+
 use crate::role::resp::Data;
 use crate::role::resp::Resp;
-use crate::role::resv::Resv;
+
 use crate::role::site::*;
 use crate::role::user::*;
 use crate::utils::*;
 use anyhow::{anyhow, Context, Result};
-use chrono::{DateTime, Local};
-use indicatif::{ProgressBar, ProgressState, ProgressStyle};
-use lazy_static::lazy_static;
+
+use indicatif::{ProgressBar, ProgressStyle};
+
 use std::collections::HashMap;
 use std::time::Duration;
-use std::{cmp::min, fmt::Write};
 
 pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
     let date = time::get_date_with_offset("%Y%m%d", day);
@@ -45,8 +44,12 @@ pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
         let resp = def::CLIENT.get(url).send()?.json::<Resp>()?;
         match handle_resp::get_name_info(resp, name.clone()) {
             Ok(ret) => {
-                pb.finish_and_clear();
-                return Ok(ret);
+                if ret.code() == 0 {
+                    pb.finish_and_clear();
+                    return Ok(ret);
+                } else {
+                    continue;
+                }
             }
             Err(_) => continue,
         }
@@ -74,10 +77,9 @@ pub fn query_by_site(day: u32, site: String) -> Result<Resp> {
 }
 
 /// login to the server.
-pub fn login(username: String, password: String, cookie: String) -> Result<Config> {
+pub fn login(username: String, password: String, cookie: String) -> Result<Resp> {
     let config = Config::new(username, password, cookie, None);
-    config::save_config_to_file(&config).context("save cookie failed")?;
-    Ok(config)
+    config::save_config_to_file(&config).context("save cookie failed")
 }
 
 /// query the user status.
@@ -113,8 +115,12 @@ pub fn reserve(
     end: String,
     retry: u32,
 ) -> Result<Resp> {
-    let config = config::load_config_from_file()?;
-    let user = search_user_info(&config)?;
+    let data = config::load_config_from_file()?.data().clone().unwrap();
+    let config = match &data[0] {
+        Data::Config(config) => config,
+        _ => panic!("please login first"),
+    };
+    let user = search_user_info(config)?;
     let appacc_no = user.accno().parse::<u32>()?;
     let site_list = sites.unwrap_or(
         // random
@@ -122,26 +128,46 @@ pub fn reserve(
             let mut cnt = retry;
             let mut ret: Vec<String> = Vec::new();
             while cnt > 0 {
-                ret.push(get_random_site_name()?);
-                cnt -= 1;
+                let site = get_random_site_name()?;
+                if site_fiter_by_floor(site.clone(), filter.clone())? {
+                    ret.push(site);
+                    cnt -= 1;
+                }
             }
             ret
         },
     );
 
-    for site in site_list {
+    let pb = ProgressBar::new_spinner();
+    pb.enable_steady_tick(Duration::from_millis(200));
+    pb.set_style(
+        ProgressStyle::with_template(
+            "{spinner:.dim.bold} {prefix:.bold.dim} query floor: {wide_msg}",
+        )
+        .context("Failed to set progress bar style.")?
+        .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ "),
+    );
+
+    let total = site_list.len();
+    for (index, site) in site_list.iter().enumerate() {
+        pb.set_prefix(format!("[{}/{}]", index, total));
+        pb.set_message(site.clone());
         // filter by floor
-        if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
-            continue;
-        }
-        println!("try to reserve {}", site);
         let ret = handle_reserve(site.clone(), appacc_no, day, start.clone(), end.clone());
         match ret {
-            Ok(ret) => return Ok(ret),
+            Ok(ret) => {
+                if ret.code() == 0 {
+                    pb.finish_and_clear();
+                    return Ok(ret);
+                } else {
+                    continue;
+                }
+            }
             Err(_) => continue,
         }
     }
-    Err(anyhow!("no site from put in can be reserved"))
+    pb.finish_and_clear();
+    Ok(Resp::new(0, "no site can be reserved".to_string(), None))
 }
 
 fn handle_reserve(
@@ -165,9 +191,12 @@ fn handle_reserve(
         "resvDev": [ resv_dev ],
     });
 
-    Ok(def::CLIENT
+    let resp = def::CLIENT
         .post(def::RESERVE_URL)
         .json(&data)
         .send()?
-        .json::<Resp>()?)
+        .json::<serde_json::Value>()?;
+    let code = resp["code"].as_u64().unwrap() as u32;
+    let message = resp["message"].as_str().unwrap();
+    Ok(Resp::new(code, message.to_string(), None))
 }

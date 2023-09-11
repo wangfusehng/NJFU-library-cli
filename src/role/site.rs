@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 pub struct Site {
     #[serde(rename = "devId")]
     dev_id: u32,
+    coordinate: String,
     #[serde(rename = "labId")]
     lab_id: u32,
     #[serde(rename = "resvInfo", default)]
@@ -34,9 +35,10 @@ impl std::fmt::Display for Site {
 }
 
 impl Site {
-    pub fn new(dev_id: u32, lab_id: u32, resv_info: Option<Vec<Dev>>) -> Self {
+    pub fn new(dev_id: u32, coordinate: String, lab_id: u32, resv_info: Option<Vec<Dev>>) -> Self {
         Site {
             dev_id,
+            coordinate,
             lab_id,
             resv_info,
         }
@@ -44,6 +46,10 @@ impl Site {
 
     pub fn dev_id(&self) -> u32 {
         self.dev_id
+    }
+
+    pub fn coordinate(&self) -> &str {
+        &self.coordinate
     }
 
     pub fn lab_id(&self) -> u32 {

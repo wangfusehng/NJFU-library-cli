@@ -1,10 +1,11 @@
-use super::role::user::*;
+use super::resp::{Data, Resp};
+use super::user::*;
 use anyhow::anyhow;
 use anyhow::{Context, Result};
 use home::home_dir;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
-use std::io::{Read, Write};
+use std::io::Write;
 
 /// Info struct is used to store the information of the user's state.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,17 +39,21 @@ impl Config {
     }
 }
 
-pub fn save_config_to_file(config: &Config) -> Result<()> {
+pub fn save_config_to_file(config: &Config) -> Result<Resp> {
     let root = home_dir().context("can not get home dir")?;
     let path = root.join(".njfu-library-cli.json");
 
     let mut output = File::create(path)?;
     let info = serde_json::to_string_pretty(&config)?;
     write!(output, "{}", info)?;
-    Ok(())
+    Ok(Resp::new(
+        0,
+        "save cookie success".to_string(),
+        Some(vec![Data::Config(config.clone())]),
+    ))
 }
 
-pub fn load_config_from_file() -> Result<Config> {
+pub fn load_config_from_file() -> Result<Resp> {
     let root = home_dir().context("can not get home dir")?;
     let path = root.join(".njfu-library-cli.json");
 
@@ -59,10 +64,15 @@ pub fn load_config_from_file() -> Result<Config> {
         return Err(anyhow!("please login first"));
     }
 
-    if let None = config.user {
+    if config.user.is_none() {
         let user = search_user_info(&config)?;
         config.user = Some(user);
         save_config_to_file(&config)?;
     }
-    Ok(config)
+
+    Ok(Resp::new(
+        0,
+        "load cookie success".to_string(),
+        Some(vec![Data::Config(config)]),
+    ))
 }

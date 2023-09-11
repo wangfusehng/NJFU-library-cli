@@ -1,8 +1,8 @@
 use anyhow::Context;
 use anyhow::Result;
 use chrono::prelude::*;
-use chrono::{DateTime, Utc};
-use chrono::{NaiveDate, NaiveDateTime};
+use chrono::NaiveDate;
+use chrono::Utc;
 
 pub fn get_utc_timestamp(month: u32, day: u32, hour: u32, minute: u32) -> Result<i64> {
     // Time zone offset

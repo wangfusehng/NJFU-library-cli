@@ -2,55 +2,31 @@ use super::def;
 use crate::cli::action::Action::{self, *};
 use crate::cli::reserve::Reserve;
 use crate::executor::*;
-use anyhow::{anyhow, Context, Result};
-use std::io::{stdout, BufWriter};
+use crate::role::resp::Resp;
+use anyhow::{anyhow, Result};
 
-pub fn handle_action(action: Action) -> Result<()> {
+pub fn handle_action(action: Action) -> Result<Resp> {
     // Perform the action.
     match action {
         Login {
             username,
             password,
             cookie,
-        } => {
-            login(username, password, cookie)
-                .map(|result| {
-                    println!("{:#?}", result);
-                })
-                .context("login failed")?;
-        }
+        } => login(username, password, cookie),
 
-        Status {} => {
-            state()
-                .map(|result| {
-                    println!("{:#?}", result);
-                })
-                .context("state failed")?;
-        }
+        Status {} => state(),
 
         Query { day, name, site } => {
-            if name.is_some() {
-                query_by_name(day, name.unwrap())
-                    .map(|result| {
-                        println!("{:#?}", result);
-                    })
-                    .context("query_by_site failed")?;
-            }
-
-            if site.is_some() {
-                query_by_site(day, site.unwrap())
-                    .map(|result| {
-                        println!("{:#?}", result);
-                    })
-                    .context("query_by_site failed")?;
+            if let Some(name) = name {
+                query_by_name(day, name)
+            } else if let Some(site) = site {
+                query_by_site(day, site)
+            } else {
+                Err(anyhow!("please input name or site"))
             }
         }
 
-        Cancel { uuid } => {
-            cancel(uuid)
-                .map(|result| println!("{:#?}", result))
-                .context("cancel failed")?;
-        }
+        Cancel { uuid } => cancel(uuid),
 
         Reserve(Reserve {
             sites,
@@ -69,10 +45,7 @@ pub fn handle_action(action: Action) -> Result<()> {
                     .collect::<Vec<String>>(),
             };
 
-            reserve(sites, floor, day, start, end, retry).map(|result| {
-                println!("{:#?}", result);
-            })?;
+            reserve(sites, floor, day, start, end, retry)
         }
-    };
-    Ok(())
+    }
 }

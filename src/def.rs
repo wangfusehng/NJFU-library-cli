@@ -1,5 +1,6 @@
-use super::config;
+use crate::role::config;
 use crate::role::floor::Floor;
+use crate::role::resp::Data;
 use anyhow::Context;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -64,9 +65,16 @@ lazy_static! {
             reqwest::header::HeaderValue::from_static("private"),
         );
 
-        let config = config::load_config_from_file()
-            .context("load config failed")
+        let data = config::load_config_from_file()
+            .unwrap()
+            .data()
+            .clone()
             .unwrap();
+
+        let config = match &data[0] {
+            Data::Config(config) => config,
+            _ => panic!("Failed to load config from file."),
+        };
 
         headers.insert(
             reqwest::header::COOKIE,

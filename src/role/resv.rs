@@ -1,8 +1,4 @@
 use super::dev::Dev;
-use crate::def;
-use crate::utils::time;
-use anyhow::Context;
-use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 /// State struct
