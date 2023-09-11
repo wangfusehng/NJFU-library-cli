@@ -14,6 +14,7 @@
 @7F-A= 106658017
 @room_id = {{4F-A}}
 @dev_id = 100504097
+
 ### 查询图书馆
 Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 ?room_id={{room_id}}
@@ -27,7 +28,7 @@ Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 &act=get_rsv_sta
 
 ### 查询研讨间
-POST https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx?
+POST https://libic.njfu.edu.cn/ClientWeb/pro/ajax/device.aspx
 ?classkind=1
 &kind_id=100501645
 &date={{$datetime 'YYYY-MM-DD' 8 h}}
@@ -38,8 +39,9 @@ Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/data/searchAccount.aspx
 ?term=200855110
 
 ### 登录
-Post https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.aspx
+POST https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.aspx
 content-type: application/x-www-form-urlencoded
+Content-Length: 0
 
 &id=200855110
 &pwd=njfu10003x!

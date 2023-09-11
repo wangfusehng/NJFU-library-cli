@@ -1,4 +1,2 @@
-pub mod def;
-pub mod html;
-pub mod resp;
+pub mod handle_resp;
 pub mod time;

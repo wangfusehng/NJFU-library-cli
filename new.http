@@ -1,0 +1,49 @@
+@hostname = libseat.njfu.edu.cn
+@port = 443
+@host = {{hostname}}:{{port}}
+@contentType = application/json
+@today = {{$datetime 'YYYY-MM-DD' 8 h}}
+@cookie = 398fd967-f123-4567-92f9-4d5978a49a4a
+
+### credit
+GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus
+Cookie: ic-cookie={{cookie}}
+
+### 预约记录
+GET https://libseat.njfu.edu.cn/ic-web/reserve/resvInfo?beginDate=2023-09-11&endDate=2023-09-13
+Cookie: ic-cookie={{cookie}}
+
+### resvId查询account
+GET https://libseat.njfu.edu.cn/ic-web/reserve/getSignRec?resvId=143929012
+Cookie: ic-cookie={{cookie}}
+
+### 删除
+POST https://libseat.njfu.edu.cn/ic-web/reserve/delete
+content-type: {{contentType}}
+Cookie: ic-cookie={{cookie}}
+
+{
+    "uuid": "79929fe68d364f5db8b537a765d80e28"
+}
+
+### 每层楼
+GET https://libseat.njfu.edu.cn/ic-web/reserve?roomIds=100455356&resvDates=20230910&sysKind=8
+Cookie: ic-cookie={{cookie}}
+
+### 预约
+POST https://libseat.njfu.edu.cn/ic-web/reserve
+Cookie: ic-cookie={{cookie}}
+content-type: {{contentType}}
+
+{
+    "sysKind": 8,
+    "appAccNo": 116718634,
+    "resvMember": [
+        116718634
+    ],
+    "resvBeginTime": "2023-09-09 07:30:00",
+    "resvEndTime": "2023-09-09 22:00:00",
+    "resvDev": [
+        100455621
+    ],
+}

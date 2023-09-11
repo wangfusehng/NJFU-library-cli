@@ -1,6 +1,8 @@
 #![allow(dead_code, unused_imports)]
 mod cli;
+mod config;
 mod core;
+pub mod def;
 mod executor;
 mod role;
 mod utils;

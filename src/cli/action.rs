@@ -1,9 +1,8 @@
-use crate::cli::infomation::Infomation;
 use crate::cli::reserve::Reserve;
 use structopt::StructOpt;
 
 ///Command line arguments
-#[derive(Debug, StructOpt)]
+#[derive(StructOpt)]
 pub enum Action {
     ///Query library site or student
     Query {
@@ -22,13 +21,12 @@ pub enum Action {
 
     ///Login library
     Login {
-        /// username to login
         #[structopt(short, long, env = "NJFU_USERNAME")]
         username: String,
-
-        /// password to login
         #[structopt(short, long, env = "NJFU_PASSWORD", hide_env_values = true)]
         password: String,
+        #[structopt(short, long, env = "NJFU_COOKIE", hide_env_values = true)]
+        cookie: String,
     },
 
     ///list personal status
@@ -38,40 +36,9 @@ pub enum Action {
     Cancel {
         /// the id of the reservation to cancel
         #[structopt(short, long)]
-        id: String,
+        uuid: String,
     },
 
     ///reserve a site
     Reserve(Reserve),
-
-    /// check in
-    In {
-        #[structopt(short, long)]
-        all: bool,
-
-        // the site to check in
-        #[structopt(short, long)]
-        site: Option<String>,
-
-        // the time to use the site in minutes
-        #[structopt(short, long)]
-        time: Option<u32>,
-    },
-
-    /// check out
-    Out {
-        /// the reserve id to check out
-        #[structopt(short, long)]
-        id: String,
-    },
-
-    /// show info
-    Info {
-        #[structopt(
-            possible_values = &["floor","author","user"],
-            case_insensitive = true,
-            default_value = "floor"
-        )]
-        infomation: Infomation,
-    },
 }

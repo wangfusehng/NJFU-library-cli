@@ -1,11 +1,12 @@
+use super::config::{self, Config};
+use super::def;
 use crate::cli::reserve;
-use crate::role::login::Login;
-use crate::role::site;
+use crate::role::dev::Dev;
+use crate::role::resp::Data;
+use crate::role::resp::Resp;
+use crate::role::resv::Resv;
 use crate::role::site::*;
-use crate::role::state::State;
-use crate::role::student::Student;
-use crate::role::ts::Ts;
-use crate::utils::html::parse_in;
+use crate::role::user::*;
 use crate::utils::*;
 use anyhow::{anyhow, Context, Result};
 use chrono::{DateTime, Local};
@@ -15,34 +16,8 @@ use std::collections::HashMap;
 use std::time::Duration;
 use std::{cmp::min, fmt::Write};
 
-lazy_static! {
-    pub static ref CLIENT: reqwest::blocking::Client = {
-        let mut headers = reqwest::header::HeaderMap::new();
-        headers.insert(
-                reqwest::header::USER_AGENT,
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-                    .parse()
-                    .context("Failed to parse user agent.").unwrap()
-            );
-        headers.insert(
-            reqwest::header::CACHE_CONTROL,
-            reqwest::header::HeaderValue::from_static("private"),
-        );
-
-        reqwest::blocking::ClientBuilder::new()
-            .cookie_store(true)
-            .default_headers(headers)
-            .build()
-            .expect("Failed to build client.")
-    };
-}
-
-/// Query the information of a student.
-pub fn query_by_name(day: u32, name: String) -> Result<Vec<Site>> {
-    let mut body = HashMap::new();
-    body.insert("act", "get_rsv_sta");
-    let date = time::get_date_with_offset("%Y-%m-%d", day);
-    body.insert("date", date.as_str());
+pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
+    let date = time::get_date_with_offset("%Y%m%d", day);
 
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(200));
@@ -55,259 +30,144 @@ pub fn query_by_name(day: u32, name: String) -> Result<Vec<Site>> {
     );
 
     let total = def::FLOOR.len() as u64;
-    let mut ret: Vec<Site> = Vec::new();
 
     for (pos, (floor_name, floor)) in def::ROOMS.iter().enumerate() {
         pb.set_prefix(format!("[{}/{}]", pos, total));
         pb.set_message(floor_name.to_string());
 
         let room_id = floor.room_id().to_string();
-        let mut data = body.clone();
-        data.insert("room_id", room_id.as_str());
-
-        let resp = CLIENT.post(def::DEVICE_URL).form(&data).send()?;
-
-        resp::get_name_info(resp, name.clone()).map(|info| {
-            ret.append(info.into_iter().collect::<Vec<Site>>().as_mut());
-        })?;
+        let url = format!(
+            "{}?roomIds={}&resvDates={}&sysKind=8",
+            def::QUERY_URL,
+            room_id,
+            date
+        );
+        let resp = def::CLIENT.get(url).send()?.json::<Resp>()?;
+        match handle_resp::get_name_info(resp, name.clone()) {
+            Ok(ret) => {
+                pb.finish_and_clear();
+                return Ok(ret);
+            }
+            Err(_) => continue,
+        }
     }
 
     pb.finish_and_clear();
-    Ok(ret)
+    Err(anyhow!("no user can be found"))
 }
 
-/// Query the information of a site.
-pub fn query_by_site(day: u32, site: String) -> Result<Site> {
-    let dev_id = name_to_id(site);
-    dev_id
-        .map(|dev_id| {
-            let mut body = HashMap::new();
-            let dev_id_binding = dev_id.to_string();
-            body.insert("dev_id", dev_id_binding.as_str());
-            body.insert("act", "get_rsv_sta");
-            let date = time::get_date_with_offset("%Y-%m-%d", day);
-            body.insert("date", date.as_str());
+pub fn query_by_site(day: u32, site: String) -> Result<Resp> {
+    let floor = name_to_floor(site.clone())?;
+    let room_id = floor.room_id().to_string();
+    let site_id = name_to_id(site.clone())?;
+    let site_index = site_id - floor.dev_start() + 1;
+    let date = time::get_date_with_offset("%Y%m%d", day);
 
-            let resp = CLIENT.post(def::DEVICE_URL).form(&body).send()?;
-
-            resp::get_site_info(resp)
-        })
-        .context("query by site fail")?
-}
-
-/// handle actual login to the server.
-fn handle_login() -> Result<Student> {
-    let mut login = Login::default();
-    login.read_from_file().context("read student info failed")?;
-
-    let mut body = HashMap::new();
-    body.insert("act", "login");
-    body.insert("id", login.username());
-    body.insert("pwd", login.password());
-
-    let resp = CLIENT.post(def::LOGIN_URL).form(&body).send()?;
-
-    resp::get_login_info(resp)
+    let url = format!(
+        "{}?roomIds={}&resvDates={}&sysKind=8",
+        def::QUERY_URL,
+        room_id,
+        date
+    );
+    let resp = def::CLIENT.get(url).send()?.json::<Resp>()?;
+    handle_resp::get_site_info(resp, site_index)
 }
 
 /// login to the server.
-pub fn login(username: String, password: String) -> Result<Student> {
-    let student = Login::new(username, password);
-    student.save_to_file().context("save student info failed")?;
-    handle_login()
+pub fn login(username: String, password: String, cookie: String) -> Result<Config> {
+    let config = Config::new(username, password, cookie, None);
+    config::save_config_to_file(&config).context("save cookie failed")?;
+    Ok(config)
 }
 
 /// query the user status.
-pub fn state() -> Result<Vec<State>> {
-    //login
-    handle_login()?;
-
-    let mut body = HashMap::new();
-    body.insert("act", "get_History_resv");
-    body.insert("strat", "90");
-    body.insert("StatFlag", "New");
-
-    let resp = CLIENT.post(def::CENTER_URL).form(&body).send()?;
-
-    resp::get_state_info(resp)
+pub fn state() -> Result<Resp> {
+    let begin_date = time::get_date_with_offset("%Y-%m-%d", 0);
+    let end_date = time::get_date_with_offset("%Y-%m-%d", 2);
+    let url = format!(
+        "{}?beginDate={}&endDate={}",
+        def::RESV_INFO_URL,
+        begin_date,
+        end_date
+    );
+    Ok(def::CLIENT.get(url).send()?.json::<Resp>()?)
 }
 
 /// cancel the reservation.
-pub fn cancel(id: String) -> Result<String> {
-    //login
-    handle_login()?;
-
+pub fn cancel(uuid: String) -> Result<Resp> {
     let mut body = HashMap::new();
-    body.insert("act", "del_resv");
-    body.insert("id", id.as_str());
+    body.insert("uuid", uuid.as_str());
 
-    let resp = CLIENT.post(def::RESERVE_URL).form(&body).send()?;
-
-    resp::get_cancel_info(resp)
+    Ok(def::CLIENT
+        .post(def::CANCEL_URL)
+        .json(&body)
+        .send()?
+        .json::<Resp>()?)
 }
 
-/// use card id to get user id in library
-fn search_account(card_id: String) -> Result<String> {
-    let ret = CLIENT
-        .post(def::SEARCHACCOUNT_URL)
-        .form(&[("term", card_id)])
-        .send()?;
-    resp::get_account_info(ret)
-}
-
-fn handle_reserve(
-    site: String,
-    user: Option<Vec<String>>,
-    day: u32,
-    start: String,
-    end: String,
-) -> Result<String> {
-    let id = name_to_id(site)?;
-
-    let mut body = HashMap::new();
-    body.insert("act", "set_resv");
-    let id_binding = id.to_string();
-    body.insert("dev_id", id_binding.as_str());
-
-    let date = time::get_date_with_offset("%Y-%m-%d", day);
-    let start_time = format!("{} {}", date, start);
-    let end_time = format!("{} {}", date, end);
-    body.insert("start", start_time.as_str());
-    body.insert("end", end_time.as_str());
-
-    let mut user_list = String::from("$");
-
-    if let Some(user) = user {
-        let users = user
-            .iter()
-            .map(|x| search_account(x.to_string()).expect("search account error"))
-            .collect::<Vec<String>>()
-            .join(",");
-
-        user_list.push_str(users.as_str());
-
-        // if have -u or --user
-        body.insert("min_user", "0");
-        body.insert("max_user", "8");
-        body.insert("mb_list", user_list.as_str());
-    }
-    let resp = CLIENT.post(def::RESERVE_URL).form(&body).send()?;
-    resp::get_reserve_info(resp)
-}
-
-/// reserve the site.
 pub fn reserve(
     sites: Option<Vec<String>>,
     filter: Vec<String>,
-    user: Option<Vec<String>>,
     day: u32,
     start: String,
     end: String,
     retry: u32,
-) -> Result<String> {
-    //login
-    handle_login()?;
-
-    match sites {
-        Some(sites) => {
-            for site in sites {
-                if split_site(site.clone()).is_ok() {
-                    // is site
-                    // filter by floor
-                    if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
-                        continue;
-                    }
-                }
-                let resp =
-                    handle_reserve(site.clone(), user.clone(), day, start.clone(), end.clone());
-                match resp {
-                    Ok(resp) => {
-                        println!("{}: {}", site, resp);
-                        if resp.contains("成功") {
-                            return Ok(resp);
-                        }
-                    }
-                    // the current site can not be reserved
-                    // test next site
-                    Err(e) => println!("{}: {}", site, e),
-                }
+) -> Result<Resp> {
+    let config = config::load_config_from_file()?;
+    let user = search_user_info(&config)?;
+    let appacc_no = user.accno().parse::<u32>()?;
+    let site_list = sites.unwrap_or(
+        // random
+        {
+            let mut cnt = retry;
+            let mut ret: Vec<String> = Vec::new();
+            while cnt > 0 {
+                ret.push(get_random_site_name()?);
+                cnt -= 1;
             }
-            Err(anyhow!("no site from put in can be reserved"))
+            ret
+        },
+    );
+
+    for site in site_list {
+        // filter by floor
+        if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
+            continue;
         }
-        None => {
-            // random reserve
-            let mut cnt = 0;
-            while cnt < retry {
-                let site = site::get_random_site_name()?;
-
-                // filter by floor
-                if !(site_fiter_by_floor(site.clone(), filter.clone())?) {
-                    continue;
-                }
-                let resp =
-                    handle_reserve(site.clone(), user.clone(), day, start.clone(), end.clone());
-                match resp {
-                    Ok(resp) => {
-                        println!("{}: {}", site, resp);
-                        if resp.contains("成功") {
-                            return Ok(resp);
-                        }
-                    }
-                    Err(e) => return Err(e),
-                }
-                cnt += 1;
-            }
-            Err(anyhow!("time out for reserve random site"))
+        println!("try to reserve {}", site);
+        let ret = handle_reserve(site.clone(), appacc_no, day, start.clone(), end.clone());
+        match ret {
+            Ok(ret) => return Ok(ret),
+            Err(_) => continue,
         }
     }
+    Err(anyhow!("no site from put in can be reserved"))
 }
 
-///check in reserve on time
-pub fn check_in(site: String, time: Option<u32>) -> Result<String> {
-    // get stduent info
-    let student = handle_login()?;
+fn handle_reserve(
+    site: String,
+    appacc_no: u32,
+    day: u32,
+    start: String,
+    end: String,
+) -> Result<Resp> {
+    let date = time::get_date_with_offset("%Y-%m-%d", day);
+    let start_time = format!("{} {}:00", date, start);
+    let end_time = format!("{} {}:00", date, end);
+    let resv_dev = name_to_id(site.clone())?;
 
-    // get site info
-    let site = query_by_site(0, site)?;
+    let data = serde_json::json!({
+        "sysKind": 8,
+        "appAccNo": appacc_no,
+        "resvMember": [ appacc_no ],
+        "resvBeginTime": start_time,
+        "resvEndTime": end_time,
+        "resvDev": [ resv_dev ],
+    });
 
-    let mut body = HashMap::new();
-    body.insert("lab", site.lab_id());
-    body.insert("dev", site.dev_id());
-    body.insert("msn", student.msn());
-
-    let content_lenth = reqwest::header::HeaderValue::from_str("0")?;
-
-    let resp = CLIENT
-        .post(def::WXSEATSIGN)
-        .header(reqwest::header::CONTENT_LENGTH, content_lenth)
-        .form(&body)
+    Ok(def::CLIENT
+        .post(def::RESERVE_URL)
+        .json(&data)
         .send()?
-        .text()?;
-    // get dafault left time
-    let opt = html::parse_site_login(resp)?;
-
-    let mut body = HashMap::new();
-    body.insert("DoUserIn", "true");
-    // default use opt
-    let time_binding = time.unwrap_or(opt).to_string();
-    body.insert("dwUseMin", time_binding.as_str());
-
-    let resp = CLIENT.post(def::WXSEATSIGN).form(&body).send()?.text()?;
-
-    parse_in(resp)
-}
-
-/// check out site
-pub fn check_out(id: String) -> Result<String> {
-    //login
-    handle_login()?;
-
-    let mut body = HashMap::new();
-    body.insert("act", "resv_leave");
-    body.insert("type", "2");
-    body.insert("resv_id", id.as_str());
-
-    let resp = CLIENT.post(def::RESERVE_URL).form(&body).send()?;
-
-    resp::get_check_out_info(resp)
+        .json::<Resp>()?)
 }

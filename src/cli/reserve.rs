@@ -11,10 +11,6 @@ pub struct Reserve {
     #[structopt(short, long)]
     pub filter: Option<Vec<String>>,
 
-    /// the user to reserve, work when reserve space
-    #[structopt(short, long)]
-    pub user: Option<Vec<String>>,
-
     /// the day to reserve
     #[structopt(short, long, default_value = "0")]
     pub day: u32,

@@ -1,5 +1,6 @@
-use super::ts::Ts;
-use crate::utils::def;
+use super::dev::Dev;
+use super::floor::Floor;
+use crate::def;
 use anyhow::{anyhow, Context, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -8,79 +9,58 @@ use serde::{Deserialize, Serialize};
 /// Site struct is used to store the information of the site.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Site {
-    #[serde(rename = "devName")]
-    dev_name: String,
     #[serde(rename = "devId")]
-    dev_id: String,
+    dev_id: u32,
     #[serde(rename = "labId")]
-    lab_id: String,
-    ts: Option<Vec<Ts>>,
+    lab_id: u32,
+    #[serde(rename = "resvInfo", default)]
+    resv_info: Option<Vec<Dev>>,
 }
 
 impl std::fmt::Display for Site {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "dev_name: {}", self.dev_name)?;
         writeln!(f, "-----")?;
-        self.ts.as_ref().map(|ts| -> Result<(), std::fmt::Error> {
-            for t in ts {
-                writeln!(f, "{}", t)?;
-                writeln!(f, "{}", def::LINE_SEPARATOR)?;
-            }
-            Ok(())
-        });
+        self.resv_info
+            .as_ref()
+            .map(|ts| -> Result<(), std::fmt::Error> {
+                for t in ts {
+                    writeln!(f, "{}", t)?;
+                    writeln!(f, "{}", def::LINE_SEPARATOR)?;
+                }
+                Ok(())
+            });
         Ok(())
     }
 }
 
 impl Site {
-    pub fn new(dev_name: String, dev_id: String, lab_id: String, ts: Option<Vec<Ts>>) -> Self {
+    pub fn new(dev_id: u32, lab_id: u32, resv_info: Option<Vec<Dev>>) -> Self {
         Site {
-            dev_name,
             dev_id,
             lab_id,
-            ts,
+            resv_info,
         }
     }
 
-    pub fn set_dev_name(&mut self, dev_name: String) {
-        self.dev_name = dev_name;
+    pub fn dev_id(&self) -> u32 {
+        self.dev_id
     }
 
-    pub fn dev_name(&self) -> &str {
-        self.dev_name.as_ref()
+    pub fn lab_id(&self) -> u32 {
+        self.lab_id
     }
 
-    pub fn dev_id(&self) -> &str {
-        self.dev_id.as_ref()
-    }
-
-    pub fn set_dev_id(&mut self, dev_id: String) {
-        self.dev_id = dev_id;
-    }
-
-    pub fn ts(&self) -> Option<&Vec<Ts>> {
-        self.ts.as_ref()
-    }
-
-    pub fn set_ts(&mut self, ts: Option<Vec<Ts>>) {
-        self.ts = ts;
-    }
-
-    pub fn lab_id(&self) -> &str {
-        self.lab_id.as_ref()
-    }
-
-    pub fn set_lab_id(&mut self, lab_id: String) {
-        self.lab_id = lab_id;
+    pub fn resv_info(&self) -> Option<&Vec<Dev>> {
+        self.resv_info.as_ref()
     }
 }
 
-/// tranform the site or spacec to the site or space id
-pub fn name_to_id(site: String) -> Result<u32> {
-    split_site(site.clone()).or_else(|_| split_space(site))
+pub fn name_to_floor(dev_name: String) -> Result<&'static Floor> {
+    def::ROOMS
+        .get(&dev_name[0..4])
+        .context(format!("Failed to get floor for {}", &dev_name[0..4]))
 }
 
-/// tranform site or space id to site or space name
 pub fn id_to_name(id: u32) -> Result<String> {
     // search space
     for (k, v) in def::SPACE.iter() {
@@ -108,7 +88,17 @@ pub fn id_to_name(id: u32) -> Result<String> {
     Ok(format!("{}{:03}", floor, site))
 }
 
-/// site id fiter by floor
+pub fn name_to_id(dev_name: String) -> Result<u32> {
+    let floor = name_to_floor(dev_name.clone())?;
+    let site = &dev_name[4..].parse()?;
+    let id = floor.dev_start() + site - 1;
+    if id >= floor.dev_start() && id <= floor.dev_end() {
+        Ok(id)
+    } else {
+        anyhow::bail!("{} is not a site", dev_name)
+    }
+}
+
 pub fn site_fiter_by_floor(site: String, floor: Vec<String>) -> Result<bool> {
     let id = name_to_id(site)?;
     let mut floor_name = "";
@@ -137,44 +127,4 @@ pub fn get_random_site_name() -> Result<String> {
     let floor = def::ROOMS.get(floor_name).context("get floor error")?;
     let site_id = rng.gen_range(floor.dev_start()..floor.dev_end() + 1);
     id_to_name(site_id)
-}
-
-pub fn split_space(dev_name: String) -> Result<u32> {
-    if let "8A" = &dev_name[..2] {
-        def::SPACE
-            .get(&dev_name[..5])
-            .cloned()
-            .context(format!("Failed to get space for {}", dev_name))
-    } else {
-        anyhow::bail!("{} is not a space", dev_name)
-    }
-}
-
-pub fn split_site(dev_name: String) -> Result<u32> {
-    let floor = def::ROOMS
-        .get(&dev_name[0..4])
-        .context(format!("Failed to get floor for {}", &dev_name[0..4]))?;
-    let site = &dev_name[4..].parse()?;
-    let id = floor.dev_start() + site - 1;
-
-    if id >= floor.dev_start() && id <= floor.dev_end() {
-        Ok(id)
-    } else {
-        anyhow::bail!("{} is not a site", dev_name)
-    }
-}
-
-#[test]
-fn test_site() {
-    let site = "5F-A100".to_string();
-    let get_site = id_to_name(name_to_id(site.to_string()).unwrap()).unwrap();
-    assert_eq!(site, get_site);
-}
-
-#[test]
-fn test_space() {
-    let space = "8A506".to_string();
-    let ret = id_to_name(name_to_id(space.to_string()).unwrap()).unwrap();
-    println!("{}", ret);
-    assert_eq!(space, ret);
 }
