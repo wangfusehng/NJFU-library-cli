@@ -1,6 +1,6 @@
 use crate::def;
-use crate::role::resp::Data;
-use crate::role::resp::Resp;
+use crate::njfulib::resp::Data;
+use crate::njfulib::resp::Resp;
 use anyhow::Result;
 
 pub fn get_account_by_resv_id(resv_id: u32) -> Result<Resp> {

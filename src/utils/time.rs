@@ -26,7 +26,7 @@ pub fn get_now_timestamp() -> Result<i64> {
     Ok(time.timestamp())
 }
 
-pub fn get_date_with_offset(fmt: &str, day: u32) -> String {
+pub fn get_date_with_offset(fmt: &str, day: i32) -> String {
     // Time zone offset
     let offset: chrono::FixedOffset =
         FixedOffset::east_opt(8 * 3600).expect("time zone offset fail");

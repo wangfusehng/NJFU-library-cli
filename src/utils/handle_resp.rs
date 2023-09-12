@@ -1,6 +1,6 @@
 use super::account;
-use crate::role::resp::Data;
-use crate::role::resp::Resp;
+use crate::njfulib::resp::Data;
+use crate::njfulib::resp::Resp;
 use anyhow::Result;
 
 pub fn get_name_info(resp: Resp, query_name: String) -> Result<Resp> {

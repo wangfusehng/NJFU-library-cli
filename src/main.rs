@@ -3,7 +3,7 @@ mod cli;
 mod core;
 pub mod def;
 mod executor;
-mod role;
+mod njfulib;
 mod utils;
 
 use crate::cli::opt::Opt;

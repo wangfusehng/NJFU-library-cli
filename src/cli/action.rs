@@ -21,16 +21,23 @@ pub enum Action {
 
     ///Login library
     Login {
+        // library username
         #[structopt(short, long, env = "NJFU_USERNAME")]
         username: String,
+        // library password
         #[structopt(short, long, env = "NJFU_PASSWORD", hide_env_values = true)]
         password: String,
+        // library cookie
         #[structopt(short, long, env = "NJFU_COOKIE", hide_env_values = true)]
         cookie: String,
     },
 
     ///list personal status
-    Status {},
+    Status {
+        // the day number to show status
+        #[structopt(short, long, default_value = "5")]
+        day: u32,
+    },
 
     ///cancel the reservation
     Cancel {

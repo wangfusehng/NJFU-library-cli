@@ -1,5 +1,4 @@
 use super::site;
-use crate::utils::account;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
@@ -13,14 +12,9 @@ pub struct Dev {
 
 impl std::fmt::Display for Dev {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        writeln!(
+        write!(
             f,
-            "resv_name: {}",
-            account::get_name_by_resv_id(self.resv_id).unwrap()
-        )?;
-        writeln!(
-            f,
-            "dev_name: {}",
+            "{}",
             site::id_to_name(self.dev_id)
                 .context("invalid dev_id")
                 .unwrap()

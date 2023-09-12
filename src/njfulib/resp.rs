@@ -2,7 +2,6 @@ use super::config::Config;
 use super::resv::Resv;
 use super::sign_rec::SignRec;
 use super::site::Site;
-use crate::def;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -34,9 +33,8 @@ impl std::fmt::Display for Data {
 
 impl std::fmt::Display for Resp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
-        writeln!(f, "message: {}", self.message)?;
-        if let Some(datas) = self.data() {
+        writeln!(f, "{}", self.message())?;
+        if let Some(datas) = self.data().clone() {
             for data in datas {
                 write!(f, "{}", data)?;
             }
@@ -64,5 +62,17 @@ impl Resp {
 
     pub fn data(&self) -> &Option<Vec<Data>> {
         &self.data
+    }
+
+    pub fn set_code(&mut self, code: u32) {
+        self.code = code;
+    }
+
+    pub fn set_message(&mut self, message: String) {
+        self.message = message;
+    }
+
+    pub fn set_data(&mut self, data: Option<Vec<Data>>) {
+        self.data = data
     }
 }

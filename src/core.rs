@@ -2,7 +2,7 @@ use super::def;
 use crate::cli::action::Action::{self, *};
 use crate::cli::reserve::Reserve;
 use crate::executor::*;
-use crate::role::resp::Resp;
+use crate::njfulib::resp::Resp;
 use anyhow::{anyhow, Result};
 
 pub fn handle_action(action: Action) -> Result<Resp> {
@@ -14,7 +14,7 @@ pub fn handle_action(action: Action) -> Result<Resp> {
             cookie,
         } => login(username, password, cookie),
 
-        Status {} => state(),
+        Status { day } => state(day),
 
         Query { day, name, site } => {
             if let Some(name) = name {

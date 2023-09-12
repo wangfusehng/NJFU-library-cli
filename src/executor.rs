@@ -1,12 +1,10 @@
 use super::def;
 
-use crate::role::config::{self, Config};
-
-use crate::role::resp::Data;
-use crate::role::resp::Resp;
-
-use crate::role::site::*;
-use crate::role::user::*;
+use crate::njfulib::config::{self, Config};
+use crate::njfulib::resp::Data;
+use crate::njfulib::resp::Resp;
+use crate::njfulib::site::*;
+use crate::njfulib::user::*;
 use crate::utils::*;
 use anyhow::{anyhow, Context, Result};
 
@@ -16,7 +14,7 @@ use std::collections::HashMap;
 use std::time::Duration;
 
 pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
-    let date = time::get_date_with_offset("%Y%m%d", day);
+    let date = time::get_date_with_offset("%Y%m%d", day as i32);
 
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(200));
@@ -64,7 +62,7 @@ pub fn query_by_site(day: u32, site: String) -> Result<Resp> {
     let room_id = floor.room_id().to_string();
     let site_id = name_to_id(site.clone())?;
     let site_index = site_id - floor.dev_start() + 1;
-    let date = time::get_date_with_offset("%Y%m%d", day);
+    let date = time::get_date_with_offset("%Y%m%d", day as i32);
 
     let url = format!(
         "{}?roomIds={}&resvDates={}&sysKind=8",
@@ -83,8 +81,8 @@ pub fn login(username: String, password: String, cookie: String) -> Result<Resp>
 }
 
 /// query the user status.
-pub fn state() -> Result<Resp> {
-    let begin_date = time::get_date_with_offset("%Y-%m-%d", 0);
+pub fn state(day: u32) -> Result<Resp> {
+    let begin_date = time::get_date_with_offset("%Y-%m-%d", -(day as i32));
     let end_date = time::get_date_with_offset("%Y-%m-%d", 2);
     let url = format!(
         "{}?beginDate={}&endDate={}",
@@ -92,7 +90,20 @@ pub fn state() -> Result<Resp> {
         begin_date,
         end_date
     );
-    Ok(def::CLIENT.get(url).send()?.json::<Resp>()?)
+    let mut ret = def::CLIENT.get(url).send()?.json::<Resp>()?;
+    let message = ret.message();
+
+    let new_message = format!(
+        "{}\n{}",
+        message, "dev_name     start_time            end_time                    uuid"
+    );
+    ret.set_message(new_message);
+
+    let mut data = ret.data().clone().unwrap();
+    data.reverse();
+    ret.set_data(Some(data));
+
+    Ok(ret)
 }
 
 /// cancel the reservation.
@@ -177,7 +188,7 @@ fn handle_reserve(
     start: String,
     end: String,
 ) -> Result<Resp> {
-    let date = time::get_date_with_offset("%Y-%m-%d", day);
+    let date = time::get_date_with_offset("%Y-%m-%d", day as i32);
     let start_time = format!("{} {}:00", date, start);
     let end_time = format!("{} {}:00", date, end);
     let resv_dev = name_to_id(site.clone())?;
