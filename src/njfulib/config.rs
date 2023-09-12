@@ -51,11 +51,25 @@ impl Config {
     pub fn cookie(&self) -> &str {
         self.cookie.as_ref()
     }
+
+    pub fn user(&self) -> Option<&User> {
+        self.user.as_ref()
+    }
 }
 
 pub fn save_config_to_file(config: &Config) -> Result<Resp> {
     let root = home_dir().context("can not get home dir")?;
     let path = root.join(".njfu-library-cli.json");
+
+    if config.username.is_empty() || config.password.is_empty() || config.cookie.is_empty() {
+        return Err(anyhow!("please login first"));
+    }
+
+    let mut config = config.clone();
+    if config.user.is_none() {
+        let user = search_user_info(&config)?;
+        config.user = Some(user);
+    }
 
     let mut output = File::create(path)?;
     let info = serde_json::to_string_pretty(&config)?;
@@ -72,16 +86,10 @@ pub fn load_config_from_file() -> Result<Resp> {
     let path = root.join(".njfu-library-cli.json");
 
     let input = File::open(path).context("please login first")?;
-    let mut config: Config = serde_json::from_reader(input)?;
+    let config: Config = serde_json::from_reader(input)?;
 
     if config.username.is_empty() || config.password.is_empty() || config.cookie.is_empty() {
         return Err(anyhow!("please login first"));
-    }
-
-    if config.user.is_none() {
-        let user = search_user_info(&config)?;
-        config.user = Some(user);
-        save_config_to_file(&config)?;
     }
 
     Ok(Resp::new(

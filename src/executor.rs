@@ -4,7 +4,6 @@ use crate::njfulib::config::{self, Config};
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
 use crate::njfulib::site::*;
-use crate::njfulib::user::*;
 use crate::utils::*;
 use anyhow::{anyhow, Context, Result};
 
@@ -17,7 +16,7 @@ pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
     let date = time::get_date_with_offset("%Y%m%d", day as i32);
 
     let pb = ProgressBar::new_spinner();
-    pb.enable_steady_tick(Duration::from_millis(200));
+    pb.enable_steady_tick(Duration::from_millis(100));
     pb.set_style(
         ProgressStyle::with_template(
             "{spinner:.dim.bold} {prefix:.bold.dim} query floor: {wide_msg}",
@@ -129,9 +128,9 @@ pub fn reserve(
     let data = config::load_config_from_file()?.data().clone().unwrap();
     let config = match &data[0] {
         Data::Config(config) => config,
-        _ => panic!("please login first"),
+        _ => panic!("load config error"),
     };
-    let user = search_user_info(config)?;
+    let user = config.user().clone().unwrap();
     let appacc_no = user.accno().parse::<u32>()?;
     let site_list = sites.unwrap_or(
         // random
@@ -150,7 +149,7 @@ pub fn reserve(
     );
 
     let pb = ProgressBar::new_spinner();
-    pb.enable_steady_tick(Duration::from_millis(200));
+    pb.enable_steady_tick(Duration::from_millis(100));
     pb.set_style(
         ProgressStyle::with_template(
             "{spinner:.dim.bold} {prefix:.bold.dim} query floor: {wide_msg}",
