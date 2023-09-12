@@ -1,5 +1,6 @@
 use super::resp::{Data, Resp};
 use super::user::*;
+use crate::def;
 use anyhow::anyhow;
 use anyhow::{Context, Result};
 use home::home_dir;
@@ -14,6 +15,19 @@ pub struct Config {
     password: String,
     cookie: String,
     user: Option<User>,
+}
+
+impl std::fmt::Display for Config {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
+        writeln!(f, "username: {}", self.username)?;
+        writeln!(f, "password: {}", self.password)?;
+        writeln!(f, "cookie: {}", self.cookie)?;
+        if let Some(user) = &self.user {
+            write!(f, "{}", user)?;
+        }
+        Ok(())
+    }
 }
 
 impl Config {

@@ -5,7 +5,8 @@ use anyhow::Context;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
-pub const LINE_SEPARATOR: &str = "--------------------";
+pub const LONG_LINE_SEPARATOR: &str = "--------------------";
+pub const SHORT_LINE_SEPARATOR: &str = "---------";
 pub const BASE_URL: &str = "https://libseat.njfu.edu.cn/";
 // 查询个人信息
 pub const USER_INFO_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.aspx";

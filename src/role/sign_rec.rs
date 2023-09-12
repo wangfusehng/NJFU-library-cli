@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::def;
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SignRec {
     uuid: String,
@@ -20,6 +22,20 @@ pub struct SignRec {
     lab_id: u32,
     #[serde(rename = "createTime")]
     create_time: u64,
+}
+
+impl std::fmt::Display for SignRec {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
+        writeln!(f, "uuid: {}", self.uuid)?;
+        writeln!(f, "resv_id: {}", self.resv_id)?;
+        writeln!(f, "acc_no: {}", self.acc_no)?;
+        writeln!(f, "logon_name: {}", self.logon_name)?;
+        writeln!(f, "true_name: {}", self.true_name)?;
+        writeln!(f, "dev_id: {}", self.dev_id)?;
+        writeln!(f, "room_id: {}", self.room_id)?;
+        Ok(())
+    }
 }
 
 impl SignRec {

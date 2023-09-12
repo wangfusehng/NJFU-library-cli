@@ -1,5 +1,5 @@
-use super::dev::Dev;
 use super::floor::Floor;
+use super::resv_info::ResvInfo;
 use crate::def;
 use anyhow::{anyhow, Context, Result};
 use rand::Rng;
@@ -14,28 +14,30 @@ pub struct Site {
     coordinate: String,
     #[serde(rename = "labId")]
     lab_id: u32,
-    #[serde(rename = "resvInfo", default)]
-    resv_info: Option<Vec<Dev>>,
+    #[serde(rename = "resvInfo")]
+    resv_info: Option<Vec<ResvInfo>>,
 }
 
 impl std::fmt::Display for Site {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "-----")?;
-        self.resv_info
-            .as_ref()
-            .map(|ts| -> Result<(), std::fmt::Error> {
-                for t in ts {
-                    writeln!(f, "{}", t)?;
-                    writeln!(f, "{}", def::LINE_SEPARATOR)?;
-                }
-                Ok(())
-            });
+        writeln!(f, "{}", def::SHORT_LINE_SEPARATOR)?;
+        self.resv_info().map(|ts| -> Result<(), std::fmt::Error> {
+            for t in ts {
+                write!(f, "{}", t)?;
+            }
+            Ok(())
+        });
         Ok(())
     }
 }
 
 impl Site {
-    pub fn new(dev_id: u32, coordinate: String, lab_id: u32, resv_info: Option<Vec<Dev>>) -> Self {
+    pub fn new(
+        dev_id: u32,
+        coordinate: String,
+        lab_id: u32,
+        resv_info: Option<Vec<ResvInfo>>,
+    ) -> Self {
         Site {
             dev_id,
             coordinate,
@@ -56,7 +58,7 @@ impl Site {
         self.lab_id
     }
 
-    pub fn resv_info(&self) -> Option<&Vec<Dev>> {
+    pub fn resv_info(&self) -> Option<&Vec<ResvInfo>> {
         self.resv_info.as_ref()
     }
 }

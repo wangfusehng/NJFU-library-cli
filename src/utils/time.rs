@@ -42,3 +42,13 @@ pub fn get_date_with_offset(fmt: &str, day: u32) -> String {
     };
     date.with_timezone(&offset).format(fmt).to_string()
 }
+
+pub fn get_date_with_time_stamp(time_stamp: u64) -> String {
+    // Time zone offset
+    let offset: chrono::FixedOffset =
+        FixedOffset::east_opt(8 * 3600).expect("time zone offset fail");
+    let datetime = NaiveDateTime::from_timestamp_opt(time_stamp as i64, 0).unwrap();
+    let offset_datetime = offset.from_utc_datetime(&datetime);
+
+    offset_datetime.format("%Y-%m-%d %H:%M:%S").to_string()
+}

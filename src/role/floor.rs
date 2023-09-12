@@ -1,4 +1,4 @@
-use crate::role::site::id_to_name;
+use crate::def;
 use serde::{Deserialize, Serialize};
 
 /// # Floor information
@@ -12,13 +12,12 @@ pub struct Floor {
 
 impl std::fmt::Display for Floor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}\t\t{}\t\t{}",
-            id_to_name(self.dev_start).expect("Invalid site id"),
-            id_to_name(self.dev_end).expect("Invalid site id"),
-            self.site_num
-        )
+        writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
+        writeln!(f, "room_id: {}", self.room_id)?;
+        writeln!(f, "dev_start: {}", self.dev_start)?;
+        writeln!(f, "dev_end: {}", self.dev_end)?;
+        writeln!(f, "site_num: {}", self.site_num)?;
+        Ok(())
     }
 }
 

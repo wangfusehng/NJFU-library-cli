@@ -13,6 +13,21 @@ use structopt::StructOpt;
 fn main() -> Result<()> {
     // Get the command-line arguments.
     let Opt { action } = Opt::from_args();
-    println!("{:#?}", core::handle_action(action));
+
+    match core::handle_action(action) {
+        Ok(resp) => {
+            #[cfg(debug_assertions)]
+            println!("{:#?}", resp);
+            #[cfg(not(debug_assertions))]
+            println!("{}", resp);
+        }
+        Err(e) => {
+            #[cfg(debug_assertions)]
+            println!("{:#?}", e);
+            #[cfg(not(debug_assertions))]
+            println!("{}", e);
+        }
+    }
+
     Ok(())
 }

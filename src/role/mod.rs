@@ -3,6 +3,7 @@ pub mod dev;
 pub mod floor;
 pub mod resp;
 pub mod resv;
+pub mod resv_info;
 pub mod sign_rec;
 pub mod site;
 pub mod user;

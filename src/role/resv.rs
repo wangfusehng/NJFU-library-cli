@@ -1,8 +1,9 @@
 use super::dev::Dev;
+use crate::def;
+use crate::utils::time;
 use serde::{Deserialize, Serialize};
 
-/// State struct
-/// State struct is used to store the information of the user's state.
+/// Status struct
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Resv {
     pub uuid: String,
@@ -20,11 +21,24 @@ pub struct Resv {
 
 impl std::fmt::Display for Resv {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
+        writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
+        if let Some(devs) = &self.resv_dev_info_list {
+            for dev in devs {
+                write!(f, "{}", dev)?;
+            }
+        }
+        writeln!(
             f,
-            "{} {} {}",
-            self.uuid, self.resv_begin_time, self.resv_end_time
-        )
+            "begin time: {}",
+            time::get_date_with_time_stamp(self.resv_begin_time / 1000)
+        )?;
+        writeln!(
+            f,
+            "end time: {}",
+            time::get_date_with_time_stamp(self.resv_end_time / 1000)
+        )?;
+        writeln!(f, "uuid: {}", self.uuid)?;
+        Ok(())
     }
 }
 
