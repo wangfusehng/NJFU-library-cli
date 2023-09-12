@@ -94,7 +94,7 @@ pub fn state(day: u32) -> Result<Resp> {
 
     let new_message = format!(
         "{}\n{}",
-        message, "dev_name     start_time            end_time                    uuid"
+        message, "dev_name status       start_time            end_time                    uuid"
     );
     ret.set_message(new_message);
 

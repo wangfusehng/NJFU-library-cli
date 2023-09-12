@@ -10,7 +10,7 @@ GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus
 Cookie: ic-cookie={{cookie}}
 
 ### 预约记录
-GET https://libseat.njfu.edu.cn/ic-web/reserve/resvInfo?beginDate=2023-09-10&endDate=2023-09-13
+GET https://libseat.njfu.edu.cn/ic-web/reserve/resvInfo?beginDate=2023-09-12&endDate=2023-09-13
 Cookie: ic-cookie={{cookie}}
 
 ### resvId查询account

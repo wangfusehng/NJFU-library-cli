@@ -14,8 +14,19 @@ pub struct Resv {
     pub resv_begin_time: u64,
     #[serde(rename = "resvEndTime")]
     pub resv_end_time: u64,
+    #[serde(rename = "resvStatus")]
+    pub resv_status: u32,
     #[serde(rename = "resvDevInfoList")]
     pub resv_dev_info_list: Option<Vec<Dev>>,
+}
+
+fn get_str_from_resv_status(resv_status: u32) -> &'static str {
+    match resv_status {
+        1027 => "未生效",
+        1217 => "已生效",
+        1169 => "已违约",
+        _ => "Unknow",
+    }
 }
 
 impl std::fmt::Display for Resv {
@@ -25,9 +36,10 @@ impl std::fmt::Display for Resv {
                 write!(f, "{}", dev)?;
             }
         }
+        write!(f, "  {}", get_str_from_resv_status(self.resv_status))?;
         write!(
             f,
-            "  {}",
+            "   {}",
             time::get_date_with_time_stamp(self.resv_begin_time / 1000)
         )?;
         write!(
@@ -47,6 +59,7 @@ impl Resv {
         appacc_no: u32,
         resv_begin_time: u64,
         resv_end_time: u64,
+        resv_status: u32,
         resv_dev_info_list: Option<Vec<Dev>>,
     ) -> Self {
         Resv {
@@ -55,6 +68,7 @@ impl Resv {
             appacc_no,
             resv_begin_time,
             resv_end_time,
+            resv_status,
             resv_dev_info_list,
         }
     }
@@ -77,6 +91,10 @@ impl Resv {
 
     pub fn resv_end_time(&self) -> u64 {
         self.resv_end_time
+    }
+
+    pub fn resv_status(&self) -> u32 {
+        self.resv_status
     }
 
     pub fn resv_dev_info_list(&self) -> Option<&Vec<Dev>> {
