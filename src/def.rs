@@ -50,9 +50,6 @@ lazy_static! {
         map.insert("8A515", 100504109);
         map
     };
-}
-
-lazy_static! {
     pub static ref CLIENT: reqwest::blocking::Client = {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(

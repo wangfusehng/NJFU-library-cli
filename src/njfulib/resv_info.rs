@@ -1,5 +1,6 @@
 use super::site;
 use crate::utils::account;
+use crate::utils::status;
 use crate::utils::time;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
@@ -22,6 +23,13 @@ impl std::fmt::Display for ResvInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(
             f,
+            "dev: {}",
+            site::id_to_name(self.dev_id)
+                .context("invalid dev_id")
+                .unwrap()
+        )?;
+        writeln!(
+            f,
             "resvName: {}",
             account::get_name_by_resv_id(self.resv_id).unwrap()
         )?;
@@ -35,13 +43,10 @@ impl std::fmt::Display for ResvInfo {
             "endTime: {}",
             time::get_date_with_time_stamp(self.end_time / 1000)
         )?;
-        writeln!(f, "resvStatus: {}", self.resv_status)?;
         writeln!(
             f,
-            "dev_name: {}",
-            site::id_to_name(self.dev_id)
-                .context("invalid dev_id")
-                .unwrap()
+            "resvStatus: {}",
+            status::get_color_str_from_resv_status(self.resv_status)
         )?;
         Ok(())
     }

@@ -127,12 +127,10 @@ pub fn site_fiter_by_floor(site: String, floor: Vec<String>) -> Result<bool> {
 }
 
 /// get random site name in libray
-pub fn get_random_site_name() -> Result<String> {
+pub fn get_random_site_id(filter: Vec<String>) -> Result<u32> {
+    let len = filter.len();
     let mut rng = rand::thread_rng();
-    let floor_name = def::FLOOR
-        .get(rng.gen_range(0..def::FLOOR.len()))
-        .context("get floor name error")?;
-    let floor = def::ROOMS.get(floor_name).context("get floor error")?;
-    let site_id = rng.gen_range(floor.dev_start()..floor.dev_end() + 1);
-    id_to_name(site_id)
+    let room = filter.get(rng.gen_range(0..len)).unwrap();
+    let floor = def::ROOMS.get(room.as_str()).context("parse room error")?;
+    Ok(rng.gen_range(floor.dev_start()..floor.dev_end() + 1))
 }

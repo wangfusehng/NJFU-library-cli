@@ -16,7 +16,12 @@ pub fn handle_action(action: Action) -> Result<Resp> {
 
         Status { day } => state(day),
 
-        Query { day, name, site } => {
+        Query {
+            day,
+            name,
+            site,
+            filter,
+        } => {
             if let Some(name) = name {
                 query_by_name(day, name)
             } else if let Some(site) = site {
@@ -35,17 +40,6 @@ pub fn handle_action(action: Action) -> Result<Resp> {
             start,
             end,
             retry,
-        }) => {
-            // default is def::FLOOR
-            let floor = match filter {
-                Some(f) => f,
-                None => def::FLOOR
-                    .iter()
-                    .map(|item| item.to_string())
-                    .collect::<Vec<String>>(),
-            };
-
-            reserve(sites, floor, day, start, end, retry)
-        }
+        }) => reserve(sites, filter, day, start, end, retry),
     }
 }

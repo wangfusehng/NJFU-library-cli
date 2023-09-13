@@ -93,8 +93,10 @@ pub fn state(day: u32) -> Result<Resp> {
     let message = ret.message();
 
     let new_message = format!(
-        "{}\n{}",
-        message, "dev_name status       start_time            end_time                    uuid"
+        "{}\n{}\n{}",
+        message,
+        def::LONG_LINE_SEPARATOR,
+        "  dev    status       start_time            end_time                    uuid"
     );
     ret.set_message(new_message);
 
@@ -119,7 +121,7 @@ pub fn cancel(uuid: String) -> Result<Resp> {
 
 pub fn reserve(
     sites: Option<Vec<String>>,
-    filter: Vec<String>,
+    filter: Option<Vec<String>>,
     day: u32,
     start: String,
     end: String,
@@ -132,21 +134,29 @@ pub fn reserve(
     };
     let user = config.user().clone().unwrap();
     let appacc_no = user.accno().parse::<u32>()?;
-    let site_list = sites.unwrap_or(
-        // random
-        {
-            let mut cnt = retry;
-            let mut ret: Vec<String> = Vec::new();
-            while cnt > 0 {
-                let site = get_random_site_name()?;
-                if site_fiter_by_floor(site.clone(), filter.clone())? {
-                    ret.push(site);
-                    cnt -= 1;
-                }
+    let filter = match filter {
+        Some(filter) => filter,
+        None => def::FLOOR
+            .iter()
+            .map(|item| item.to_string())
+            .collect::<Vec<String>>(),
+    };
+    let sites = match sites {
+        Some(sites) => {
+            let mut ret = Vec::new();
+            for site in sites.iter() {
+                ret.push(name_to_id(site.clone())?);
             }
             ret
-        },
-    );
+        }
+        None => {
+            let mut ret = Vec::new();
+            for _ in [0..=retry] {
+                ret.push(get_random_site_id(filter.clone())?);
+            }
+            ret
+        }
+    };
 
     let pb = ProgressBar::new_spinner();
     pb.enable_steady_tick(Duration::from_millis(100));
@@ -158,12 +168,11 @@ pub fn reserve(
         .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ "),
     );
 
-    let total = site_list.len();
-    for (index, site) in site_list.iter().enumerate() {
+    let total = filter.len();
+    for (index, &site) in sites.iter().enumerate() {
         pb.set_prefix(format!("[{}/{}]", index, total));
-        pb.set_message(site.clone());
         // filter by floor
-        let ret = handle_reserve(site.clone(), appacc_no, day, start.clone(), end.clone());
+        let ret = handle_reserve(site, appacc_no, day, start.clone(), end.clone());
         match ret {
             Ok(ret) => {
                 if ret.code() == 0 {
@@ -181,7 +190,7 @@ pub fn reserve(
 }
 
 fn handle_reserve(
-    site: String,
+    site_id: u32,
     appacc_no: u32,
     day: u32,
     start: String,
@@ -190,7 +199,6 @@ fn handle_reserve(
     let date = time::get_date_with_offset("%Y-%m-%d", day as i32);
     let start_time = format!("{} {}:00", date, start);
     let end_time = format!("{} {}:00", date, end);
-    let resv_dev = name_to_id(site.clone())?;
 
     let data = serde_json::json!({
         "sysKind": 8,
@@ -198,7 +206,7 @@ fn handle_reserve(
         "resvMember": [ appacc_no ],
         "resvBeginTime": start_time,
         "resvEndTime": end_time,
-        "resvDev": [ resv_dev ],
+        "resvDev": [ site_id ],
     });
 
     let resp = def::CLIENT

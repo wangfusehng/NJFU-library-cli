@@ -1,4 +1,5 @@
 use super::dev::Dev;
+use crate::utils::status;
 use crate::utils::time;
 use serde::{Deserialize, Serialize};
 
@@ -20,15 +21,6 @@ pub struct Resv {
     pub resv_dev_info_list: Option<Vec<Dev>>,
 }
 
-fn get_str_from_resv_status(resv_status: u32) -> &'static str {
-    match resv_status {
-        1027 => "未生效",
-        1217 => "已生效",
-        1169 => "已违约",
-        _ => "Unknow",
-    }
-}
-
 impl std::fmt::Display for Resv {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(devs) = &self.resv_dev_info_list {
@@ -36,7 +28,11 @@ impl std::fmt::Display for Resv {
                 write!(f, "{}", dev)?;
             }
         }
-        write!(f, "  {}", get_str_from_resv_status(self.resv_status))?;
+        write!(
+            f,
+            "  {}",
+            status::get_color_str_from_resv_status(self.resv_status)
+        )?;
         write!(
             f,
             "   {}",

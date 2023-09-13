@@ -3,14 +3,14 @@
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 @today = {{$datetime 'YYYY-MM-DD' 8 h}}
-@cookie = 3dde495f-66e4-4c5b-ad75-5b9c8f088ca1
+@cookie = f8ae39f1-cee2-4d34-b157-3dc3fd8f9a6f
 
 ### credit
 GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus
 Cookie: ic-cookie={{cookie}}
 
 ### 预约记录
-GET https://libseat.njfu.edu.cn/ic-web/reserve/resvInfo?beginDate=2023-09-12&endDate=2023-09-13
+GET https://libseat.njfu.edu.cn/ic-web/reserve/resvInfo?beginDate=2023-09-10&endDate=2023-09-14
 Cookie: ic-cookie={{cookie}}
 
 ### resvId查询account
@@ -27,7 +27,7 @@ Cookie: ic-cookie={{cookie}}
 }
 
 ### 每层楼
-GET https://libseat.njfu.edu.cn/ic-web/reserve?roomIds=100455356&resvDates=20230912&sysKind=8
+GET https://libseat.njfu.edu.cn/ic-web/reserve?roomIds=100455350&resvDates=20230913&sysKind=8
 Cookie: ic-cookie={{cookie}}
 
 ### 预约

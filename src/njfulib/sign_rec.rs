@@ -1,3 +1,4 @@
+use crate::njfulib::site;
 use serde::{Deserialize, Serialize};
 
 use crate::def;
@@ -29,11 +30,9 @@ impl std::fmt::Display for SignRec {
         writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
         writeln!(f, "uuid: {}", self.uuid)?;
         writeln!(f, "resv_id: {}", self.resv_id)?;
-        writeln!(f, "acc_no: {}", self.acc_no)?;
-        writeln!(f, "logon_name: {}", self.logon_name)?;
-        writeln!(f, "true_name: {}", self.true_name)?;
-        writeln!(f, "dev_id: {}", self.dev_id)?;
-        writeln!(f, "room_id: {}", self.room_id)?;
+        writeln!(f, "card: {}", self.logon_name)?;
+        writeln!(f, "name: {}", self.true_name)?;
+        writeln!(f, "dev: {}", site::id_to_name(self.dev_id).unwrap())?;
         Ok(())
     }
 }

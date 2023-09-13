@@ -17,6 +17,10 @@ pub enum Action {
         /// the site to query
         #[structopt(short, long)]
         site: Option<String>,
+
+        /// the floor of querying site
+        #[structopt(short, long)]
+        filter: Option<Vec<String>>,
     },
 
     ///Login library

@@ -2,7 +2,7 @@ use crate::def;
 use serde::{Deserialize, Serialize};
 
 /// # Floor information
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
 pub struct Floor {
     room_id: u32,
     dev_start: u32,
