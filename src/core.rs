@@ -1,4 +1,3 @@
-use super::def;
 use crate::cli::action::Action::{self, *};
 use crate::cli::reserve::Reserve;
 use crate::executor::*;
@@ -23,7 +22,7 @@ pub fn handle_action(action: Action) -> Result<Resp> {
             filter,
         } => {
             if let Some(name) = name {
-                query_by_name(day, name)
+                query_by_name(day, name, filter)
             } else if let Some(site) = site {
                 query_by_site(day, site)
             } else {

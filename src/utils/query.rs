@@ -24,6 +24,7 @@ pub fn get_name_info(resp: Resp, query_name: String) -> Result<Resp> {
                 Data::SignRec(sign_rec) => sign_rec,
                 _ => panic!("no sign record"),
             };
+            println!("{}", sign_rec.true_name());
             if sign_rec.true_name() == query_name {
                 let data = Data::SignRec(sign_rec);
                 return Ok(Resp::new(0, message.to_string(), Some(vec![data])));

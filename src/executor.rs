@@ -4,7 +4,7 @@ use crate::njfulib::config::{self, Config};
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
 use crate::njfulib::site::*;
-use crate::utils::*;
+use crate::utils::{filter::handle_filter, *};
 use anyhow::{anyhow, Context, Result};
 
 use indicatif::{ProgressBar, ProgressStyle};
@@ -12,7 +12,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
 use std::time::Duration;
 
-pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
+pub fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) -> Result<Resp> {
     let date = time::get_date_with_offset("%Y%m%d", day as i32);
 
     let pb = ProgressBar::new_spinner();
@@ -25,11 +25,12 @@ pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
         .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ "),
     );
 
-    let total = def::FLOOR.len() as u64;
+    let filter = filter::handle_filter(filter)?;
+    let total = filter.len();
 
-    for (pos, (floor_name, floor)) in def::ROOMS.iter().enumerate() {
+    for (pos, floor) in filter.iter().enumerate() {
         pb.set_prefix(format!("[{}/{}]", pos, total));
-        pb.set_message(floor_name.to_string());
+        pb.set_message(floor.room_name().to_string());
 
         let room_id = floor.room_id().to_string();
         let url = format!(
@@ -39,7 +40,7 @@ pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
             date
         );
         let resp = def::CLIENT.get(url).send()?.json::<Resp>()?;
-        match handle_resp::get_name_info(resp, name.clone()) {
+        match query::get_name_info(resp, name.clone()) {
             Ok(ret) => {
                 if ret.code() == 0 {
                     pb.finish_and_clear();
@@ -57,9 +58,9 @@ pub fn query_by_name(day: u32, name: String) -> Result<Resp> {
 }
 
 pub fn query_by_site(day: u32, site: String) -> Result<Resp> {
-    let floor = name_to_floor(site.clone())?;
+    let floor = site_name_to_floor(site.clone())?;
     let room_id = floor.room_id().to_string();
-    let site_id = name_to_id(site.clone())?;
+    let site_id = site_name_to_id(site.clone())?;
     let site_index = site_id - floor.dev_start() + 1;
     let date = time::get_date_with_offset("%Y%m%d", day as i32);
 
@@ -70,7 +71,7 @@ pub fn query_by_site(day: u32, site: String) -> Result<Resp> {
         date
     );
     let resp = def::CLIENT.get(url).send()?.json::<Resp>()?;
-    handle_resp::get_site_info(resp, site_index)
+    query::get_site_info(resp, site_index)
 }
 
 /// login to the server.
@@ -103,7 +104,6 @@ pub fn state(day: u32) -> Result<Resp> {
     let mut data = ret.data().clone().unwrap();
     data.reverse();
     ret.set_data(Some(data));
-
     Ok(ret)
 }
 
@@ -134,18 +134,16 @@ pub fn reserve(
     };
     let user = config.user().clone().unwrap();
     let appacc_no = user.accno().parse::<u32>()?;
-    let filter = match filter {
-        Some(filter) => filter,
-        None => def::FLOOR
-            .iter()
-            .map(|item| item.to_string())
-            .collect::<Vec<String>>(),
-    };
+    let filter: Vec<u32> = handle_filter(filter)?
+        .into_iter()
+        .map(|x| x.room_id())
+        .collect();
+
     let sites = match sites {
         Some(sites) => {
             let mut ret = Vec::new();
             for site in sites.iter() {
-                ret.push(name_to_id(site.clone())?);
+                ret.push(site_name_to_id(site.clone())?);
             }
             ret
         }

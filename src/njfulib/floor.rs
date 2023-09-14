@@ -1,10 +1,13 @@
 use crate::def;
+use anyhow::anyhow;
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
 /// # Floor information
-#[derive(Debug, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Floor {
     room_id: u32,
+    room_name: String,
     dev_start: u32,
     dev_end: u32,
     site_num: u32,
@@ -14,6 +17,7 @@ impl std::fmt::Display for Floor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
         writeln!(f, "room_id: {}", self.room_id)?;
+        writeln!(f, "room_name: {}", self.room_name)?;
         writeln!(f, "dev_start: {}", self.dev_start)?;
         writeln!(f, "dev_end: {}", self.dev_end)?;
         writeln!(f, "site_num: {}", self.site_num)?;
@@ -22,9 +26,16 @@ impl std::fmt::Display for Floor {
 }
 
 impl Floor {
-    pub fn new(room_id: u32, dev_start: u32, dev_end: u32, site_num: u32) -> Self {
+    pub fn new(
+        room_id: u32,
+        room_name: String,
+        dev_start: u32,
+        dev_end: u32,
+        site_num: u32,
+    ) -> Self {
         Floor {
             room_id,
+            room_name,
             dev_start,
             dev_end,
             site_num,
@@ -35,31 +46,37 @@ impl Floor {
         self.room_id
     }
 
-    pub fn set_room_id(&mut self, room_id: u32) {
-        self.room_id = room_id;
+    pub fn room_name(&self) -> &str {
+        &self.room_name
     }
 
     pub fn dev_start(&self) -> u32 {
         self.dev_start
     }
 
-    pub fn set_dev_start(&mut self, dev_start: u32) {
-        self.dev_start = dev_start;
-    }
-
     pub fn dev_end(&self) -> u32 {
         self.dev_end
-    }
-
-    pub fn set_dev_end(&mut self, dev_end: u32) {
-        self.dev_end = dev_end;
     }
 
     pub fn site_num(&self) -> u32 {
         self.site_num
     }
+}
 
-    pub fn set_site_num(&mut self, site_num: u32) {
-        self.site_num = site_num;
+pub fn get_floor_by_room_id(room_id: u32) -> Result<Floor> {
+    for floor in def::FLOORS.iter() {
+        if floor.room_id() == room_id {
+            return Ok(floor.clone());
+        }
     }
+    Err(anyhow!("room_id not found"))
+}
+
+pub fn get_floor_by_room_name(room_name: &str) -> Result<Floor> {
+    for floor in def::FLOORS.iter() {
+        if floor.room_name() == room_name {
+            return Ok(floor.clone());
+        }
+    }
+    Err(anyhow!("room_name not found"))
 }

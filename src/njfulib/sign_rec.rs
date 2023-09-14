@@ -32,7 +32,7 @@ impl std::fmt::Display for SignRec {
         writeln!(f, "resv_id: {}", self.resv_id)?;
         writeln!(f, "card: {}", self.logon_name)?;
         writeln!(f, "name: {}", self.true_name)?;
-        writeln!(f, "dev: {}", site::id_to_name(self.dev_id).unwrap())?;
+        writeln!(f, "dev: {}", site::site_id_to_name(self.dev_id).unwrap())?;
         Ok(())
     }
 }

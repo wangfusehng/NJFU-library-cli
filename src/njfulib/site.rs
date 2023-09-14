@@ -1,7 +1,8 @@
+use super::floor;
 use super::floor::Floor;
 use super::resv_info::ResvInfo;
 use crate::def;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -63,41 +64,35 @@ impl Site {
     }
 }
 
-pub fn name_to_floor(dev_name: String) -> Result<&'static Floor> {
-    def::ROOMS
-        .get(&dev_name[0..4])
-        .context(format!("Failed to get floor for {}", &dev_name[0..4]))
+pub fn site_name_to_floor(dev_name: String) -> Result<Floor> {
+    let floor_name = &dev_name[0..4];
+    floor::get_floor_by_room_name(floor_name)
 }
 
-pub fn id_to_name(id: u32) -> Result<String> {
+pub fn site_id_to_name(site_id: u32) -> Result<String> {
     // search space
     for (k, v) in def::SPACE.iter() {
-        if id == *v {
+        if site_id == *v {
             return Ok(k.to_string());
         }
     }
     // search site
-    let mut floor = "";
-    for (k, v) in def::ROOMS.iter() {
-        if id >= v.dev_start() && id <= v.dev_end() {
-            floor = k;
-            break;
-        }
-    }
-    if floor.is_empty() {
-        anyhow::bail!("{} is not a site or space", id);
-    }
-    let site = id
-        - def::ROOMS
-            .get(floor)
-            .context(format!("Failed to get floor {}", floor))?
-            .dev_start()
-        + 1;
-    Ok(format!("{}{:03}", floor, site))
+    let floor = site_id_to_floor(site_id)?;
+    let site_no = site_id - floor.dev_start() + 1;
+    Ok(format!("{}{:03}", floor.room_name(), site_no))
 }
 
-pub fn name_to_id(dev_name: String) -> Result<u32> {
-    let floor = name_to_floor(dev_name.clone())?;
+pub fn site_id_to_floor(site_id: u32) -> Result<Floor> {
+    for floor in def::FLOORS.iter() {
+        if site_id >= floor.dev_start() && site_id <= floor.dev_end() {
+            return Ok(floor.clone());
+        }
+    }
+    Err(anyhow!("site_id not found"))
+}
+
+pub fn site_name_to_id(dev_name: String) -> Result<u32> {
+    let floor = site_name_to_floor(dev_name.clone())?;
     let site = &dev_name[4..].parse()?;
     let id = floor.dev_start() + site - 1;
     if id >= floor.dev_start() && id <= floor.dev_end() {
@@ -107,30 +102,21 @@ pub fn name_to_id(dev_name: String) -> Result<u32> {
     }
 }
 
-pub fn site_fiter_by_floor(site: String, floor: Vec<String>) -> Result<bool> {
-    let id = name_to_id(site)?;
-    let mut floor_name = "";
-    for i in floor.iter() {
-        let v = def::ROOMS
-            .get(i.as_str())
-            .ok_or(anyhow!("parse room error"))?;
-
-        if id >= v.dev_start() && id <= v.dev_end() {
-            floor_name = i.as_str();
-            break;
+pub fn site_fiter_by_floor(site: u32, floors: Vec<u32>) -> Result<bool> {
+    for i in floors {
+        let floor = floor::get_floor_by_room_id(i)?;
+        if site >= floor.dev_start() && site <= floor.dev_end() {
+            return Ok(true);
         }
     }
-    if floor_name.is_empty() {
-        return Ok(false);
-    }
-    Ok(true)
+    Ok(false)
 }
 
 /// get random site name in libray
-pub fn get_random_site_id(filter: Vec<String>) -> Result<u32> {
+pub fn get_random_site_id(filter: Vec<u32>) -> Result<u32> {
     let len = filter.len();
     let mut rng = rand::thread_rng();
-    let room = filter.get(rng.gen_range(0..len)).unwrap();
-    let floor = def::ROOMS.get(room.as_str()).context("parse room error")?;
+    let index = filter.get(rng.gen_range(0..len)).unwrap();
+    let floor = floor::get_floor_by_room_id(*index)?;
     Ok(rng.gen_range(floor.dev_start()..floor.dev_end() + 1))
 }

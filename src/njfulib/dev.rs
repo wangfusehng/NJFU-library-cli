@@ -15,7 +15,7 @@ impl std::fmt::Display for Dev {
         write!(
             f,
             "{}",
-            site::id_to_name(self.dev_id)
+            site::site_id_to_name(self.dev_id)
                 .context("invalid dev_id")
                 .unwrap()
         )?;

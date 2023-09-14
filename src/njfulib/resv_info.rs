@@ -24,7 +24,7 @@ impl std::fmt::Display for ResvInfo {
         writeln!(
             f,
             "dev: {}",
-            site::id_to_name(self.dev_id)
+            site::site_id_to_name(self.dev_id)
                 .context("invalid dev_id")
                 .unwrap()
         )?;
