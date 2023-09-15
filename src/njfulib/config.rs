@@ -1,8 +1,9 @@
 use super::resp::{Data, Resp};
 use super::user::*;
 use crate::def;
+use crate::error::ClientError;
 use anyhow::anyhow;
-use anyhow::{Context, Result};
+use anyhow::Result;
 use home::home_dir;
 use serde::{Deserialize, Serialize};
 use std::fs::File;
@@ -42,12 +43,8 @@ impl Config {
 }
 
 pub fn save_config_to_file(config: &Config) -> Result<Resp> {
-    let root = home_dir().context("can not get home dir")?;
-    let path = root.join(".njfu-library-cli.json");
-
-    if config.username.is_empty() || config.password.is_empty() || config.cookie.is_empty() {
-        return Err(anyhow!("please login first"));
-    }
+    let root = home_dir().ok_or(ClientError::Config)?;
+    let path = root.join(def::CONFIG_FILE);
 
     let mut config = config.clone();
     if config.user.is_none() {
@@ -66,14 +63,14 @@ pub fn save_config_to_file(config: &Config) -> Result<Resp> {
 }
 
 pub fn load_config_from_file() -> Result<Resp> {
-    let root = home_dir().context("can not get home dir")?;
-    let path = root.join(".njfu-library-cli.json");
+    let root = home_dir().ok_or(ClientError::Config)?;
+    let path = root.join(def::CONFIG_FILE);
 
-    let input = File::open(path).context("please login first")?;
+    let input = File::open(path)?;
     let config: Config = serde_json::from_reader(input)?;
 
     if config.username.is_empty() || config.password.is_empty() || config.cookie.is_empty() {
-        return Err(anyhow!("please login first"));
+        return Err(anyhow!(ClientError::Config));
     }
 
     Ok(Resp::new(

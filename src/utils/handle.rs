@@ -1,9 +1,14 @@
 use super::account;
+use crate::error::RespError;
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
+use anyhow::anyhow;
 use anyhow::Result;
 
 pub async fn get_name_info(resp: Resp, query_name: String) -> Result<Resp> {
+    if resp.code != 0 {
+        return Err(anyhow!(RespError::Unknown(resp.message)));
+    }
     let message = resp.message;
     let datas = resp.data.clone().unwrap();
     for data in datas {
@@ -31,10 +36,13 @@ pub async fn get_name_info(resp: Resp, query_name: String) -> Result<Resp> {
             }
         }
     }
-    Ok(Resp::new(1, String::from("no such user"), None))
+    Err(anyhow!(RespError::Nodata))
 }
 
 pub async fn get_site_info(resp: Resp, index: u32) -> Result<Resp> {
+    if resp.code != 0 {
+        return Err(anyhow!(RespError::Unknown(resp.message)));
+    }
     let data = resp.data.clone().unwrap();
     let mut site = match data[index as usize - 1].clone() {
         Data::Site(site) => site,
@@ -51,4 +59,13 @@ pub async fn get_site_info(resp: Resp, index: u32) -> Result<Resp> {
         resp.message.to_string(),
         Some(vec![Data::Site(site.clone())]),
     ))
+}
+
+pub fn handle_status(resp: Resp) -> Result<Resp> {
+    if resp.code != 0 {
+        return Err(anyhow!(RespError::Unknown(resp.message)));
+    }
+    let mut new_data = resp.data.clone().unwrap();
+    new_data.reverse();
+    Ok(Resp::new(resp.code, resp.message, Some(new_data)))
 }

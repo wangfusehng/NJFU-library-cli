@@ -7,7 +7,7 @@ pub fn get_color_str_from_resv_status(resv_status: u32) -> ColoredString {
         1029 => "已开始".color(Color::Yellow).bold().blink(),
         1093 => "已签到".color(Color::BrightBlue).bold().italic(),
         1217 => "已结束".color(Color::White).dimmed().strikethrough(),
-        5313 => "已结束".color(Color::White).dimmed().strikethrough(),
+        5313 => "已签离".color(Color::White).dimmed(),
         _ => resv_status.to_string().color("red").reversed(),
     }
 }

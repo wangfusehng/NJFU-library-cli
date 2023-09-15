@@ -1,7 +1,7 @@
 use super::floor;
 use super::floor::Floor;
 use super::resv_info::ResvInfo;
-use crate::def;
+use crate::{def, error::ClientError};
 use anyhow::{anyhow, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -74,7 +74,7 @@ pub fn site_id_to_floor(site_id: u32) -> Result<Floor> {
             return Ok(floor.clone());
         }
     }
-    Err(anyhow!("site_id not found"))
+    Err(anyhow!(ClientError::SiteError))
 }
 
 pub fn site_name_to_id(dev_name: String) -> Result<u32> {
@@ -84,7 +84,7 @@ pub fn site_name_to_id(dev_name: String) -> Result<u32> {
     if id >= floor.dev_start && id <= floor.dev_end {
         Ok(id)
     } else {
-        anyhow::bail!("{} is not a site", dev_name)
+        Err(anyhow!(ClientError::SiteError))
     }
 }
 

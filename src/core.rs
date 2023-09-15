@@ -1,5 +1,6 @@
 use crate::cli::action::Action::{self, *};
 use crate::cli::reserve::Reserve;
+use crate::error::ClientError;
 use crate::executor::*;
 use crate::njfulib::resp::Resp;
 use anyhow::{anyhow, Result};
@@ -26,7 +27,9 @@ pub async fn handle_action(action: Action) -> Result<Resp> {
             } else if let Some(site) = site {
                 query_by_site(day, site).await
             } else {
-                Err(anyhow!("please input name or site"))
+                Err(anyhow!(ClientError::InputError(
+                    "no query name or site".to_string()
+                )))
             }
         }
 

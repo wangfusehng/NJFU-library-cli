@@ -9,7 +9,7 @@ use structopt::StructOpt;
     after_help = r##"EXAMPLES:
     njfulib login -u <username> -p <password> -c <cookie>
     njfulib query -n <name>
-    njfulib query -n <site>
+    njfulib query -s <site>
     njfulib statue
     njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
     njfulib reserve -s <space>... -d 2 --start <start time> --end <end time> -u <user>...

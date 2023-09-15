@@ -2,8 +2,7 @@
 @port = 443
 @host = {{hostname}}:{{port}}
 @contentType = application/json
-@today = {{$datetime 'YYYY-MM-DD' 8 h}}
-@cookie = d073c5ea-5fad-4d2a-9098-e80d9923b943
+@cookie = f2c6373b-46a2-4931-bc81-6f1c057c1fe2
 
 ### credit
 GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus

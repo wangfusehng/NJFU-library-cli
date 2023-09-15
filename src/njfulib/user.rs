@@ -18,12 +18,12 @@ pub struct User {
 impl std::fmt::Display for User {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
-        writeln!(f, "id: {}", self.id)?;
+        writeln!(f, "   id: {}", self.id)?;
         writeln!(f, "accno: {}", self.accno)?;
-        writeln!(f, "name: {}", self.name)?;
+        writeln!(f, " name: {}", self.name)?;
         writeln!(f, "phone: {}", self.phone)?;
         writeln!(f, "email: {}", self.email)?;
-        writeln!(f, "dept: {}", self.dept)?;
+        writeln!(f, " dept: {}", self.dept)?;
         Ok(())
     }
 }

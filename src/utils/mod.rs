@@ -1,5 +1,5 @@
 pub mod account;
 pub mod filter;
-pub mod query;
+pub mod handle;
 pub mod status;
 pub mod time;

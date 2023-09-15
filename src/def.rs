@@ -1,12 +1,15 @@
 use crate::njfulib::config;
 use crate::njfulib::floor::Floor;
 use crate::njfulib::resp::Data;
-use anyhow::Context;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 
+pub const CONFIG_FILE: &str = ".njfulib.json";
+
 pub const LONG_LINE_SEPARATOR: &str = "--------------------";
+
 pub const SHORT_LINE_SEPARATOR: &str = "---------";
+
 pub const BASE_URL: &str = "https://libseat.njfu.edu.cn/";
 // 查询个人信息
 pub const USER_INFO_URL: &str = "https://libic.njfu.edu.cn/ClientWeb/pro/ajax/login.aspx";
@@ -22,9 +25,6 @@ pub const QUERY_URL: &str = "https://libseat.njfu.edu.cn/ic-web/reserve";
 pub const SEARCHACCOUNT_URL: &str = "https://libseat.njfu.edu.cn/ic-web/reserve/getSignRec";
 
 lazy_static! {
-    pub static ref FLOOR: Vec<&'static str> = vec![
-        "2F-A", "2F-B", "3F-A", "3F-B", "3F-C", "3FA-", "4F-A", "4FA-", "5F-A", "6F-A", "7F-A",
-    ];
     pub static ref FLOORS: Vec<Floor> = {
         let mut floors: Vec<_> = Vec::new();
         floors.push(Floor::new(
@@ -122,18 +122,20 @@ lazy_static! {
                 reqwest::header::USER_AGENT,
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
                     .parse()
-                    .context("Failed to parse user agent.").unwrap()
+                    .unwrap()
             );
         headers.insert(
             reqwest::header::CACHE_CONTROL,
             reqwest::header::HeaderValue::from_static("private"),
         );
 
-        let data = config::load_config_from_file()
-            .unwrap()
-            .data
-            .clone()
-            .unwrap();
+        let data = match config::load_config_from_file() {
+            Ok(resp) => resp.data.clone().unwrap(),
+            Err(e) => {
+                eprintln!("{}", e);
+                std::process::exit(126);
+            }
+        };
 
         let config = match &data[0] {
             Data::Config(config) => config,
@@ -157,7 +159,7 @@ lazy_static! {
                 reqwest::header::USER_AGENT,
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
                     .parse()
-                    .context("Failed to parse user agent.").unwrap()
+                    .unwrap()
             );
         headers.insert(
             reqwest::header::CACHE_CONTROL,

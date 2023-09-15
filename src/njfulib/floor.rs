@@ -1,4 +1,5 @@
 use crate::def;
+use crate::error::ClientError;
 use anyhow::anyhow;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -16,11 +17,11 @@ pub struct Floor {
 impl std::fmt::Display for Floor {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}", def::LONG_LINE_SEPARATOR)?;
-        writeln!(f, "room_id: {}", self.room_id)?;
-        writeln!(f, "room_name: {}", self.room_name)?;
-        writeln!(f, "dev_start: {}", self.dev_start)?;
-        writeln!(f, "dev_end: {}", self.dev_end)?;
-        writeln!(f, "site_num: {}", self.site_num)?;
+        writeln!(f, "roomId: {}", self.room_id)?;
+        writeln!(f, "roomName: {}", self.room_name)?;
+        writeln!(f, "devStart: {}", self.dev_start)?;
+        writeln!(f, "devEnd: {}", self.dev_end)?;
+        writeln!(f, "siteNum: {}", self.site_num)?;
         Ok(())
     }
 }
@@ -49,7 +50,7 @@ pub fn get_floor_by_room_id(room_id: u32) -> Result<Floor> {
             return Ok(floor.clone());
         }
     }
-    Err(anyhow!("room_id not found"))
+    Err(anyhow!(ClientError::RoomError))
 }
 
 pub fn get_floor_by_room_name(room_name: &str) -> Result<Floor> {
@@ -58,5 +59,5 @@ pub fn get_floor_by_room_name(room_name: &str) -> Result<Floor> {
             return Ok(floor.clone());
         }
     }
-    Err(anyhow!("room_name not found"))
+    Err(anyhow!(ClientError::RoomError))
 }
