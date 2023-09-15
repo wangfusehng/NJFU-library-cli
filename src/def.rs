@@ -1,10 +1,10 @@
-use crate::njfulib::config;
 use crate::njfulib::floor::Floor;
 use crate::njfulib::resp::Data;
+use crate::utils::config;
 use lazy_static::lazy_static;
-use std::collections::HashMap;
 
 pub const CONFIG_FILE: &str = ".njfulib.json";
+pub const CACHE_FILE: &str = ".njfulib.cache";
 
 pub const LONG_LINE_SEPARATOR: &str = "--------------------";
 
@@ -97,24 +97,7 @@ lazy_static! {
             100500949,
             348,
         ));
-        floors.push(Floor::new(
-            106658017,
-            "7F-A".to_string(),
-            106744855,
-            106745104,
-            224,
-        ));
         floors
-    };
-    pub static ref SPACE: HashMap<&'static str, u32> = {
-        let mut map = HashMap::new();
-        map.insert("8A505", 100504089);
-        map.insert("8A506", 100504093);
-        map.insert("8A508", 100504097);
-        map.insert("8A512", 100504101);
-        map.insert("8A513", 100504105);
-        map.insert("8A515", 100504109);
-        map
     };
     pub static ref CLIENT: reqwest::Client = {
         let mut headers = reqwest::header::HeaderMap::new();
@@ -151,25 +134,6 @@ lazy_static! {
             .cookie_store(true)
             .default_headers(headers)
             .build()
-            .expect("Failed to build client.")
-    };
-    pub static ref OLD_CLIENT: reqwest::blocking::Client = {
-        let mut headers = reqwest::header::HeaderMap::new();
-        headers.insert(
-                reqwest::header::USER_AGENT,
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
-                    .parse()
-                    .unwrap()
-            );
-        headers.insert(
-            reqwest::header::CACHE_CONTROL,
-            reqwest::header::HeaderValue::from_static("private"),
-        );
-
-        reqwest::blocking::ClientBuilder::new()
-            .cookie_store(true)
-            .default_headers(headers)
-            .build()
-            .expect("Failed to build client.")
+            .expect("Failed to build client")
     };
 }

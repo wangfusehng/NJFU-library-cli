@@ -1,7 +1,7 @@
-use super::config::Config;
 use super::resv::Resv;
 use super::sign_rec::SignRec;
 use super::site::Site;
+use crate::utils::config::Config;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

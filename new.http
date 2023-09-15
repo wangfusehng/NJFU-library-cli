@@ -2,7 +2,7 @@
 @port = 443
 @host = {{hostname}}:{{port}}
 @contentType = application/json
-@cookie = f2c6373b-46a2-4931-bc81-6f1c057c1fe2
+@cookie = 103de199-0f67-486a-ad42-4b939c403eb2
 
 ### credit
 GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus

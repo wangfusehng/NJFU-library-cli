@@ -1,7 +1,7 @@
-use super::resp::{Data, Resp};
-use super::user::*;
 use crate::def;
 use crate::error::ClientError;
+use crate::njfulib::resp::{Data, Resp};
+use crate::njfulib::user::*;
 use anyhow::anyhow;
 use anyhow::Result;
 use home::home_dir;
@@ -42,13 +42,13 @@ impl Config {
     }
 }
 
-pub fn save_config_to_file(config: &Config) -> Result<Resp> {
+pub async fn save_config_to_file(config: &Config) -> Result<Resp> {
     let root = home_dir().ok_or(ClientError::Config)?;
     let path = root.join(def::CONFIG_FILE);
 
     let mut config = config.clone();
     if config.user.is_none() {
-        let user = search_user_info(&config)?;
+        let user = search_user_info(&config).await?;
         config.user = Some(user);
     }
 

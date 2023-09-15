@@ -50,7 +50,6 @@ njfulib query -n <name>
 njfulib query -n <site>
 njfulib statue
 njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
-njfulib reserve -s <space>... -d 2 --start <start time> --end <end time> -u <user>...
 njfulib cancel -u <uuid>
 ```
 

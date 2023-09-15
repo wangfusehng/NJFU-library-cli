@@ -1,10 +1,10 @@
 use super::def;
 use crate::error::RespError;
 
-use crate::njfulib::config::{self, Config};
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
 use crate::njfulib::site::*;
+use crate::utils::config::{self, Config};
 use crate::utils::handle::{self, handle_status};
 use crate::utils::{filter::handle_filter, *};
 use anyhow::{anyhow, Context, Result};
@@ -16,7 +16,7 @@ use std::time::Duration;
 
 pub async fn login(username: String, password: String, cookie: String) -> Result<Resp> {
     let config = Config::new(username, password, cookie, None);
-    config::save_config_to_file(&config)
+    config::save_config_to_file(&config).await
 }
 
 pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) -> Result<Resp> {

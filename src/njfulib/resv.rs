@@ -1,7 +1,22 @@
-use super::dev::Dev;
-use crate::utils::status;
-use crate::utils::time;
+use crate::utils::*;
 use serde::{Deserialize, Serialize};
+
+use super::site;
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+pub struct SiteInfo {
+    #[serde(rename = "resvId")]
+    pub resv_id: u32,
+    #[serde(rename = "devId")]
+    pub dev_id: u32,
+}
+
+impl std::fmt::Display for SiteInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", site::site_id_to_name(self.dev_id).unwrap())?;
+        Ok(())
+    }
+}
 
 /// Status struct
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -18,7 +33,7 @@ pub struct Resv {
     #[serde(rename = "resvStatus")]
     pub resv_status: u32,
     #[serde(rename = "resvDevInfoList")]
-    pub resv_dev_info_list: Option<Vec<Dev>>,
+    pub resv_dev_info_list: Option<Vec<SiteInfo>>,
 }
 
 impl std::fmt::Display for Resv {
@@ -45,27 +60,5 @@ impl std::fmt::Display for Resv {
         )?;
         writeln!(f, "  {}", self.uuid)?;
         Ok(())
-    }
-}
-
-impl Resv {
-    pub fn new(
-        uuid: String,
-        resv_id: u32,
-        appacc_no: u32,
-        resv_begin_time: u64,
-        resv_end_time: u64,
-        resv_status: u32,
-        resv_dev_info_list: Option<Vec<Dev>>,
-    ) -> Self {
-        Resv {
-            uuid,
-            resv_id,
-            appacc_no,
-            resv_begin_time,
-            resv_end_time,
-            resv_status,
-            resv_dev_info_list,
-        }
     }
 }

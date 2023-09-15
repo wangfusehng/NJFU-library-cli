@@ -1,5 +1,5 @@
-use super::config::Config;
 use crate::def;
+use crate::utils::config::Config;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -28,29 +28,18 @@ impl std::fmt::Display for User {
     }
 }
 
-impl User {
-    pub fn new() -> Self {
-        User {
-            id: String::new(),
-            accno: String::new(),
-            name: String::new(),
-            phone: String::new(),
-            email: String::new(),
-            dept: String::new(),
-        }
-    }
-}
-
-pub fn search_user_info(config: &Config) -> Result<User> {
+pub async fn search_user_info(config: &Config) -> Result<User> {
     let mut form = HashMap::new();
     form.insert("id", config.username.as_str());
     form.insert("pwd", config.password.as_str());
     form.insert("act", "login");
-    let resp = def::OLD_CLIENT
+    let resp = def::CLIENT
         .post(def::USER_INFO_URL)
         .form(&form)
-        .send()?;
-    let resp = resp.json::<serde_json::Value>()?;
+        .send()
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
 
     Ok(serde_json::from_value(resp["data"].clone())?)
 }

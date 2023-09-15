@@ -1,6 +1,6 @@
 use super::floor;
 use super::floor::Floor;
-use super::resv_info::ResvInfo;
+use crate::utils::*;
 use crate::{def, error::ClientError};
 use anyhow::{anyhow, Result};
 use rand::Rng;
@@ -13,10 +13,51 @@ pub struct Site {
     #[serde(rename = "devId")]
     pub dev_id: u32,
     pub coordinate: String,
+    #[serde(rename = "roomId")]
+    pub room_id: u32,
     #[serde(rename = "labId")]
     pub lab_id: u32,
     #[serde(rename = "resvInfo")]
     pub resv_info: Option<Vec<ResvInfo>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ResvInfo {
+    #[serde(rename = "resvId")]
+    pub resv_id: u32,
+    #[serde(rename = "resvName", skip)]
+    pub resv_name: String,
+    #[serde(rename = "startTime")]
+    pub start_time: u64,
+    #[serde(rename = "endTime")]
+    pub end_time: u64,
+    #[serde(rename = "resvStatus")]
+    pub resv_status: u32,
+    #[serde(rename = "devId")]
+    pub dev_id: u32,
+}
+
+impl std::fmt::Display for ResvInfo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "       dev: {}", site_id_to_name(self.dev_id).unwrap())?;
+        writeln!(f, "  resvName: {}", self.resv_name)?;
+        writeln!(
+            f,
+            " startTime: {}",
+            time::get_date_with_time_stamp(self.start_time / 1000)
+        )?;
+        writeln!(
+            f,
+            "   endTime: {}",
+            time::get_date_with_time_stamp(self.end_time / 1000)
+        )?;
+        writeln!(
+            f,
+            "resvStatus: {}",
+            status::get_color_str_from_resv_status(self.resv_status)
+        )?;
+        Ok(())
+    }
 }
 
 impl std::fmt::Display for Site {
@@ -34,35 +75,12 @@ impl std::fmt::Display for Site {
     }
 }
 
-impl Site {
-    pub fn new(
-        dev_id: u32,
-        coordinate: String,
-        lab_id: u32,
-        resv_info: Option<Vec<ResvInfo>>,
-    ) -> Self {
-        Site {
-            dev_id,
-            coordinate,
-            lab_id,
-            resv_info,
-        }
-    }
-}
-
 pub fn site_name_to_floor(dev_name: String) -> Result<Floor> {
     let floor_name = &dev_name[0..4];
     floor::get_floor_by_room_name(floor_name)
 }
 
 pub fn site_id_to_name(site_id: u32) -> Result<String> {
-    // search space
-    for (k, v) in def::SPACE.iter() {
-        if site_id == *v {
-            return Ok(k.to_string());
-        }
-    }
-    // search site
     let floor = site_id_to_floor(site_id)?;
     let site_no = site_id - floor.dev_start + 1;
     Ok(format!("{}{:0>3}", floor.room_name, site_no))

@@ -8,11 +8,10 @@ use structopt::StructOpt;
     long_about = "A command line connect NJFU library written in Rust",
     after_help = r##"EXAMPLES:
     njfulib login -u <username> -p <password> -c <cookie>
-    njfulib query -n <name>
+    njfulib query -n <name> [-f <filter>]
     njfulib query -s <site>
     njfulib statue
-    njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
-    njfulib reserve -s <space>... -d 2 --start <start time> --end <end time> -u <user>...
+    njfulib reserve [-s <site> ...] [-f <filter> ...] [-d <day>]--start <start time> --end <end time> -r 30
     njfulib cancel -u <uuid>
 "##
 )]
