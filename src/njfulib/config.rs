@@ -11,10 +11,10 @@ use std::io::Write;
 /// Info struct is used to store the information of the user's state.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
-    username: String,
-    password: String,
-    cookie: String,
-    user: Option<User>,
+    pub username: String,
+    pub password: String,
+    pub cookie: String,
+    pub user: Option<User>,
 }
 
 impl std::fmt::Display for Config {
@@ -38,22 +38,6 @@ impl Config {
             cookie,
             user,
         }
-    }
-
-    pub fn username(&self) -> &str {
-        self.username.as_ref()
-    }
-
-    pub fn password(&self) -> &str {
-        self.password.as_ref()
-    }
-
-    pub fn cookie(&self) -> &str {
-        self.cookie.as_ref()
-    }
-
-    pub fn user(&self) -> Option<&User> {
-        self.user.as_ref()
     }
 }
 

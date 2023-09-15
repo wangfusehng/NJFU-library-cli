@@ -1,22 +1,23 @@
 use super::site;
-use crate::utils::account;
 use crate::utils::status;
 use crate::utils::time;
 use anyhow::Context;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ResvInfo {
     #[serde(rename = "resvId")]
-    resv_id: u32,
+    pub resv_id: u32,
+    #[serde(rename = "resvName", skip)]
+    pub resv_name: String,
     #[serde(rename = "startTime")]
-    start_time: u64,
+    pub start_time: u64,
     #[serde(rename = "endTime")]
-    end_time: u64,
+    pub end_time: u64,
     #[serde(rename = "resvStatus")]
-    resv_status: u32,
+    pub resv_status: u32,
     #[serde(rename = "devId")]
-    dev_id: u32,
+    pub dev_id: u32,
 }
 
 impl std::fmt::Display for ResvInfo {
@@ -28,11 +29,7 @@ impl std::fmt::Display for ResvInfo {
                 .context("invalid dev_id")
                 .unwrap()
         )?;
-        writeln!(
-            f,
-            "resvName: {}",
-            account::get_name_by_resv_id(self.resv_id).unwrap()
-        )?;
+        writeln!(f, "resvName: {}", self.resv_name)?;
         writeln!(
             f,
             "startTime: {}",
@@ -53,8 +50,9 @@ impl std::fmt::Display for ResvInfo {
 }
 
 impl ResvInfo {
-    pub fn new(
+    pub async fn new(
         resv_id: u32,
+        resv_name: String,
         start_time: u64,
         end_time: u64,
         resv_status: u32,
@@ -62,30 +60,11 @@ impl ResvInfo {
     ) -> Self {
         ResvInfo {
             resv_id,
+            resv_name,
             start_time,
             end_time,
             resv_status,
             dev_id,
         }
-    }
-
-    pub fn resv_id(&self) -> u32 {
-        self.resv_id
-    }
-
-    pub fn start_time(&self) -> u64 {
-        self.start_time
-    }
-
-    pub fn end_time(&self) -> u64 {
-        self.end_time
-    }
-
-    pub fn resv_status(&self) -> u32 {
-        self.resv_status
-    }
-
-    pub fn dev_id(&self) -> u32 {
-        self.dev_id
     }
 }

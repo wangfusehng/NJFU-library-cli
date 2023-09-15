@@ -11,23 +11,25 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Site {
     #[serde(rename = "devId")]
-    dev_id: u32,
-    coordinate: String,
+    pub dev_id: u32,
+    pub coordinate: String,
     #[serde(rename = "labId")]
-    lab_id: u32,
+    pub lab_id: u32,
     #[serde(rename = "resvInfo")]
-    resv_info: Option<Vec<ResvInfo>>,
+    pub resv_info: Option<Vec<ResvInfo>>,
 }
 
 impl std::fmt::Display for Site {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "{}", def::SHORT_LINE_SEPARATOR)?;
-        self.resv_info().map(|ts| -> Result<(), std::fmt::Error> {
-            for t in ts {
-                write!(f, "{}", t)?;
-            }
-            Ok(())
-        });
+        self.resv_info
+            .as_ref()
+            .map(|ts| -> Result<(), std::fmt::Error> {
+                for t in ts {
+                    write!(f, "{}", t)?;
+                }
+                Ok(())
+            });
         Ok(())
     }
 }
@@ -46,22 +48,6 @@ impl Site {
             resv_info,
         }
     }
-
-    pub fn dev_id(&self) -> u32 {
-        self.dev_id
-    }
-
-    pub fn coordinate(&self) -> &str {
-        &self.coordinate
-    }
-
-    pub fn lab_id(&self) -> u32 {
-        self.lab_id
-    }
-
-    pub fn resv_info(&self) -> Option<&Vec<ResvInfo>> {
-        self.resv_info.as_ref()
-    }
 }
 
 pub fn site_name_to_floor(dev_name: String) -> Result<Floor> {
@@ -78,13 +64,13 @@ pub fn site_id_to_name(site_id: u32) -> Result<String> {
     }
     // search site
     let floor = site_id_to_floor(site_id)?;
-    let site_no = site_id - floor.dev_start() + 1;
-    Ok(format!("{}{:03}", floor.room_name(), site_no))
+    let site_no = site_id - floor.dev_start + 1;
+    Ok(format!("{}{:0>3}", floor.room_name, site_no))
 }
 
 pub fn site_id_to_floor(site_id: u32) -> Result<Floor> {
     for floor in def::FLOORS.iter() {
-        if site_id >= floor.dev_start() && site_id <= floor.dev_end() {
+        if site_id >= floor.dev_start && site_id <= floor.dev_end {
             return Ok(floor.clone());
         }
     }
@@ -94,8 +80,8 @@ pub fn site_id_to_floor(site_id: u32) -> Result<Floor> {
 pub fn site_name_to_id(dev_name: String) -> Result<u32> {
     let floor = site_name_to_floor(dev_name.clone())?;
     let site = &dev_name[4..].parse()?;
-    let id = floor.dev_start() + site - 1;
-    if id >= floor.dev_start() && id <= floor.dev_end() {
+    let id = floor.dev_start + site - 1;
+    if id >= floor.dev_start && id <= floor.dev_end {
         Ok(id)
     } else {
         anyhow::bail!("{} is not a site", dev_name)
@@ -105,7 +91,7 @@ pub fn site_name_to_id(dev_name: String) -> Result<u32> {
 pub fn site_fiter_by_floor(site: u32, floors: Vec<u32>) -> Result<bool> {
     for i in floors {
         let floor = floor::get_floor_by_room_id(i)?;
-        if site >= floor.dev_start() && site <= floor.dev_end() {
+        if site >= floor.dev_start && site <= floor.dev_end {
             return Ok(true);
         }
     }
@@ -118,5 +104,5 @@ pub fn get_random_site_id(filter: Vec<u32>) -> Result<u32> {
     let mut rng = rand::thread_rng();
     let index = filter.get(rng.gen_range(0..len)).unwrap();
     let floor = floor::get_floor_by_room_id(*index)?;
-    Ok(rng.gen_range(floor.dev_start()..floor.dev_end() + 1))
+    Ok(rng.gen_range(floor.dev_start..floor.dev_end + 1))
 }

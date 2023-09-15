@@ -3,7 +3,7 @@
 @host = {{hostname}}:{{port}}
 @contentType = application/json
 @today = {{$datetime 'YYYY-MM-DD' 8 h}}
-@cookie = 4f4cdbb3-d3ce-497e-9c41-c174551a8cc7
+@cookie = d073c5ea-5fad-4d2a-9098-e80d9923b943
 
 ### credit
 GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus

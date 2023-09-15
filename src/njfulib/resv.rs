@@ -68,32 +68,4 @@ impl Resv {
             resv_dev_info_list,
         }
     }
-
-    pub fn uuid(&self) -> &str {
-        &self.uuid
-    }
-
-    pub fn resv_id(&self) -> u32 {
-        self.resv_id
-    }
-
-    pub fn appacc_no(&self) -> u32 {
-        self.appacc_no
-    }
-
-    pub fn resv_begin_time(&self) -> u64 {
-        self.resv_begin_time
-    }
-
-    pub fn resv_end_time(&self) -> u64 {
-        self.resv_end_time
-    }
-
-    pub fn resv_status(&self) -> u32 {
-        self.resv_status
-    }
-
-    pub fn resv_dev_info_list(&self) -> Option<&Vec<Dev>> {
-        self.resv_dev_info_list.as_ref()
-    }
 }

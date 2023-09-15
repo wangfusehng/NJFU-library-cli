@@ -15,9 +15,9 @@ pub enum Data {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Resp {
-    code: u32,
-    message: String,
-    data: Option<Vec<Data>>,
+    pub code: u32,
+    pub message: String,
+    pub data: Option<Vec<Data>>,
 }
 
 impl std::fmt::Display for Data {
@@ -33,8 +33,8 @@ impl std::fmt::Display for Data {
 
 impl std::fmt::Display for Resp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", self.message())?;
-        if let Some(datas) = self.data().clone() {
+        writeln!(f, "{}", self.message)?;
+        if let Some(datas) = self.data.clone() {
             for data in datas {
                 write!(f, "{}", data)?;
             }
@@ -50,29 +50,5 @@ impl Resp {
             message,
             data,
         }
-    }
-
-    pub fn code(&self) -> u32 {
-        self.code
-    }
-
-    pub fn message(&self) -> &str {
-        &self.message
-    }
-
-    pub fn data(&self) -> &Option<Vec<Data>> {
-        &self.data
-    }
-
-    pub fn set_code(&mut self, code: u32) {
-        self.code = code;
-    }
-
-    pub fn set_message(&mut self, message: String) {
-        self.message = message;
-    }
-
-    pub fn set_data(&mut self, data: Option<Vec<Data>>) {
-        self.data = data
     }
 }

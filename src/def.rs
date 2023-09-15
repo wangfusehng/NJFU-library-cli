@@ -116,7 +116,7 @@ lazy_static! {
         map.insert("8A515", 100504109);
         map
     };
-    pub static ref CLIENT: reqwest::blocking::Client = {
+    pub static ref CLIENT: reqwest::Client = {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(
                 reqwest::header::USER_AGENT,
@@ -131,7 +131,7 @@ lazy_static! {
 
         let data = config::load_config_from_file()
             .unwrap()
-            .data()
+            .data
             .clone()
             .unwrap();
 
@@ -142,10 +142,10 @@ lazy_static! {
 
         headers.insert(
             reqwest::header::COOKIE,
-            format!("ic-cookie={}", config.cookie()).parse().unwrap(),
+            format!("ic-cookie={}", config.cookie).parse().unwrap(),
         );
 
-        reqwest::blocking::ClientBuilder::new()
+        reqwest::ClientBuilder::new()
             .cookie_store(true)
             .default_headers(headers)
             .build()

@@ -6,11 +6,11 @@ use serde::{Deserialize, Serialize};
 /// # Floor information
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Floor {
-    room_id: u32,
-    room_name: String,
-    dev_start: u32,
-    dev_end: u32,
-    site_num: u32,
+    pub room_id: u32,
+    pub room_name: String,
+    pub dev_start: u32,
+    pub dev_end: u32,
+    pub site_num: u32,
 }
 
 impl std::fmt::Display for Floor {
@@ -41,31 +41,11 @@ impl Floor {
             site_num,
         }
     }
-
-    pub fn room_id(&self) -> u32 {
-        self.room_id
-    }
-
-    pub fn room_name(&self) -> &str {
-        &self.room_name
-    }
-
-    pub fn dev_start(&self) -> u32 {
-        self.dev_start
-    }
-
-    pub fn dev_end(&self) -> u32 {
-        self.dev_end
-    }
-
-    pub fn site_num(&self) -> u32 {
-        self.site_num
-    }
 }
 
 pub fn get_floor_by_room_id(room_id: u32) -> Result<Floor> {
     for floor in def::FLOORS.iter() {
-        if floor.room_id() == room_id {
+        if floor.room_id == room_id {
             return Ok(floor.clone());
         }
     }
@@ -74,7 +54,7 @@ pub fn get_floor_by_room_id(room_id: u32) -> Result<Floor> {
 
 pub fn get_floor_by_room_name(room_name: &str) -> Result<Floor> {
     for floor in def::FLOORS.iter() {
-        if floor.room_name() == room_name {
+        if floor.room_name == room_name {
             return Ok(floor.clone());
         }
     }

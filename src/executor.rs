@@ -12,7 +12,7 @@ use indicatif::{ProgressBar, ProgressStyle};
 use std::collections::HashMap;
 use std::time::Duration;
 
-pub fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) -> Result<Resp> {
+pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) -> Result<Resp> {
     let date = time::get_date_with_offset("%Y%m%d", day as i32);
 
     let pb = ProgressBar::new_spinner();
@@ -30,19 +30,19 @@ pub fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) -> Res
 
     for (pos, floor) in filter.iter().enumerate() {
         pb.set_prefix(format!("[{}/{}]", pos, total));
-        pb.set_message(floor.room_name().to_string());
+        pb.set_message(floor.room_name.to_string());
 
-        let room_id = floor.room_id().to_string();
+        let room_id = floor.room_id.to_string();
         let url = format!(
             "{}?roomIds={}&resvDates={}&sysKind=8",
             def::QUERY_URL,
             room_id,
             date
         );
-        let resp = def::CLIENT.get(url).send()?.json::<Resp>()?;
-        match query::get_name_info(resp, name.clone()) {
+        let resp = def::CLIENT.get(url).send().await?.json::<Resp>().await?;
+        match query::get_name_info(resp, name.clone()).await {
             Ok(ret) => {
-                if ret.code() == 0 {
+                if ret.code == 0 {
                     pb.finish_and_clear();
                     return Ok(ret);
                 } else {
@@ -57,11 +57,11 @@ pub fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) -> Res
     Err(anyhow!("no user can be found"))
 }
 
-pub fn query_by_site(day: u32, site: String) -> Result<Resp> {
+pub async fn query_by_site(day: u32, site: String) -> Result<Resp> {
     let floor = site_name_to_floor(site.clone())?;
-    let room_id = floor.room_id().to_string();
+    let room_id = floor.room_id.to_string();
     let site_id = site_name_to_id(site.clone())?;
-    let site_index = site_id - floor.dev_start() + 1;
+    let site_index = site_id - floor.dev_start + 1;
     let date = time::get_date_with_offset("%Y%m%d", day as i32);
 
     let url = format!(
@@ -70,18 +70,18 @@ pub fn query_by_site(day: u32, site: String) -> Result<Resp> {
         room_id,
         date
     );
-    let resp = def::CLIENT.get(url).send()?.json::<Resp>()?;
-    query::get_site_info(resp, site_index)
+    let resp = def::CLIENT.get(url).send().await?.json::<Resp>().await?;
+    query::get_site_info(resp, site_index).await
 }
 
 /// login to the server.
-pub fn login(username: String, password: String, cookie: String) -> Result<Resp> {
+pub async fn login(username: String, password: String, cookie: String) -> Result<Resp> {
     let config = Config::new(username, password, cookie, None);
     config::save_config_to_file(&config).context("save cookie failed")
 }
 
 /// query the user status.
-pub fn state(day: u32) -> Result<Resp> {
+pub async fn state(day: u32) -> Result<Resp> {
     let begin_date = time::get_date_with_offset("%Y-%m-%d", -(day as i32));
     let end_date = time::get_date_with_offset("%Y-%m-%d", 2);
     let url = format!(
@@ -90,36 +90,24 @@ pub fn state(day: u32) -> Result<Resp> {
         begin_date,
         end_date
     );
-    let mut ret = def::CLIENT.get(url).send()?.json::<Resp>()?;
-    let message = ret.message();
-
-    let new_message = format!(
-        "{}\n{}\n{}",
-        message,
-        def::LONG_LINE_SEPARATOR,
-        "  dev    status       start_time            end_time                    uuid"
-    );
-    ret.set_message(new_message);
-
-    let mut data = ret.data().clone().unwrap();
-    data.reverse();
-    ret.set_data(Some(data));
-    Ok(ret)
+    Ok(def::CLIENT.get(url).send().await?.json::<Resp>().await?)
 }
 
 /// cancel the reservation.
-pub fn cancel(uuid: String) -> Result<Resp> {
+pub async fn cancel(uuid: String) -> Result<Resp> {
     let mut body = HashMap::new();
     body.insert("uuid", uuid.as_str());
 
     Ok(def::CLIENT
         .post(def::CANCEL_URL)
         .json(&body)
-        .send()?
-        .json::<Resp>()?)
+        .send()
+        .await?
+        .json::<Resp>()
+        .await?)
 }
 
-pub fn reserve(
+pub async fn reserve(
     sites: Option<Vec<String>>,
     filter: Option<Vec<String>>,
     day: u32,
@@ -127,16 +115,16 @@ pub fn reserve(
     end: String,
     retry: u32,
 ) -> Result<Resp> {
-    let data = config::load_config_from_file()?.data().clone().unwrap();
+    let data = config::load_config_from_file()?.data.clone().unwrap();
     let config = match &data[0] {
         Data::Config(config) => config,
         _ => panic!("load config error"),
     };
-    let user = config.user().clone().unwrap();
-    let appacc_no = user.accno().parse::<u32>()?;
+    let user = config.user.clone().unwrap();
+    let appacc_no = user.accno.parse::<u32>()?;
     let filter: Vec<u32> = handle_filter(filter)?
         .into_iter()
-        .map(|x| x.room_id())
+        .map(|x| x.room_id)
         .collect();
 
     let sites = match sites {
@@ -170,10 +158,10 @@ pub fn reserve(
     for (index, &site) in sites.iter().enumerate() {
         pb.set_prefix(format!("[{}/{}]", index, total));
         // filter by floor
-        let ret = handle_reserve(site, appacc_no, day, start.clone(), end.clone());
+        let ret = handle_reserve(site, appacc_no, day, start.clone(), end.clone()).await;
         match ret {
             Ok(ret) => {
-                if ret.code() == 0 {
+                if ret.code == 0 {
                     pb.finish_and_clear();
                     return Ok(ret);
                 } else {
@@ -187,7 +175,7 @@ pub fn reserve(
     Ok(Resp::new(0, "no site can be reserved".to_string(), None))
 }
 
-fn handle_reserve(
+async fn handle_reserve(
     site_id: u32,
     appacc_no: u32,
     day: u32,
@@ -210,8 +198,10 @@ fn handle_reserve(
     let resp = def::CLIENT
         .post(def::RESERVE_URL)
         .json(&data)
-        .send()?
-        .json::<serde_json::Value>()?;
+        .send()
+        .await?
+        .json::<serde_json::Value>()
+        .await?;
     let code = resp["code"].as_u64().unwrap() as u32;
     let message = resp["message"].as_str().unwrap();
     Ok(Resp::new(code, message.to_string(), None))

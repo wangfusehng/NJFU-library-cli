@@ -10,11 +10,12 @@ use crate::cli::opt::Opt;
 use anyhow::Result;
 use structopt::StructOpt;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     // Get the command-line arguments.
     let Opt { action } = Opt::from_args();
 
-    match core::handle_action(action) {
+    match core::handle_action(action).await {
         Ok(resp) => {
             #[cfg(debug_assertions)]
             println!("{:#?}", resp);

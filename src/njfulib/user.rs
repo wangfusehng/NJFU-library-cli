@@ -7,12 +7,12 @@ use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct User {
-    id: String,
-    accno: String,
-    name: String,
-    phone: String,
-    email: String,
-    dept: String,
+    pub id: String,
+    pub accno: String,
+    pub name: String,
+    pub phone: String,
+    pub email: String,
+    pub dept: String,
 }
 
 impl std::fmt::Display for User {
@@ -39,36 +39,12 @@ impl User {
             dept: String::new(),
         }
     }
-
-    pub fn id(&self) -> &String {
-        &self.id
-    }
-
-    pub fn accno(&self) -> &String {
-        &self.accno
-    }
-
-    pub fn name(&self) -> &String {
-        &self.name
-    }
-
-    pub fn phone(&self) -> &String {
-        &self.phone
-    }
-
-    pub fn email(&self) -> &String {
-        &self.email
-    }
-
-    pub fn dept(&self) -> &String {
-        &self.dept
-    }
 }
 
 pub fn search_user_info(config: &Config) -> Result<User> {
     let mut form = HashMap::new();
-    form.insert("id", config.username());
-    form.insert("pwd", config.password());
+    form.insert("id", config.username.as_str());
+    form.insert("pwd", config.password.as_str());
     form.insert("act", "login");
     let resp = def::OLD_CLIENT
         .post(def::USER_INFO_URL)
