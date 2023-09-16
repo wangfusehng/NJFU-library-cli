@@ -6,8 +6,6 @@ use anyhow::{anyhow, Result};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-/// # Site struct
-/// Site struct is used to store the information of the site.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Site {
     #[serde(rename = "devId")]
@@ -25,8 +23,8 @@ pub struct Site {
 pub struct ResvInfo {
     #[serde(rename = "resvId")]
     pub resv_id: u32,
-    #[serde(rename = "resvName", skip)]
-    pub resv_name: String,
+    #[serde(rename = "trueName")]
+    pub true_name: Option<String>,
     #[serde(rename = "startTime")]
     pub start_time: u64,
     #[serde(rename = "endTime")]
@@ -40,7 +38,7 @@ pub struct ResvInfo {
 impl std::fmt::Display for ResvInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "       dev: {}", site_id_to_name(self.dev_id).unwrap())?;
-        writeln!(f, "  resvName: {}", self.resv_name)?;
+        writeln!(f, "  resvName: {}", self.true_name.as_ref().unwrap())?;
         writeln!(
             f,
             " startTime: {}",

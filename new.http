@@ -2,7 +2,7 @@
 @port = 443
 @host = {{hostname}}:{{port}}
 @contentType = application/json
-@cookie = 103de199-0f67-486a-ad42-4b939c403eb2
+@cookie = eb5b0765-9b61-423c-ae39-20c86415e294
 
 ### credit
 GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus
@@ -26,7 +26,7 @@ Cookie: ic-cookie={{cookie}}
 }
 
 ### 每层楼
-GET https://libseat.njfu.edu.cn/ic-web/reserve?roomIds=100455350&resvDates=20230913&sysKind=8
+GET https://libseat.njfu.edu.cn/ic-web/reserve?roomIds=100455350&resvDates=20230916&sysKind=8
 Cookie: ic-cookie={{cookie}}
 
 ### 预约

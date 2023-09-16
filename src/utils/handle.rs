@@ -10,28 +10,20 @@ pub async fn get_name_info(resp: Resp, query_name: String) -> Result<Resp> {
         return Err(anyhow!(RespError::Unknown(resp.message)));
     }
     let message = resp.message;
-    let datas = resp.data.clone().unwrap();
-    for data in datas {
-        let devs = match data {
-            Data::Site(site) => match site.resv_info {
-                Some(devs) => devs.clone(),
+    let datas = resp.data.unwrap();
+    for mut data in datas {
+        let resv_infos = match &mut data {
+            Data::Site(site) => match &mut site.resv_info {
+                Some(resv_infos) => resv_infos,
                 None => continue,
             },
             _ => panic!("no site info in response"),
         };
-        for dev in devs {
-            let resv_id = dev.resv_id;
-            let data = account::get_account_by_resv_id(resv_id)
-                .await?
-                .data
-                .clone()
-                .unwrap();
-            let sign_rec = match data[0].clone() {
-                Data::SignRec(sign_rec) => sign_rec,
-                _ => panic!("no sign record"),
-            };
-            if sign_rec.true_name == query_name {
-                let data = Data::SignRec(sign_rec);
+        for resv_info in resv_infos {
+            let resv_id = resv_info.resv_id;
+            let true_name = account::get_name_by_resv_id(resv_id).await?;
+            if true_name == query_name {
+                resv_info.true_name = Some(true_name);
                 return Ok(Resp::new(0, message.to_string(), Some(vec![data])));
             }
         }
@@ -43,21 +35,26 @@ pub async fn get_site_info(resp: Resp, index: u32) -> Result<Resp> {
     if resp.code != 0 {
         return Err(anyhow!(RespError::Unknown(resp.message)));
     }
-    let data = resp.data.clone().unwrap();
-    let mut site = match data[index as usize - 1].clone() {
+    let data = &mut resp.data.unwrap()[index as usize - 1];
+    let site = match data {
         Data::Site(site) => site,
         _ => panic!("no site info in response"),
     };
-    let resv_id = site.resv_info.as_ref().unwrap()[0].resv_id.clone();
-    let resv_name = account::get_name_by_resv_id(resv_id).await.unwrap();
-    for item in site.resv_info.as_mut().unwrap().iter_mut() {
-        item.resv_name = resv_name.clone();
-    }
+    match &mut site.resv_info {
+        Some(resv_infos) => {
+            for resv_info in resv_infos.iter_mut() {
+                let resv_id = resv_info.resv_id;
+                let true_name = account::get_name_by_resv_id(resv_id).await?;
+                resv_info.true_name = Some(true_name);
+            }
+        }
+        _ => panic!("no site info in response"),
+    };
 
     Ok(Resp::new(
         0,
         resp.message.to_string(),
-        Some(vec![Data::Site(site.clone())]),
+        Some(vec![data.clone()]),
     ))
 }
 

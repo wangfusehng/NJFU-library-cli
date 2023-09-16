@@ -18,7 +18,7 @@ pub struct SignRec {
     #[serde(rename = "devId")]
     pub dev_id: u32,
     #[serde(rename = "roomId")]
-    pub oom_id: u32,
+    pub room_id: u32,
     #[serde(rename = "labId")]
     pub lab_id: u32,
     #[serde(rename = "createTime")]
