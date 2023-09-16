@@ -1,10 +1,12 @@
 use super::def;
+use crate::error::ReserveError;
 use crate::error::RespError;
 
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
 use crate::njfulib::site::*;
 use crate::utils::config::{self, Config};
+use crate::utils::handle::handle_reserve;
 use crate::utils::handle::{self, handle_status};
 use crate::utils::{filter::handle_filter, *};
 use anyhow::{anyhow, Context, Result};
@@ -158,25 +160,37 @@ pub async fn reserve(
     for &site in sites.iter() {
         pb.set_prefix(format!("[{}]", site_id_to_name(site)?));
         // filter by floor
-        let resp = handle_reserve(site, appacc_no, day, start.clone(), end.clone()).await;
+        let resp = site_reserve(site, appacc_no, day, start.clone(), end.clone()).await;
         match resp {
             Ok(ret) => {
-                if ret.code == 0 {
-                    pb.finish_and_clear();
-                    return Ok(ret);
-                } else {
-                    pb.set_message(ret.message);
-                    continue;
-                }
+                pb.finish_and_clear();
+                return Ok(ret);
             }
-            Err(_) => continue,
+            Err(e) => match e.downcast_ref::<RespError>().unwrap() {
+                RespError::Reserve(err) => match err {
+                    ReserveError::SiteAlreadReserved => {
+                        pb.set_message(e.to_string());
+                        continue;
+                    }
+                    ReserveError::Unknown(_) => {
+                        pb.finish_and_clear();
+                        return Err(e);
+                    }
+                },
+                _ => {
+                    pb.finish_and_clear();
+                    return Err(e);
+                }
+            },
         }
     }
     pb.finish_and_clear();
-    Err(anyhow!(RespError::Nodata))
+    Err(anyhow!(RespError::Reserve(ReserveError::Unknown(
+        "no site reserve success".to_owned()
+    ))))
 }
 
-async fn handle_reserve(
+async fn site_reserve(
     site_id: u32,
     appacc_no: u32,
     day: u32,
@@ -196,11 +210,17 @@ async fn handle_reserve(
         "resvDev": [ site_id ],
     });
 
-    Ok(def::CLIENT
+    let ret = def::CLIENT
         .post(def::RESERVE_URL)
         .json(&data)
         .send()
         .await?
-        .json::<Resp>()
-        .await?)
+        .json::<serde_json::Value>()
+        .await?;
+
+    handle_reserve(Resp::new(
+        ret["code"].as_u64().unwrap() as u32,
+        ret["message"].as_str().unwrap().to_owned(),
+        None,
+    ))
 }

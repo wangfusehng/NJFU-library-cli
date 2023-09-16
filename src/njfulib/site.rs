@@ -25,6 +25,8 @@ pub struct ResvInfo {
     pub resv_id: u32,
     #[serde(rename = "trueName")]
     pub true_name: Option<String>,
+    #[serde(rename = "logonName")]
+    pub logon_name: Option<String>,
     #[serde(rename = "startTime")]
     pub start_time: u64,
     #[serde(rename = "endTime")]
@@ -38,6 +40,7 @@ pub struct ResvInfo {
 impl std::fmt::Display for ResvInfo {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "       dev: {}", site_id_to_name(self.dev_id).unwrap())?;
+        writeln!(f, "      card: {}", self.logon_name.as_ref().unwrap())?;
         writeln!(f, "  resvName: {}", self.true_name.as_ref().unwrap())?;
         writeln!(
             f,

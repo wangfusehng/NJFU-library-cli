@@ -1,4 +1,5 @@
 use super::account;
+use crate::error::ReserveError;
 use crate::error::RespError;
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
@@ -21,9 +22,10 @@ pub async fn get_name_info(resp: Resp, query_name: String) -> Result<Resp> {
         };
         for resv_info in resv_infos {
             let resv_id = resv_info.resv_id;
-            let true_name = account::get_name_by_resv_id(resv_id).await?;
+            let (true_name, logon_name) = account::get_name_by_resv_id(resv_id).await?;
             if true_name == query_name {
                 resv_info.true_name = Some(true_name);
+                resv_info.logon_name = Some(logon_name);
                 return Ok(Resp::new(0, message.to_string(), Some(vec![data])));
             }
         }
@@ -44,8 +46,9 @@ pub async fn get_site_info(resp: Resp, index: u32) -> Result<Resp> {
         Some(resv_infos) => {
             for resv_info in resv_infos.iter_mut() {
                 let resv_id = resv_info.resv_id;
-                let true_name = account::get_name_by_resv_id(resv_id).await?;
+                let (true_name, logon_name) = account::get_name_by_resv_id(resv_id).await?;
                 resv_info.true_name = Some(true_name);
+                resv_info.logon_name = Some(logon_name);
             }
         }
         _ => panic!("no site info in response"),
@@ -65,4 +68,19 @@ pub fn handle_status(resp: Resp) -> Result<Resp> {
     let mut new_data = resp.data.clone().unwrap();
     new_data.reverse();
     Ok(Resp::new(resp.code, resp.message, Some(new_data)))
+}
+
+pub fn handle_reserve(resp: Resp) -> Result<Resp> {
+    if resp.code != 0 {
+        if resp.message.contains("设备在该时间段内已被预约") {
+            return Err(anyhow!(RespError::Reserve(
+                ReserveError::SiteAlreadReserved
+            )));
+        } else {
+            return Err(anyhow!(RespError::Reserve(ReserveError::Unknown(
+                resp.message
+            ))));
+        }
+    }
+    Ok(resp)
 }

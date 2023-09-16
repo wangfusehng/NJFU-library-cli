@@ -13,9 +13,19 @@ pub enum ClientError {
 }
 
 #[derive(Error, Debug)]
+pub enum ReserveError {
+    #[error("the site has been reserved")]
+    SiteAlreadReserved,
+    #[error("{0}")]
+    Unknown(String),
+}
+
+#[derive(Error, Debug)]
 pub enum RespError {
-    #[error("no data in response")]
+    #[error("[no data from response]")]
     Nodata,
-    #[error("unknown error: {0}")]
+    #[error("[reserve error] {0}")]
+    Reserve(ReserveError),
+    #[error("[unknown error] {0}")]
     Unknown(String),
 }
