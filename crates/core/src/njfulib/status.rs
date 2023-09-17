@@ -20,7 +20,7 @@ impl std::fmt::Display for SiteInfo {
 
 /// Status struct
 #[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Resv {
+pub struct Status {
     pub uuid: String,
     #[serde(rename = "resvId")]
     pub resv_id: u32,
@@ -36,7 +36,7 @@ pub struct Resv {
     pub resv_dev_info_list: Option<Vec<SiteInfo>>,
 }
 
-impl std::fmt::Display for Resv {
+impl std::fmt::Display for Status {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(devs) = &self.resv_dev_info_list {
             for dev in devs {

@@ -27,9 +27,7 @@ NJFU-library-cli 是使用rust编写的实现图书馆登录,查询,预约,取�
 - if you use scoop
 
 ```ps1
-scoop bucket add jyf-scoop-self https://github.com/jyf-111/scoop-self
-scoop update
-scoop install njfulib
+scoop install "https://raw.githubusercontent.com/jyf-111/NJFU-library-cli/main/njfulib.json"
 ```
 
 ### Build from source
@@ -46,11 +44,11 @@ cd target/release
 
 ```bash
 njfulib login -u <username> -p <password> -c <cookie>
-njfulib query -n <name>
-njfulib query -n <site>
+njfulib query -n <name> [-f <filter>]
+njfulib query -s <site>
 njfulib statue
-njfulib reserve [-s <site>...] [-f <floor>...] --start <start time> --end <end time> -r 30
+njfulib reserve [-s <site> ...] [-f <filter> ...] [-d <day>]--start <start time> --end <end time> -r 30
 njfulib cancel -u <uuid>
 ```
 
-[具体参数解释](https://github.com/jyf-111/NJFU-library-cli/wiki/参数解释)
+see also: [具体参数解释](https://github.com/jyf-111/NJFU-library-cli/wiki/)

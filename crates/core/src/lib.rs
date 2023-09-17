@@ -1,4 +1,10 @@
-use super::def;
+#[allow(dead_code)]
+mod def;
+mod utils;
+
+pub mod error;
+pub mod njfulib;
+
 use crate::error::ReserveError;
 use crate::error::RespError;
 
@@ -83,7 +89,7 @@ pub async fn query_by_site(day: u32, site: String) -> Result<Resp> {
     handle::get_site_info(resp, site_index).await
 }
 
-pub async fn state(day: u32) -> Result<Resp> {
+pub async fn status(day: u32) -> Result<Resp> {
     let begin_date = time::get_date_with_offset("%Y-%m-%d", -(day as i32));
     let end_date = time::get_date_with_offset("%Y-%m-%d", 2);
     let url = format!(

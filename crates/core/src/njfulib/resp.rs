@@ -1,13 +1,13 @@
-use super::resv::Resv;
 use super::sign_rec::SignRec;
 use super::site::Site;
+use super::status::Status;
 use crate::utils::config::Config;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum Data {
-    Resv(Resv),
+    Status(Status),
     Site(Site),
     SignRec(SignRec),
     Config(Config),
@@ -23,7 +23,7 @@ pub struct Resp {
 impl std::fmt::Display for Data {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Data::Resv(resv) => write!(f, "{}", resv),
+            Data::Status(resv) => write!(f, "{}", resv),
             Data::Site(site) => write!(f, "{}", site),
             Data::SignRec(sign_rec) => write!(f, "{}", sign_rec),
             Data::Config(config) => write!(f, "{}", config),

@@ -1,0 +1,25 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2021"
+authors = ["Jiang YuFeng <jyf.work@outlook.com>"]
+description = "A command line tool connect NJFU library"
+documentation = "https://github.com/jyf-111/NJFU-library-cli/wiki"
+readme = "README.md"
+repository = "https://github.com/jyf-111/NJFU-library-cli"
+license = "MIT"
+keywords = ["njfu","njfulib"]
+categories = ["command-line-utilities"]
+publish = false
+
+[[bin]]
+bench = false
+path = "src/main.rs"
+name = "njfulib"
+
+[dependencies]
+core = { path = "../core" }
+
+structopt = "0.3"
+tokio = { version = "1", features = ["full"] }
+anyhow = { version = "1" }

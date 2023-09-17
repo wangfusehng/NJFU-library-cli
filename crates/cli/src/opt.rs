@@ -5,7 +5,7 @@ use structopt::StructOpt;
 #[derive(StructOpt)]
 #[structopt(
     name = "NJFU-library-cli",
-    long_about = "A command line connect NJFU library written in Rust",
+    long_about = "A command line tool connect NJFU library written in Rust",
     after_help = r##"EXAMPLES:
     njfulib login -u <username> -p <password> -c <cookie>
     njfulib query -n <name> [-f <filter>]

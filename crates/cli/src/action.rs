@@ -1,4 +1,4 @@
-use crate::cli::reserve::Reserve;
+use super::reserve::Reserve;
 use structopt::StructOpt;
 
 ///Command line arguments

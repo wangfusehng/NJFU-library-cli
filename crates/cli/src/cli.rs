@@ -1,9 +1,8 @@
-use crate::cli::action::Action::{self, *};
-use crate::cli::reserve::Reserve;
-use crate::error::ClientError;
-use crate::executor::*;
-use crate::njfulib::resp::Resp;
+use super::action::Action::{self, *};
+use super::reserve::Reserve;
 use anyhow::{anyhow, Result};
+use core::error::ClientError;
+use core::njfulib::resp::Resp;
 
 pub async fn handle_action(action: Action) -> Result<Resp> {
     // Perform the action.
@@ -12,9 +11,9 @@ pub async fn handle_action(action: Action) -> Result<Resp> {
             username,
             password,
             cookie,
-        } => login(username, password, cookie).await,
+        } => core::login(username, password, cookie).await,
 
-        Status { day } => state(day).await,
+        Status { day } => core::status(day).await,
 
         Query {
             day,
@@ -23,9 +22,9 @@ pub async fn handle_action(action: Action) -> Result<Resp> {
             filter,
         } => {
             if let Some(name) = name {
-                query_by_name(day, name, filter).await
+                core::query_by_name(day, name, filter).await
             } else if let Some(site) = site {
-                query_by_site(day, site).await
+                core::query_by_site(day, site).await
             } else {
                 Err(anyhow!(ClientError::InputError(
                     "no query name or site".to_string()
@@ -33,7 +32,7 @@ pub async fn handle_action(action: Action) -> Result<Resp> {
             }
         }
 
-        Cancel { uuid } => cancel(uuid).await,
+        Cancel { uuid } => core::cancel(uuid).await,
 
         Reserve(Reserve {
             sites,
@@ -42,6 +41,6 @@ pub async fn handle_action(action: Action) -> Result<Resp> {
             start,
             end,
             retry,
-        }) => reserve(sites, filter, day, start, end, retry).await,
+        }) => core::reserve(sites, filter, day, start, end, retry).await,
     }
 }

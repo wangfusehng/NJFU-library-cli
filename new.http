@@ -47,3 +47,53 @@ content-length: 0
         100455621
     ]
 }
+
+###
+GET http://libseat.njfu.edu.cn/scancode.html#/login?sta=1&sysid=1cv&lab=100455331&type=1&dev=100455513&unionid=o8qflt_pthjqtpicujcsyhqm6fj4
+
+###
+POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/login
+content-type: {{contentType}}
+
+{
+    "devSn":"100455513",
+    "unionId":"o8QfLt_PTHjQtPIcUjcSYhQM6FJ4",
+    "type":"1",
+    "bind":0
+}
+
+###
+POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/templeave
+content-type: {{contentType}}
+
+{
+    "resvId": 143950297,
+}
+
+###
+POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/comeback
+content-type: {{contentType}}
+
+{
+    "resvId": 143950297,
+}
+
+###
+POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/quit
+content-type: {{contentType}}
+
+{
+    "resvId": 143950297,
+}
+
+###
+GET https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/duration
+content-type: {{contentType}}
+
+https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/reserve
+{
+    "duration":376
+}
+
+###
+GET https://libseat.njfu.edu.cn/ic-web/resvdesk/log?logstring=resvid:143950297,resvname:%e8%92%8b%e9%9b%a8%e5%b3%b0,resvbegintime:1694561400000,resvendtime:1694613600000,resvruleid:1,resvstatus:1093
