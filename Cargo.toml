@@ -3,3 +3,8 @@ members = [
     "crates/core",
     "crates/cli",
 ]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+authors = ["Jiang YuFeng <jyf.work@outlook.com>"]

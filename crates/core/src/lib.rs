@@ -11,6 +11,7 @@ use crate::error::RespError;
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
 use crate::njfulib::site::*;
+use crate::njfulib::status::Status;
 use crate::utils::config::{self, Config};
 use crate::utils::handle::handle_reserve;
 use crate::utils::handle::{self, handle_status};
@@ -224,9 +225,11 @@ async fn site_reserve(
         .json::<serde_json::Value>()
         .await?;
 
+    let data: Status = serde_json::from_value(ret["data"].clone())?;
+
     handle_reserve(Resp::new(
         ret["code"].as_u64().unwrap() as u32,
         ret["message"].as_str().unwrap().to_owned(),
-        None,
+        Some(vec![Data::Status(data)]),
     ))
 }

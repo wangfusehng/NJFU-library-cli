@@ -67,7 +67,9 @@ pub fn handle_status(resp: Resp) -> Result<Resp> {
     }
     let mut new_data = resp.data.clone().unwrap();
     new_data.reverse();
-    Ok(Resp::new(resp.code, resp.message, Some(new_data)))
+    let new_message = resp.message
+        + "\n  dev    status           begin                 end                       uuid";
+    Ok(Resp::new(resp.code, new_message, Some(new_data)))
 }
 
 pub fn handle_reserve(resp: Resp) -> Result<Resp> {
