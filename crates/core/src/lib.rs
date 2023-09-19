@@ -11,7 +11,6 @@ use crate::error::RespError;
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
 use crate::njfulib::site::*;
-use crate::njfulib::status::Status;
 use crate::utils::config::{self, Config};
 use crate::utils::handle::handle_reserve;
 use crate::utils::handle::{self, handle_status};
@@ -20,6 +19,7 @@ use anyhow::{anyhow, Context, Result};
 
 use indicatif::{ProgressBar, ProgressStyle};
 
+use futures::future::join_all;
 use std::collections::HashMap;
 use std::time::Duration;
 
@@ -29,48 +29,76 @@ pub async fn login(username: String, password: String, cookie: String) -> Result
 }
 
 pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) -> Result<Resp> {
-    let date = time::get_date_with_offset("%Y%m%d", day as i32);
-
-    let pb = ProgressBar::new_spinner();
-    pb.enable_steady_tick(Duration::from_millis(100));
-    pb.set_style(
-        ProgressStyle::with_template(
-            "{spinner:.dim.bold} {prefix:.bold.dim} query floor: {wide_msg}",
-        )
-        .context("Failed to set progress bar style.")?
-        .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ "),
-    );
-
-    let filter = filter::handle_filter(filter)?;
-    let total = filter.len();
-
-    for (pos, floor) in filter.iter().enumerate() {
-        pb.set_prefix(format!("[{}/{}]", pos, total));
-        pb.set_message(floor.room_name.to_string());
-
-        let room_id = floor.room_id.to_string();
-        let url = format!(
-            "{}?roomIds={}&resvDates={}&sysKind=8",
-            def::QUERY_URL,
-            room_id,
-            date
-        );
-        let resp = def::CLIENT.get(url).send().await?.json::<Resp>().await?;
-        match handle::get_name_info(resp, name.clone()).await {
-            Ok(ret) => {
-                if ret.code == 0 {
-                    pb.finish_and_clear();
-                    return Ok(ret);
-                } else {
-                    continue;
-                }
-            }
-            Err(_) => continue,
-        }
+    // ulimit
+    #[cfg(target_os = "linux")]
+    {
+        use rlimit::{setrlimit, Resource};
+        let soft = 16384;
+        let hard = soft * 2;
+        setrlimit(Resource::NOFILE, soft, hard).unwrap();
     }
 
-    pb.finish_and_clear();
-    Err(anyhow!(RespError::Nodata))
+    // query tasks
+    let tasks = filter::handle_filter(filter)?
+        .into_iter()
+        .map(|floor| -> String {
+            format!(
+                "{}?roomIds={}&resvDates={}&sysKind=8",
+                def::QUERY_URL,
+                floor.room_id.to_string(),
+                time::get_date_with_offset("%Y%m%d", day as i32)
+            )
+        })
+        .map(|url| def::CLIENT.get(url).send())
+        .collect::<Vec<_>>();
+
+    // handle resp tasks
+    let tasks = join_all(tasks)
+        .await
+        .into_iter()
+        .try_fold(vec![], |mut acc, resp| match resp {
+            Ok(value) => {
+                acc.push(value.json::<Resp>());
+                Ok(acc)
+            }
+            Err(e) => Err(e),
+        })?;
+
+    // query name info by resv_id in resp
+    let tasks = join_all(tasks)
+        .await
+        .into_iter()
+        .try_fold(vec![], |mut acc, resp| match resp {
+            Ok(resp) => {
+                acc.push(handle::get_name_info(resp, name.clone()));
+                Ok(acc)
+            }
+            Err(e) => Err(e),
+        })?;
+
+    let mut message = String::new();
+    let data = join_all(tasks)
+        .await
+        .into_iter()
+        .try_fold(vec![], |mut acc, resp| match resp {
+            Ok(resp) => {
+                if resp.code == 0 {
+                    message = resp.message;
+                    acc.push(resp.data.unwrap()[0].clone());
+                }
+                Ok(acc)
+            }
+            Err(e) => match e.downcast_ref::<RespError>() {
+                Some(RespError::Nodata) => Ok(acc),
+                _ => return Err(e),
+            },
+        })?;
+
+    if data.len() > 0 {
+        Ok(Resp::new(0, message, Some(data)))
+    } else {
+        Err(anyhow!(RespError::Nodata))
+    }
 }
 
 pub async fn query_by_site(day: u32, site: String) -> Result<Resp> {
@@ -225,11 +253,12 @@ async fn site_reserve(
         .json::<serde_json::Value>()
         .await?;
 
-    let data: Status = serde_json::from_value(ret["data"].clone())?;
+    let code = ret["code"].as_u64().unwrap() as u32;
+    let message = ret["message"].as_str().unwrap().to_owned();
+    let data = match serde_json::from_value(ret["data"].clone()) {
+        Ok(data) => Some(vec![Data::Status(data)]),
+        Err(_) => None,
+    };
 
-    handle_reserve(Resp::new(
-        ret["code"].as_u64().unwrap() as u32,
-        ret["message"].as_str().unwrap().to_owned(),
-        Some(vec![Data::Status(data)]),
-    ))
+    handle_reserve(Resp::new(code, message, data))
 }

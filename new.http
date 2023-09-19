@@ -2,7 +2,7 @@
 @port = 443
 @host = {{hostname}}:{{port}}
 @contentType = application/json
-@cookie = eb5b0765-9b61-423c-ae39-20c86415e294
+@cookie = f48ffbc5-6fce-4293-94a3-5d9228ddba3d
 
 ### credit
 GET https://libseat.njfu.edu.cn/ic-web/creditPunishRec/surPlus
@@ -13,7 +13,7 @@ GET https://libseat.njfu.edu.cn/ic-web/reserve/resvInfo?beginDate=2023-09-10&end
 Cookie: ic-cookie={{cookie}}
 
 ### resvId查询account
-GET https://libseat.njfu.edu.cn/ic-web/reserve/getSignRec?resvId=143943737
+GET https://libseat.njfu.edu.cn/ic-web/reserve/getSignRec?resvId=143967878
 Cookie: ic-cookie={{cookie}}
 
 ### 删除
@@ -51,18 +51,18 @@ content-length: 0
 ###
 GET http://libseat.njfu.edu.cn/scancode.html#/login?sta=1&sysid=1cv&lab=100455331&type=1&dev=100455513&unionid=o8qflt_pthjqtpicujcsyhqm6fj4
 
-###
+### phone login
 POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/login
 content-type: {{contentType}}
 
 {
-    "devSn":"100455513",
+    "devSn":"100500675",
     "unionId":"o8QfLt_PTHjQtPIcUjcSYhQM6FJ4",
     "type":"1",
     "bind":0
 }
 
-###
+### leave
 POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/templeave
 content-type: {{contentType}}
 
@@ -70,7 +70,7 @@ content-type: {{contentType}}
     "resvId": 143950297,
 }
 
-###
+### bash
 POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/comeback
 content-type: {{contentType}}
 
@@ -78,7 +78,7 @@ content-type: {{contentType}}
     "resvId": 143950297,
 }
 
-###
+### quit
 POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/quit
 content-type: {{contentType}}
 
@@ -90,7 +90,10 @@ content-type: {{contentType}}
 GET https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/duration
 content-type: {{contentType}}
 
-https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/reserve
+###
+POST https://libseat.njfu.edu.cn/ic-web/phoneSeatReserve/reserve
+content-type: {{contentType}}
+
 {
     "duration":376
 }

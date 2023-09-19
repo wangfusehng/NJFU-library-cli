@@ -28,4 +28,6 @@ pub enum RespError {
     Reserve(ReserveError),
     #[error("[unknown error] {0}")]
     Unknown(String),
+    #[error("[http error] {0}")]
+    Reqwest(#[from] reqwest::Error),
 }

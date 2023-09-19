@@ -1,36 +1,80 @@
-use super::account;
+use crate::def;
 use crate::error::ReserveError;
 use crate::error::RespError;
 use crate::njfulib::resp::Data;
 use crate::njfulib::resp::Resp;
 use anyhow::anyhow;
 use anyhow::Result;
+use futures::future::join_all;
+
+pub fn get_resv_task(
+    resv_id: u32,
+) -> impl std::future::Future<Output = std::result::Result<reqwest::Response, reqwest::Error>> {
+    let url = format!("{}?resvId={}", def::SEARCHACCOUNT_URL, resv_id);
+    def::CLIENT.get(url).send()
+}
 
 pub async fn get_name_info(resp: Resp, query_name: String) -> Result<Resp> {
     if resp.code != 0 {
         return Err(anyhow!(RespError::Unknown(resp.message)));
     }
-    let message = resp.message;
-    let datas = resp.data.unwrap();
-    for mut data in datas {
-        let resv_infos = match &mut data {
-            Data::Site(site) => match &mut site.resv_info {
-                Some(resv_infos) => resv_infos,
-                None => continue,
+
+    // generate query tasks
+    let mut resv_tasks = vec![];
+    resp.data.unwrap().into_iter().for_each(|data| {
+        match data {
+            Data::Site(site) => match site.resv_info {
+                Some(resv_infos) => {
+                    resv_tasks.extend(
+                        resv_infos
+                            .into_iter()
+                            .map(|resv_info| get_resv_task(resv_info.resv_id)),
+                    );
+                }
+                None => panic!("no site info in response"),
             },
             _ => panic!("no site info in response"),
         };
-        for resv_info in resv_infos {
-            let resv_id = resv_info.resv_id;
-            let (true_name, logon_name) = account::get_name_by_resv_id(resv_id).await?;
-            if true_name == query_name {
-                resv_info.true_name = Some(true_name);
-                resv_info.logon_name = Some(logon_name);
-                return Ok(Resp::new(0, message.to_string(), Some(vec![data])));
+    });
+
+    // query by resv_id
+    let resp_tasks = join_all(resv_tasks)
+        .await
+        .into_iter()
+        .try_fold(vec![], |mut acc, resp| match resp {
+            Ok(resp) => {
+                acc.push(resp.json::<Resp>());
+                Ok(acc)
             }
-        }
+            Err(e) => return Err(anyhow!(e)),
+        })?;
+
+    // handle resp
+    let ret_data = join_all(resp_tasks)
+        .await
+        .into_iter()
+        .try_fold(vec![], |mut acc, item| match item {
+            Ok(resp) => {
+                if resp.code == 0 {
+                    match &resp.data.clone().unwrap()[0] {
+                        Data::SignRec(sign_rec) => {
+                            if sign_rec.true_name == query_name {
+                                acc.push(Data::SignRec(sign_rec.clone()));
+                            }
+                        }
+                        _ => panic!("no account info in response"),
+                    };
+                }
+                Ok(acc)
+            }
+            Err(e) => return Err(anyhow!(e)),
+        })?;
+
+    if ret_data.len() > 0 {
+        return Ok(Resp::new(0, resp.message, Some(ret_data)));
+    } else {
+        Err(anyhow!(RespError::Nodata))
     }
-    Err(anyhow!(RespError::Nodata))
 }
 
 pub async fn get_site_info(resp: Resp, index: u32) -> Result<Resp> {
@@ -46,19 +90,13 @@ pub async fn get_site_info(resp: Resp, index: u32) -> Result<Resp> {
         Some(resv_infos) => {
             for resv_info in resv_infos.iter_mut() {
                 let resv_id = resv_info.resv_id;
-                let (true_name, logon_name) = account::get_name_by_resv_id(resv_id).await?;
-                resv_info.true_name = Some(true_name);
-                resv_info.logon_name = Some(logon_name);
+                return Ok(get_resv_task(resv_id).await?.json::<Resp>().await?);
             }
         }
         _ => panic!("no site info in response"),
     };
 
-    Ok(Resp::new(
-        0,
-        resp.message.to_string(),
-        Some(vec![data.clone()]),
-    ))
+    Err(anyhow!(RespError::Nodata))
 }
 
 pub fn handle_status(resp: Resp) -> Result<Resp> {
