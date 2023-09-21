@@ -16,6 +16,7 @@ use crate::utils::handle::handle_reserve;
 use crate::utils::handle::{self, handle_status};
 use crate::utils::{filter::handle_filter, *};
 use anyhow::{anyhow, Context, Result};
+use log::{info, warn};
 
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -25,6 +26,7 @@ use std::time::Duration;
 
 pub async fn login(username: String, password: String, cookie: String) -> Result<Resp> {
     let config = Config::new(username, password, cookie, None);
+    info!("save login config to {}", def::CONFIG_FILE);
     config::save_config_to_file(&config).await
 }
 
@@ -38,7 +40,6 @@ pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) 
         setrlimit(Resource::NOFILE, soft, hard).unwrap();
     }
 
-    // query tasks
     let tasks = filter::handle_filter(filter)?
         .into_iter()
         .map(|floor| -> String {
@@ -52,7 +53,7 @@ pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) 
         .map(|url| def::CLIENT.get(url).send())
         .collect::<Vec<_>>();
 
-    // handle resp tasks
+    info!("query floor tasks");
     let tasks = join_all(tasks)
         .await
         .into_iter()
@@ -64,7 +65,7 @@ pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) 
             Err(e) => Err(e),
         })?;
 
-    // query name info by resv_id in resp
+    info!("handle resp tasks");
     let tasks = join_all(tasks)
         .await
         .into_iter()
@@ -76,6 +77,7 @@ pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) 
             Err(e) => Err(e),
         })?;
 
+    info!("query name info by resv_id in resp tasks");
     let mut message = String::new();
     let data = join_all(tasks)
         .await
@@ -89,7 +91,10 @@ pub async fn query_by_name(day: u32, name: String, filter: Option<Vec<String>>) 
                 Ok(acc)
             }
             Err(e) => match e.downcast_ref::<RespError>() {
-                Some(RespError::Nodata) => Ok(acc),
+                Some(RespError::Nodata) => {
+                    warn!("{}", e);
+                    Ok(acc)
+                }
                 _ => return Err(e),
             },
         })?;
@@ -114,6 +119,7 @@ pub async fn query_by_site(day: u32, site: String) -> Result<Resp> {
         room_id,
         date
     );
+    info!("query floor tasks");
     let resp = def::CLIENT.get(url).send().await?.json::<Resp>().await?;
     handle::get_site_info(resp, site_index).await
 }
@@ -127,6 +133,7 @@ pub async fn status(day: u32) -> Result<Resp> {
         begin_date,
         end_date
     );
+    info!("query status tasks");
     handle_status(def::CLIENT.get(url).send().await?.json::<Resp>().await?)
 }
 
@@ -134,6 +141,7 @@ pub async fn cancel(uuid: String) -> Result<Resp> {
     let mut body = HashMap::new();
     body.insert("uuid", uuid.as_str());
 
+    info!("cancel tasks");
     Ok(def::CLIENT
         .post(def::CANCEL_URL)
         .json(&body)
@@ -194,7 +202,6 @@ pub async fn reserve(
 
     for &site in sites.iter() {
         pb.set_prefix(format!("[{}]", site_id_to_name(site)?));
-        // filter by floor
         let resp = site_reserve(site, appacc_no, day, start.clone(), end.clone()).await;
         match resp {
             Ok(ret) => {
@@ -245,6 +252,8 @@ async fn site_reserve(
         "resvDev": [ site_id ],
     });
 
+    info!("reserve site_id: {}", site_id);
+
     let ret = def::CLIENT
         .post(def::RESERVE_URL)
         .json(&data)
@@ -255,6 +264,7 @@ async fn site_reserve(
 
     let code = ret["code"].as_u64().unwrap() as u32;
     let message = ret["message"].as_str().unwrap().to_owned();
+    // NOTE: data is not a vec in response
     let data = match serde_json::from_value(ret["data"].clone()) {
         Ok(data) => Some(vec![Data::Status(data)]),
         Err(_) => None,
