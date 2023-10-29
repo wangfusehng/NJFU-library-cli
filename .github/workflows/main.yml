@@ -1,0 +1,53 @@
+  schedule:
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: njfu library auto reserve
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            override: true
+
+      - name: build
+        run: cargo build --release
+
+      # - name: openconnect
+      #   env:
+      #     username: ${{secrets.VPN_USERNAME}}
+      #     password: ${{secrets.VPN_PASSWORD}}
+      #     fingerprint: ${{secrets.FINGERPRINT}}
+      #   run: |
+      #     sudo apt install openconnect
+      #     echo $password | sudo openconnect ocvpn.njfu.edu.cn -b --servercert $fingerprint -u $username --passwd-on-stdin
+
+      - name: login
+        env:
+          NJFU_USERNAME: ${{secrets.NJFU_USERNAME}}
+          NJFU_PASSWORD: ${{secrets.NJFU_PASSWORD}}
+        run: cargo run --release login
+
+      - name: reserve
+        env:
+          start: ${{vars.START}}
+          end: ${{vars.END}}
+          day: ${{vars.DAY}}
+          filter: ${{vars.FILTER}}
+        run: |
+          date
+          end_h=$(echo $end | awk -F : '{print $1}')
+          end_m=$(echo $end | awk -F : '{print $2}')
+
+          if [ $(date "+%a") == Thu ];
+          then
+            if (( $end_h > 20 )) || (( $end_h == 20 )) && (( $end_m > 0 ));
+            then
+              cargo run --release reserve -d $day -f $filter --start $start --end 20:00
+            fi
+          else
+            cargo run --release reserve -d $day -f $filter --start $start --end $end
+          fi
