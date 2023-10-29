@@ -16,14 +16,14 @@ jobs:
       - name: build
         run: cargo build --release
 
-      - name: openconnect
-        env:
-          username: ${{secrets.VPN_USERNAME}}
-          password: ${{secrets.VPN_PASSWORD}}
-          fingerprint: ${{secrets.FINGERPRINT}}
-        run: |
-          sudo apt install openconnect
-          echo $password | sudo openconnect ocvpn.njfu.edu.cn -b --servercert $fingerprint -u $username --passwd-on-stdin
+      # - name: openconnect
+      #   env:
+      #     username: ${{secrets.VPN_USERNAME}}
+      #     password: ${{secrets.VPN_PASSWORD}}
+      #     fingerprint: ${{secrets.FINGERPRINT}}
+      #   run: |
+      #     sudo apt install openconnect
+      #     echo $password | sudo openconnect ocvpn.njfu.edu.cn -b --servercert $fingerprint -u $username --passwd-on-stdin
 
       - name: login
         env:
